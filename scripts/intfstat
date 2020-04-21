@@ -29,10 +29,11 @@ except KeyError:
 from collections import namedtuple, OrderedDict
 from natsort import natsorted
 from tabulate import tabulate
-from utilities_common.netstat import ns_diff, ns_brate, ns_prate, table_as_json, STATUS_NA
+from utilities_common.netstat import ns_diff, ns_brate, ns_prate, table_as_json, STATUS_NA, format_brate, format_prate, format_util
 
-NStats = namedtuple("NStats", "rx_b_ok, rx_p_ok, tx_b_ok, tx_p_ok,\
-                    rx_b_err, rx_p_err, tx_b_err, tx_p_err,")
+nstat_fields = ("rx_b_ok", "rx_p_ok", "tx_b_ok", "tx_p_ok",\
+                    "rx_b_err", "rx_p_err", "tx_b_err", "tx_p_err")
+NStats = namedtuple("NStats", nstat_fields)
 
 header = ['IFACE', 'RX_OK', 'RX_BPS', 'RX_PPS', 'RX_ERR',
               'TX_OK', 'TX_BPS', 'TX_PPS', 'TX_ERR']
@@ -75,7 +76,7 @@ class Intfstat(object):
             """
                 Get the counters from specific table.
             """
-            fields = [STATUS_NA] * (len(header) - 1)
+            fields = [STATUS_NA] * len(nstat_fields)
             for pos, counter_name in enumerate(counter_names):
                 full_table_id = COUNTER_TABLE_PREFIX + table_id
                 counter_data =  self.db.get(self.db.COUNTERS_DB, full_table_id, counter_name)
@@ -111,6 +112,24 @@ class Intfstat(object):
     def get_intf_state(self, port_name):
         """
             Get the port state
+        """
+        full_table_id = PORT_STATUS_TABLE_PREFIX + port_name
+        admin_state = self.db.get(self.db.APPL_DB, full_table_id, PORT_ADMIN_STATUS_FIELD)
+        oper_state = self.db.get(self.db.APPL_DB, full_table_id, PORT_OPER_STATUS_FIELD)
+        if admin_state is None or oper_state is None:
+             return STATUS_NA
+        elif admin_state.upper() == PORT_STATUS_VALUE_DOWN:
+            return PORT_STATE_DISABLED
+        elif admin_state.upper() == PORT_STATUS_VALUE_UP and oper_state.upper() == PORT_STATUS_VALUE_UP:
+            return PORT_STATE_UP
+        elif admin_state.upper() == PORT_STATUS_VALUE_UP and oper_state.upper() == PORT_STATUS_VALUE_DOWN:
+            return PORT_STATE_DOWN
+        else:
+            return STATUS_NA
+
+    def get_intf_speed(self, port_name):
+        """
+            Get the Intf speed
         """
         full_table_id = PORT_STATUS_TABLE_PREFIX + port_name
         admin_state = self.db.get(self.db.APPL_DB, full_table_id, PORT_ADMIN_STATUS_FIELD)
@@ -172,15 +191,21 @@ class Intfstat(object):
                             ns_prate(cntr.tx_p_ok, old_cntr.tx_p_ok, time_gap),
                             ns_diff(cntr.tx_p_err, old_cntr.tx_p_err)))
             else:
-                table.append((key,
-                            cntr.rx_p_ok,
-                            STATUS_NA,
-                            STATUS_NA,
-                            cntr.rx_p_err,
-                            cntr.tx_p_ok,
-                            STATUS_NA,
-                            STATUS_NA,
-                            cntr.tx_p_err))
+                old_cntr = NStats._make([0] * len(nstat_fields))
+
+            rates = ratestat_dict.get(key, RateStats._make([STATUS_NA]*len(ratestat_fields)))
+
+            table.append((key,
+                        ns_diff(cntr.rx_p_ok, old_cntr.rx_p_ok),
+                        format_brate(rates.rx_bps),
+                        format_prate(rates.rx_pps),
+                        format_util(rates.rx_bps, speed),   
+                        ns_diff(cntr.rx_p_err, old_cntr.rx_p_err),
+                        ns_diff(cntr.tx_p_ok, old_cntr.tx_p_ok),
+                        format_brate(rates.tx_bps),
+                        format_prate(rates.tx_pps),
+                        format_util(rates.tx_bps, speed), 
+                        ns_diff(cntr.tx_p_err, old_cntr.tx_p_err)))
         if use_json:
             print(table_as_json(table, header))
         else:
