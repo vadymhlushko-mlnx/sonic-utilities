@@ -17,8 +17,22 @@ import time
 from collections import namedtuple, OrderedDict
 from natsort import natsorted
 from tabulate import tabulate
-from utilities_common.netstat import ns_diff, table_as_json, format_brate, format_prate, format_util
+from utilities_common.netstat import ns_diff, table_as_json, format_brate, format_prate, format_util, rates_key_list, RateStats
 from utilities_common.intf_filter import parse_interface_in_filter
+
+
+try:
+    if os.environ["UTILITIES_UNIT_TESTING"] == "1":
+        modules_path = os.path.join(os.path.dirname(__file__), "..")
+        test_path = os.path.join(modules_path, "tests")
+        sys.path.insert(0, modules_path)
+        sys.path.insert(0, test_path)
+        import mock_tables.dbconnector
+except KeyError:
+    pass
+
+from collections import namedtuple, OrderedDict
+
 
 PORT_RATE = 40
 
@@ -49,6 +63,7 @@ counter_bucket_dict = {
 STATUS_NA = 'N/A'
 
 COUNTER_TABLE_PREFIX = "COUNTERS:"
+RATES_TABLE_PREFIX = "RATES:"
 COUNTERS_PORT_NAME_MAP = "COUNTERS_PORT_NAME_MAP"
 
 PORT_STATUS_TABLE_PREFIX = "PORT_TABLE:"
@@ -87,16 +102,33 @@ class Portstat(object):
             cntr = NStats._make(fields)
             return cntr
 
+        def get_rates(table_id):
+            """
+                Get the rates from specific table.
+            """
+            fields = ["0","0","0","0","0","0"]
+            for pos, name in enumerate(rates_key_list):
+                full_table_id = RATES_TABLE_PREFIX + table_id
+                counter_data =  self.db.get(self.db.COUNTERS_DB, full_table_id, name)
+                if counter_data is None:
+                    fields[pos] = STATUS_NA
+                elif fields[pos] != STATUS_NA:
+                    fields[pos] = float(counter_data)
+            cntr = RateStats._make(fields)
+            return cntr
+
         # Get the info from database
         counter_port_name_map = self.db.get_all(self.db.COUNTERS_DB, COUNTERS_PORT_NAME_MAP);
         # Build a dictionary of the stats
         cnstat_dict = OrderedDict()
+        ratestat_dict = OrderedDict()
         cnstat_dict['time'] = datetime.datetime.now()
         if counter_port_name_map is None:
             return cnstat_dict
         for port in natsorted(counter_port_name_map):
             cnstat_dict[port] = get_counters(counter_port_name_map[port])
-        return cnstat_dict
+            ratestat_dict[port] = get_rates(counter_port_name_map[port])
+        return cnstat_dict, ratestat_dict
 
     def get_port_speed(self, port_name):
         """
@@ -129,7 +161,7 @@ class Portstat(object):
         else:
             return STATUS_NA
 
-    def cnstat_print(self, cnstat_dict, intf_list, use_json, print_all, errors_only, rates_only):
+    def cnstat_print(self, cnstat_dict, ratestat_dict, intf_list, use_json, print_all, errors_only, rates_only):
         """
             Print the cnstat.
         """
@@ -141,6 +173,8 @@ class Portstat(object):
                 continue
             if intf_list and key not in intf_list:
                 continue
+            port_speed = self.get_port_speed(key)
+            rates = ratestat_dict.get(key, RateStats._make([STATUS_NA] * len(rates_key_list)))
             if print_all:
                 header = header_all
                 table.append((key, self.get_port_state(key),
@@ -156,8 +190,14 @@ class Portstat(object):
             elif rates_only:
                 header = header_rates_only
                 table.append((key, self.get_port_state(key),
-                              data.rx_ok, STATUS_NA, STATUS_NA, STATUS_NA,
-                              data.tx_ok, STATUS_NA, STATUS_NA, STATUS_NA))
+                              data.rx_ok, 
+                              format_brate(rates.rx_bps),
+                              format_prate(rates.rx_pps),
+                              format_util(rates.rx_bps, port_speed),
+                              data.tx_ok, 
+                              format_brate(rates.tx_bps),
+                              format_prate(rates.tx_pps),
+                              format_util(rates.tx_bps, port_speed)))
             else:
                 header = header_std
                 table.append((key, self.get_port_state(key),
@@ -171,7 +211,7 @@ class Portstat(object):
         else:
             print(tabulate(table, header, tablefmt='simple', stralign='right'))
 
-    def cnstat_diff_print(self, cnstat_new_dict, cnstat_old_dict, intf_list, use_json, print_all, errors_only, rates_only):
+    def cnstat_diff_print(self, cnstat_new_dict, cnstat_old_dict, ratestat_dict, intf_list, use_json, print_all, errors_only, rates_only):
         """
             Print the difference between two cnstat results.
         """
@@ -325,7 +365,7 @@ Examples:
 
     portstat = Portstat()
     # The cnstat_dict just give an ordered dict of all output. 
-    cnstat_dict = portstat.get_cnstat()
+    cnstat_dict, ratestat_dict = portstat.get_cnstat()
 
     # Now decide what information to display
     if raw_stats:
@@ -355,8 +395,8 @@ Examples:
         if os.path.isfile(cnstat_fqn_file):
             try:
                 cnstat_cached_dict = pickle.load(open(cnstat_fqn_file, 'r'))
-                print("Last cached time was " + str(cnstat_cached_dict.get('time')))
-                portstat.cnstat_diff_print(cnstat_dict, cnstat_cached_dict, intf_list, use_json, print_all, errors_only, rates_only)
+                print "Last cached time was " + str(cnstat_cached_dict.get('time'))
+                portstat.cnstat_diff_print(cnstat_dict, cnstat_cached_dict, ratestat_dict, intf_list, use_json, print_all, errors_only, rates_only)
             except IOError as e:
                 print(e.errno, e)
         else:
@@ -364,13 +404,13 @@ Examples:
                 print("\nFile '%s' does not exist" % cnstat_fqn_file)
                 print("Did you run 'portstat -c -t %s' to record the counters via tag %s?\n" % (tag_name, tag_name))
             else:
-                portstat.cnstat_print(cnstat_dict, intf_list, use_json, print_all, errors_only, rates_only)
+                portstat.cnstat_print(cnstat_dict, ratestat_dict, intf_list, use_json, print_all, errors_only, rates_only)
     else:
         #wait for the specified time and then gather the new stats and output the difference.
         time.sleep(wait_time_in_seconds)
-        print("The rates are calculated within %s seconds period" % wait_time_in_seconds)
-        cnstat_new_dict = portstat.get_cnstat()
-        portstat.cnstat_diff_print(cnstat_new_dict, cnstat_dict, intf_list, use_json, print_all, errors_only, rates_only)
+        print "The rates are calculated within %s seconds period" % wait_time_in_seconds
+        cnstat_new_dict, ratestat_dict = portstat.get_cnstat()
+        portstat.cnstat_diff_print(cnstat_new_dict, cnstat_dict, ratestat_dict, intf_list, use_json, print_all, errors_only, rates_only)
 
 if __name__ == "__main__":
     main()

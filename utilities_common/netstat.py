@@ -90,7 +90,7 @@ def format_util(brate, port_rate=PORT_RATE):
     """
     Calculate the util.
     """
-    if newstr == STATUS_NA or oldstr == STATUS_NA:
+    if brate == STATUS_NA:
         return STATUS_NA
     else:
         util = brate/(float(port_rate)*1024*1024*1024/8.0)*100
