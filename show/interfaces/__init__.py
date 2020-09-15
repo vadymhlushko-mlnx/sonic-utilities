@@ -4,15 +4,17 @@ import click
 from natsort import natsorted
 from tabulate import tabulate
 
+from sonic_py_common import multi_asic
 import utilities_common.cli as clicommon
+import utilities_common.multi_asic as multi_asic_util
 import portchannel
 
-def try_convert_interfacename_from_alias(ctx, db, interfacename):
+def try_convert_interfacename_from_alias(ctx, interfacename):
     """try to convert interface name from alias"""
 
     if clicommon.get_interface_naming_mode() == "alias":
         alias = interfacename
-        interfacename = clicommon.InterfaceAliasConverter(db).alias_to_name(alias)
+        interfacename = clicommon.InterfaceAliasConverter().alias_to_name(alias)
         # TODO: ideally alias_to_name should return None when it cannot find
         # the port name for the alias
         if interfacename == alias:
@@ -31,19 +33,19 @@ def interfaces():
 # 'alias' subcommand ("show interfaces alias")
 @interfaces.command()
 @click.argument('interfacename', required=False)
-@clicommon.pass_db
-def alias(db, interfacename):
+@multi_asic_util.multi_asic_click_options
+def alias(interfacename, namespace, display):
     """Show Interface Name/Alias Mapping"""
 
     ctx = click.get_current_context()
 
-    port_dict = db.cfgdb.get_table("PORT")
+    port_dict = multi_asic.get_port_table(namespace=namespace)
 
     header = ['Name', 'Alias']
     body = []
 
     if interfacename is not None:
-        interfacename = try_convert_interfacename_from_alias(ctx, db, interfacename)
+        interfacename = try_convert_interfacename_from_alias(ctx, interfacename)
 
         # If we're given an interface name, output name and alias for that interface only
         if interfacename in port_dict.keys():
@@ -56,6 +58,10 @@ def alias(db, interfacename):
     else:
         # Output name and alias for all interfaces
         for port_name in natsorted(port_dict.keys()):
+            if ((display == multi_asic_util.constants.DISPLAY_EXTERNAL) and
+                ('role' in port_dict[port_name]) and
+                    (port_dict[port_name]['role'] is multi_asic.INTERNAL_PORT)):
+                continue
             if 'alias' in port_dict[port_name]:
                 body.append([port_name, port_dict[port_name]['alias']])
             else:
@@ -65,19 +71,25 @@ def alias(db, interfacename):
 
 @interfaces.command()
 @click.argument('interfacename', required=False)
+@multi_asic_util.multi_asic_click_options
 @click.option('--verbose', is_flag=True, help="Enable verbose output")
-@clicommon.pass_db
-def description(db, interfacename, verbose):
+def description(interfacename, namespace, display, verbose):
     """Show interface status, protocol and description"""
 
     ctx = click.get_current_context()
 
-    cmd = "intfutil description"
+    cmd = "intfutil -c description"
 
+    #ignore the display option when interface name is passed
     if interfacename is not None:
-        interfacename = try_convert_interfacename_from_alias(ctx, db, interfacename)
+        interfacename = try_convert_interfacename_from_alias(ctx, interfacename)
 
-        cmd += " {}".format(interfacename)
+        cmd += " -i {}".format(interfacename)
+    else:
+        cmd += " -d {}".format(display)
+
+    if namespace is not None:
+        cmd += " -n {}".format(namespace)
 
     clicommon.run_command(cmd, display_cmd=verbose)
 
@@ -91,19 +103,24 @@ def naming_mode(verbose):
 
 @interfaces.command()
 @click.argument('interfacename', required=False)
+@multi_asic_util.multi_asic_click_options
 @click.option('--verbose', is_flag=True, help="Enable verbose output")
-@clicommon.pass_db
-def status(db, interfacename, verbose):
+def status(interfacename, namespace, display, verbose):
     """Show Interface status information"""
 
     ctx = click.get_current_context()
 
-    cmd = "intfutil status"
+    cmd = "intfutil -c status"
 
     if interfacename is not None:
-        interfacename = try_convert_interfacename_from_alias(ctx, db, interfacename)
+        interfacename = try_convert_interfacename_from_alias(ctx, interfacename)
 
-        cmd += " {}".format(interfacename)
+        cmd += " -i {}".format(interfacename)
+    else:
+        cmd += " -d {}".format(display)
+
+    if namespace is not None:
+        cmd += " -n {}".format(namespace)
 
     clicommon.run_command(cmd, display_cmd=verbose)
 
@@ -225,7 +242,7 @@ def expected(db, interfacename):
     for port in natsorted(neighbor_dict.keys()):
         temp_port = port
         if clicommon.get_interface_naming_mode() == "alias":
-            port = clicommon.InterfaceAliasConverter(db).name_to_alias(port)
+            port = clicommon.InterfaceAliasConverter().name_to_alias(port)
             neighbor_dict[port] = neighbor_dict.pop(temp_port)
         device2interface_dict[neighbor_dict[port]['name']] = {'localPort': port, 'neighborPort': neighbor_dict[port]['port']}
 
@@ -267,9 +284,10 @@ def transceiver():
 @transceiver.command()
 @click.argument('interfacename', required=False)
 @click.option('-d', '--dom', 'dump_dom', is_flag=True, help="Also display Digital Optical Monitoring (DOM) data")
+@click.option('--namespace', '-n', 'namespace', default=None, show_default=True,
+              type=click.Choice(multi_asic_util.multi_asic_ns_choices()), help='Namespace name or all')
 @click.option('--verbose', is_flag=True, help="Enable verbose output")
-@clicommon.pass_db
-def eeprom(db, interfacename, dump_dom, verbose):
+def eeprom(interfacename, dump_dom, namespace, verbose):
     """Show interface transceiver EEPROM information"""
 
     ctx = click.get_current_context()
@@ -280,17 +298,19 @@ def eeprom(db, interfacename, dump_dom, verbose):
         cmd += " --dom"
 
     if interfacename is not None:
-        interfacename = try_convert_interfacename_from_alias(ctx, db, interfacename)
+        interfacename = try_convert_interfacename_from_alias(ctx, interfacename)
 
         cmd += " -p {}".format(interfacename)
+
+    if namespace is not None:
+        cmd += " -n {}".format(namespace)
 
     clicommon.run_command(cmd, display_cmd=verbose)
 
 @transceiver.command()
 @click.argument('interfacename', required=False)
 @click.option('--verbose', is_flag=True, help="Enable verbose output")
-@clicommon.pass_db
-def lpmode(db, interfacename, verbose):
+def lpmode(interfacename, verbose):
     """Show interface transceiver low-power mode status"""
 
     ctx = click.get_current_context()
@@ -298,7 +318,7 @@ def lpmode(db, interfacename, verbose):
     cmd = "sudo sfputil show lpmode"
 
     if interfacename is not None:
-        interfacename = try_convert_interfacename_from_alias(ctx, db, interfacename)
+        interfacename = try_convert_interfacename_from_alias(ctx, interfacename)
 
         cmd += " -p {}".format(interfacename)
 
@@ -306,9 +326,11 @@ def lpmode(db, interfacename, verbose):
 
 @transceiver.command()
 @click.argument('interfacename', required=False)
+@click.option('--namespace', '-n', 'namespace', default=None, show_default=True,
+              type=click.Choice(multi_asic_util.multi_asic_ns_choices()), help='Namespace name or all')
 @click.option('--verbose', is_flag=True, help="Enable verbose output")
 @clicommon.pass_db
-def presence(db, interfacename, verbose):
+def presence(db, interfacename, namespace, verbose):
     """Show interface transceiver presence"""
 
     ctx = click.get_current_context()
@@ -316,9 +338,12 @@ def presence(db, interfacename, verbose):
     cmd = "sfpshow presence"
 
     if interfacename is not None:
-        interfacename = try_convert_interfacename_from_alias(ctx, db, interfacename)
+        interfacename = try_convert_interfacename_from_alias(ctx, interfacename)
 
         cmd += " -p {}".format(interfacename)
+
+    if namespace is not None:
+        cmd += " -n {}".format(namespace)
 
     clicommon.run_command(cmd, display_cmd=verbose)
 
@@ -330,9 +355,10 @@ def presence(db, interfacename, verbose):
 @click.option('-a', '--printall', is_flag=True)
 @click.option('-p', '--period')
 @click.option('-i', '--interface')
+@multi_asic_util.multi_asic_click_options
 @click.option('--verbose', is_flag=True, help="Enable verbose output")
 @click.pass_context
-def counters(ctx, verbose, period, interface, printall):
+def counters(ctx, verbose, period, interface, printall, namespace, display):
     """Show interface counters"""
 
     if ctx.invoked_subcommand is None:
@@ -344,29 +370,43 @@ def counters(ctx, verbose, period, interface, printall):
             cmd += " -p {}".format(period)
         if interface is not None:
             cmd += " -i {}".format(interface)
+        else:
+            cmd += " -s {}".format(display)
+        if namespace is not None:
+            cmd += " -n {}".format(namespace)
 
         clicommon.run_command(cmd, display_cmd=verbose)
 
 # 'errors' subcommand ("show interfaces counters errors")
 @counters.command()
 @click.option('-p', '--period')
+@multi_asic_util.multi_asic_click_options
 @click.option('--verbose', is_flag=True, help="Enable verbose output")
-def errors(verbose, period):
+def errors(verbose, period, namespace, display):
     """Show interface counters errors"""
     cmd = "portstat -e"
     if period is not None:
         cmd += " -p {}".format(period)
+    
+    cmd += " -s {}".format(display)
+    if namespace is not None:
+        cmd += " -n {}".format(namespace)
+
     clicommon.run_command(cmd, display_cmd=verbose)
 
 # 'rates' subcommand ("show interfaces counters rates")
 @counters.command()
 @click.option('-p', '--period')
+@multi_asic_util.multi_asic_click_options
 @click.option('--verbose', is_flag=True, help="Enable verbose output")
-def rates(verbose, period):
+def rates(verbose, period, namespace, display):
     """Show interface counters rates"""
     cmd = "portstat -R"
     if period is not None:
         cmd += " -p {}".format(period)
+    cmd += " -s {}".format(display)
+    if namespace is not None:
+        cmd += " -n {}".format(namespace)
     clicommon.run_command(cmd, display_cmd=verbose)
 
 # 'counters' subcommand ("show interfaces counters rif")
