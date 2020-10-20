@@ -22,9 +22,8 @@ from sonic_py_common import multi_asic
 from utilities_common import constants
 from utilities_common.intf_filter import parse_interface_in_filter
 import  utilities_common.multi_asic as multi_asic_util
-from utilities_common.netstat import (ns_brate, ns_diff, ns_prate, ns_util, table_as_json,
-                                      table_as_json, format_brate, format_prate,
-                                      format_util, rates_key_list, RateStats)
+from utilities_common.netstat import (ns_diff, table_as_json,table_as_json, format_brate,
+                                      format_prate, format_util, rates_key_list, RateStats)
 
 # mock the redis for unit test purposes #
 try:
@@ -422,7 +421,7 @@ Examples:
 
     # Now decide what information to display
     if raw_stats:
-        portstat.cnstat_print(cnstat_dict, intf_list, use_json, print_all, errors_only, rates_only)
+        portstat.cnstat_print(cnstat_dict, ratestat_dict, intf_list, use_json, print_all, errors_only, rates_only)
         sys.exit(0)
 
     # At this point, either we'll create a file or open an existing one.
