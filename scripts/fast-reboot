@@ -173,8 +173,8 @@ function request_pre_shutdown()
 function recover_issu_bank_file()
 {
     debug "Recovering the (${ISSU_BANK_FILE}) file"
-    docker exec -it syncd sx_api_dbg_generate_dump.py
-    issu_bank_value=`docker exec -it syncd cat /tmp/sdkdump | grep 'ISSU Bank' | grep -o -E '[0-9]+'`
+    docker exec -i syncd sx_api_dbg_generate_dump.py
+    issu_bank_value=`docker exec -i syncd cat /tmp/sdkdump | grep 'ISSU Bank' | grep -o -E '[0-9]+'`
     printf $issu_bank_value > /host/warmboot/issu_bank.txt
 }
 
@@ -577,10 +577,8 @@ if [[ "$REBOOT_TYPE" = "warm-reboot" || "$REBOOT_TYPE" = "fastfast-reboot" ]]; t
     # Pre-shutdown syncd
     initialize_pre_shutdown
 
-    BEFORE_PRE_SHUTDOWN=true
-
     if [[ "x$sonic_asic_type" == x"mellanox" ]]; then
-        check_issu_bank_file "$BEFORE_PRE_SHUTDOWN"
+        check_issu_bank_file
     fi
 
     request_pre_shutdown
