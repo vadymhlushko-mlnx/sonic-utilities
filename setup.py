@@ -48,6 +48,7 @@ setup(
         'undebug',
         'utilities_common',
         'watchdogutil',
+	'sonic_cli_gen',
     ],
     package_data={
         'show': ['aliases.ini'],
@@ -147,6 +148,7 @@ setup(
             'sonic_installer = sonic_installer.main:sonic_installer',  # Deprecated
             'undebug = undebug.main:cli',
             'watchdogutil = watchdogutil.main:watchdogutil',
+	    'sonic-cli-gen = sonic_cli_gen.main:cli',
         ]
     },
     install_requires=[
