@@ -3,34 +3,39 @@
 try:
     import os
     import sys
-    import glob
-    import yang as ly
+    from config.config_mgmt import ConfigMgmt
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
 
-
-YANG_DIR = "/usr/local/yang-models/"
 
 class YangParser:
     """ YANG model parser """
     def __init__(self,
                  yang_model):
         self.yang_model = yang_model
-        self.ly_ctx = None
+        self.conf_mgmt = None
 
         try:
-            self.ly_ctx = ly.Context(YANG_DIR)
+            self.conf_mgmt = ConfigMgmt()
         except Exception as e:
-            self.fail(e)
+            raise Exception("Failed to load the {} class".format(str(e)))
                 
     def fail(self, e):
         print(e)
         raise e
 
     def yang_to_dict(self):
-        print ("YANG TO DICT")
-        data = {
-            'yang_dir': YANG_DIR.
-            'yang_files': glob
-        }
-        pass
+        yang_model_type = self._determine_yang_model_type()
+
+        if (yang_model_type == 'static'):
+            print('static')
+            pass
+        else:
+            pass
+
+    def _determine_yang_model_type(self):
+        cond = True
+        if cond:
+            return 'static'
+        else:
+            return 'dynamic'
