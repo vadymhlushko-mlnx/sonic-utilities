@@ -4,13 +4,10 @@ try:
     import os
     import sys
     import pprint
+    from collections import OrderedDict
     from config.config_mgmt import ConfigMgmt
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
-
-# Config DB schema view
-STATIC_TABLE = 'static'
-LIST_TABLE = 'list'
 
 class YangParser:
     """ YANG model parser """
@@ -18,11 +15,16 @@ class YangParser:
                  yang_model_name):
         self.yang_model_name = yang_model_name
         self.conf_mgmt = None
-        #index of yang model inside conf_mgmt.sy.yJson object
+        # index of yang model inside conf_mgmt.sy.yJson object
         self.idx_yJson = None
-        self.y_module = None
-        self.y_top_level_container = None
-        self.y_tables = None
+        # 'module' entity from .yang file
+        self.y_module = OrderedDict()
+        # top level 'container' entity from .yang file
+        self.y_top_level_container = OrderedDict()
+        # 'container' entities from .yang file
+        self.y_tables = list()
+        # dictionary that represent Config DB schema
+        self.yang_2_dict = OrderedDict()
 
         try:
             self.conf_mgmt = ConfigMgmt()
@@ -36,9 +38,14 @@ class YangParser:
     def parse_yang_model(self):
         self._init_yang_module_and_containers()
 
+        self._determine_tables_type()
+
     def _determine_tables_type(self):
-        #for table in y_top_level_container['container']:
-        pass
+        for table in self.y_tables:
+            if table.get('list') is None:
+                self.yang_2_dict[table.get('@name')] = {'type': 'static'}
+            else:
+                self.yang_2_dict[table.get('@name')] = {'type': 'list'}
 
     def _init_yang_module_and_containers(self):
         self._find_index_of_yang_model()
@@ -47,7 +54,6 @@ class YangParser:
         if self.y_module.get('container') is not None:
             self.y_top_level_container = self.y_module['container']
             self.y_tables = self.y_top_level_container['container']
-            import pdb; pdb.set_trace()
         else:
             raise KeyError('YANG model {} does NOT have "container" element'.format(self.yang_model_name))
 
