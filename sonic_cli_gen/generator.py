@@ -17,7 +17,7 @@ class CliGenerator:
 
     def generate_config_plugin(self):
         parser = YangParser(self.yang_model_name)
-        parser.yang_to_dict()
+        parser.parse_yang_model()
         pass
 
     #TODO
