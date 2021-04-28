@@ -307,7 +307,7 @@ E.g:
 @click.argument("{{ make_cli_name(key.name) }}")
 {%- endfor %}
 @clicommon.pass_db
-def {{ table.name }}_add(db,
+def {{ table.name }}_delete(db,
                         {{ object["keys"]|map(attribute="name")|join(",") }}):
     """ Delete object in {{ table.name }}. """
 
