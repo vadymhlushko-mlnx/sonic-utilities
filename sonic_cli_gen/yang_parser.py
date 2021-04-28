@@ -18,34 +18,76 @@ class YangParser:
         # index of yang model inside conf_mgmt.sy.yJson object
         self.idx_yJson = None
         # 'module' entity from .yang file
-        self.y_module = OrderedDict()
+        self.y_module = None
         # top level 'container' entity from .yang file
-        self.y_top_level_container = OrderedDict()
-        # 'container' entities from .yang file
-        self.y_tables = list()
+        self.y_top_level_container = None
+        # 'container' entities from .yang file that represent Config DB table
+        self.y_table_containers = None
         # dictionary that represent Config DB schema
-        self.yang_2_dict = OrderedDict()
+        self.yang_2_dict = dict()
 
         try:
             self.conf_mgmt = ConfigMgmt()
         except Exception as e:
             raise Exception("Failed to load the {} class".format(str(e)))
 
-    def fail(self, e):
-        print(e)
-        raise e
-
     def parse_yang_model(self):
         self._init_yang_module_and_containers()
 
-        self._determine_tables_type()
+        # determine how many (1 or couple) containers yang model have after 'top level container'
+        if isinstance(self.y_table_containers, list):
+            print('LIST')
+            for tbl_cont in self.y_table_containers:
+                self._fill_yang_2_dict(tbl_cont)
+        else:
+            print('NOT LIST')
+            self._fill_yang_2_dict(self.y_table_containers)
 
-    def _determine_tables_type(self):
-        for table in self.y_tables:
-            if table.get('list') is None:
-                self.yang_2_dict[table.get('@name')] = {'type': 'static'}
+
+    def _fill_yang_2_dict(self, tbl_cont):
+        self.yang_2_dict['tables'] = list()
+        # element for self.yang_2_dict list
+        y2d_elem = dict()
+        
+        y2d_elem['name'] = tbl_cont.get('@name')
+        y2d_elem['description'] = ''
+        if tbl_cont.get('description') is not None:
+            y2d_elem['description'] = tbl_cont.get('description').get('text')
+        y2d_elem['dynamic-objects'] = list()
+        y2d_elem['static-objects'] = list()
+
+        # determine if 'container' is a 'list' or 'static'
+        # 'static' means that yang model 'container' entity does NOT have a 'list' entity
+        if tbl_cont.get('list') is None:
+            # TODO write comment about objects containers inside table containers
+            obj_cont = tbl_cont.get('container')
+            if isinstance(obj_cont, list):
+                # flex counter
+                print ("FLEX")
+                for cont in obj_cont:
+                    self._on_static_container(cont, y2d_elem)
             else:
-                self.yang_2_dict[table.get('@name')] = {'type': 'list'}
+                print ("METADATA")
+                # device metadata
+                self._on_static_container(obj_cont, y2d_elem)
+        else:
+            self._on_list_container(tbl_cont, y2d_elem)
+
+        import pdb; pdb.set_trace()
+
+    def _on_static_container(self, cont, y2d_elem):
+        # element for y2d_elem['static-objects']
+        static_obj_elem = dict()
+        static_obj_elem['name'] = cont.get('@name')
+        static_obj_elem['description'] = ''
+        if cont.get('description') is not None:
+            static_obj_elem['description'] = cont.get('description').get('text')
+
+        y2d_elem['static-objects'].append(static_obj_elem)
+
+    def _on_list_container(self, cont, y2d_elem):
+        #self.yang_2_dict['tables'].append(y2d_elem)
+        pass
 
     def _init_yang_module_and_containers(self):
         self._find_index_of_yang_model()
@@ -53,7 +95,7 @@ class YangParser:
         self.y_module = self.conf_mgmt.sy.yJson[self.idx_yJson]['module']
         if self.y_module.get('container') is not None:
             self.y_top_level_container = self.y_module['container']
-            self.y_tables = self.y_top_level_container['container']
+            self.y_table_containers = self.y_top_level_container['container']
         else:
             raise KeyError('YANG model {} does NOT have "container" element'.format(self.yang_model_name))
 
