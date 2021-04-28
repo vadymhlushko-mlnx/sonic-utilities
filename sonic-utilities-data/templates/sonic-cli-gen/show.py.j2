@@ -1,0 +1,93 @@
+import click
+import tabulate
+from utilities_common.db import Db
+import utilities_common.cli as clicommon
+
+{% from "common.j2" import make_cli_name %}
+
+{% for table in tables %}
+{% if "static-objects" in table %}
+@click.group(name="{{ make_cli_name(table.name) }}", cls=clicommon.AliasedGroup)
+def {{ table.name }}():
+    """ {{ table.description|default('') }} """
+
+    pass
+
+{% for object in table["static-objects"] %}
+@{{ table.name }}.command(name="{{ make_cli_name(object.name) }}")
+@clicommon.pass_db
+def {{ table.name }}_{{ object.name }}(db):
+    """ {{ object.description|default('') }} """
+
+    header = [
+{%- for attr in object.attrs %}
+        "{{ attr.name|upper() }}",
+{%- endfor %}
+{%- for list in object.lists %}
+        "{{ list.name|upper() }}",
+{%- endfor %}
+    ]
+    body = []
+
+    table = db.cfgdb.get_table("{{ table.name }}")
+    entry = table.get("{{ object.name }}")
+    body.append(
+        [
+{%- for attr in object.attrs -%}
+            entry.get("{{ attr.name }}", "N/A"),
+{%- endfor %}
+{%- for list in object.lists -%}
+            "\n".join(entry.get("{{ list.name }}", [])),
+{%- endfor %}
+        ]
+    )
+    click.echo(tabulate.tabulate(body, header))
+
+{% endfor %}
+{% elif "dynamic-objects" in table %}
+{% for object in table["dynamic-objects"] %}
+@click.group(name="{{ make_cli_name(table.name) }}",
+             cls=clicommon.AliasedGroup,
+             invoke_without_command=True)
+@clicommon.pass_db
+def {{ table.name }}(db):
+    """ {{ object.description|default('') }} """
+
+    header = [
+{%- for key in object["keys"] %}
+        "{{ key.name|upper() }}",
+{%- endfor %}
+{%- for attr in object.attrs %}
+        "{{ attr.name|upper() }}",
+{%- endfor %}
+{%- for list in object.lists %}
+        "{{ list.name|upper() }}",
+{%- endfor %}
+    ]
+    body = []
+
+    table = db.cfgdb.get_table("{{ table.name }}")
+    for key, entry in table.items():
+        if not isinstance(key, tuple ):
+            key = (key,)
+        body.append(
+            [
+                *key,
+{%- for attr in object.attrs -%}
+                entry.get("{{ attr.name }}", "N/A"),
+{%- endfor %}
+{%- for list in object.lists -%}
+            "\n".join(entry.get("{{ list.name }}", [])),
+{%- endfor %}
+            ]
+        )
+
+    click.echo(tabulate.tabulate(body, header))
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+def register(cli):
+{%- for table in tables %}
+    cli.add_command({{ table.name }})
+{%- endfor %}
