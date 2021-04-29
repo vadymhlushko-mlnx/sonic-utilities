@@ -1,11 +1,3 @@
-{% macro make_cli_name(name) -%}
+{% macro cli_name(name) -%}
 {{ name|lower|replace("_", "-") }}
 {%- endmacro %}
-
-{% macro key_converter(keys) %}
-{%- if keys|length > 1 %}
-        ({{ keys|map(attribute="name")|join(",") }})
-{%- else %}
-        {{ keys|map(attribute="name")|first }}
-{%- endif %}
-{% endmacro %}
