@@ -41,6 +41,7 @@ def add_entry_validated(db, table, key, data):
     cfg.setdefault(table, {})
     if key in cfg[table]:
         raise Exception(f"{key} already exists")
+
     cfg[table][key] = data
 
     validate_config_or_raise(cfg)
@@ -54,6 +55,7 @@ def update_entry_validated(db, table, key, data):
     cfg.setdefault(table, {})
     if key not in cfg[table]:
         raise Exception(f"{key} does not exist")
+
     cfg[table][key].update(data)
 
     validate_config_or_raise(cfg)
@@ -67,6 +69,7 @@ def del_entry_validated(db, table, key):
     cfg.setdefault(table, {})
     if key not in cfg[table]:
         raise Exception(f"{key} does not exist")
+
     cfg[table].pop(key)
 
     validate_config_or_raise(cfg)
@@ -107,6 +110,13 @@ def del_list_entry_validated(db, table, key, attr, data):
 
     validate_config_or_raise(cfg)
     db.set_entry(table, key, cfg[table][key])
+
+
+def clear_list_entry_validated(db, table, key, attr):
+    """ Clear list in object and validate configuration"""
+
+    update_entry_validated(db, table, key, {attr: []})
+
 
 {%- macro gen_click_arguments(args) -%}
 {%- for arg in args %}
@@ -194,6 +204,34 @@ def {{ list_update_group }}_delete(
         del_list_entry_validated(db.cfgdb, table, key, attr, data)
     except Exception as err:
         exit_cli(f"Error: {err}", fg="red")
+
+
+{# Clear entries from list attribute config CLI generation
+E.g:
+    @TABLE_object.command(name="delete")
+    @click.argument("key1", nargs=1)
+    @click.argument("key2", nargs=1)
+    def TABLE_object_attribute_clear(db, key1, key2):
+#}
+@{{ list_update_group }}.command(name="clear")
+{{ gen_click_arguments(object["keys"]) }}
+@clicommon.pass_db
+def {{ list_update_group }}_delete(
+    db, 
+    {{ pythonize(object["keys"]) }}
+):
+    """ Clear {{ attr.name }} in {{ table.name }} """
+
+    table = "{{ table.name }}"
+    key = {{ pythonize(object["keys"]) }}
+    attr = "{{ attr.name }}"
+    data = {{ pythonize([attr]) }}
+
+    try:
+        clear_list_entry_validated(db.cfgdb, table, key, attr)
+    except Exception as err:
+        exit_cli(f"Error: {err}", fg="red")
+
 {% endmacro %}
 
 
@@ -389,5 +427,8 @@ def {{ table.name }}():
 
 def register(cli):
 {%- for table in tables %}
+    cli_node = {{ table.name }}
+    if cli_node.name in cli.commands:
+        raise Exception(f"{cli_node.name} already exists in CLI")
     cli.add_command({{ table.name }})
 {%- endfor %}
