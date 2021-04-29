@@ -87,7 +87,7 @@ def add_list_entry_validated(db, table, key, attr, data):
         cfg[table][key][attr].append(entry)
 
     validate_config_or_raise(cfg)
-    db.set_entry(table, key, {attr: cfg[table][key][attr]})
+    db.set_entry(table, key, cfg[table][key])
 
 
 def del_list_entry_validated(db, table, key, attr, data):
@@ -106,13 +106,14 @@ def del_list_entry_validated(db, table, key, attr, data):
         cfg[table][key].pop(attr)
 
     validate_config_or_raise(cfg)
-    db.set_entry(table, key, {attr: cfg[table][key][attr]})
+    db.set_entry(table, key, cfg[table][key])
 
 {%- macro gen_click_arguments(args) -%}
 {%- for arg in args %}
 @click.argument(
     "{{ cli_name(arg.name) }}",
     nargs={% if arg.is_list %}-1{% else %}1{% endif %},
+    required=True,
 )
 {%- endfor %}
 {%- endmacro %}
@@ -132,7 +133,8 @@ def del_list_entry_validated(db, table, key, attr, data):
 {% macro config_object_list_update(group, table, object, attr) %}
 {% set list_update_group = group + "_" + attr.name %}
 
-@{{ group }}.group(name="{{ cli_name(attr.name) }}")
+@{{ group }}.group(name="{{ cli_name(attr.name) }}",
+                   cls=clicommon.AliasedGroup)
 def {{ list_update_group }}():
     """ Add/Delete {{ attr.name }} in {{ table.name }} """
 
@@ -229,7 +231,8 @@ E.g:
     def TABLE_object(db):
 #}
 {% macro config_static_object(table, object) %}
-@{{ table.name }}.group(name="{{ cli_name(object.name) }}")
+@{{ table.name }}.group(name="{{ cli_name(object.name) }}",
+                        cls=clicommon.AliasedGroup)
 @clicommon.pass_db
 def {{ table.name }}_{{ object.name }}(db):
     """ {{ object.description }} """
@@ -339,7 +342,7 @@ def {{ group }}_delete(db, {{ pythonize(object["keys"]) }}):
     table = "{{ table.name }}"
     key = {{ pythonize(object["keys"]) }}
     try:
-        del_entry_validated(db.cfg, table, key)
+        del_entry_validated(db.cfgdb, table, key)
     except Exception as err:
         exit_cli(f"Error: {err}", fg="red")
 {% endmacro %}
@@ -388,5 +391,3 @@ def register(cli):
 {%- for table in tables %}
     cli.add_command({{ table.name }})
 {%- endfor %}
-
-{{ tables|map(attribute="name")|first }}()

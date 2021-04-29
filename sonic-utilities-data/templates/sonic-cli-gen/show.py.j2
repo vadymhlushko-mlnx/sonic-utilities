@@ -105,5 +105,3 @@ def register(cli):
 {%- for table in tables %}
     cli.add_command({{ table.name }})
 {%- endfor %}
-
-{{ tables|map(attribute="name")|first }}()
