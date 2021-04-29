@@ -48,6 +48,8 @@ setup(
         'show.plugins',
         'sonic_installer',
         'sonic_installer.bootloader',
+        'sonic_package_manager',
+        'sonic_package_manager.service_creator',
         'tests',
         'undebug',
         'utilities_common',
@@ -152,6 +154,8 @@ setup(
             'sonic-clear = clear.main:cli',
             'sonic-installer = sonic_installer.main:sonic_installer',
             'sonic_installer = sonic_installer.main:sonic_installer',  # Deprecated
+            'sonic-package-manager = sonic_package_manager.main:cli',
+            'spm = sonic_package_manager.main:cli',
             'undebug = undebug.main:cli',
             'watchdogutil = watchdogutil.main:watchdogutil',
 	    'sonic-cli-gen = sonic_cli_gen.main:cli',
@@ -159,7 +163,13 @@ setup(
     },
     install_requires=[
         'click==7.0',
+        'click-log==0.3.2',
+        'docker==4.4.4',
+        'docker-image-py==0.1.10',
+        'filelock==3.0.12',
+        'enlighten==1.8.0',
         'ipaddress==1.0.23',
+        'jinja2==2.11.3',
         'jsondiff==1.2.0',
         'jsonpatch==1.32.0',
         'm2crypto==0.31.0',
@@ -167,6 +177,8 @@ setup(
         'netaddr==0.8.0',
         'netifaces==0.10.7',
         'pexpect==4.8.0',
+        'poetry-semver==0.1.0',
+        'prettyprinter==0.18.0',
         'pyroute2==0.5.14',
         'requests==2.25.0',
         'sonic-config-engine',
@@ -175,6 +187,7 @@ setup(
         'sonic-yang-mgmt',
         'swsssdk>=2.0.1',
         'tabulate==0.8.2',
+        'www-authenticate==0.9.2',
         'xmltodict==0.12.0',
     ],
     setup_requires= [
@@ -182,6 +195,7 @@ setup(
         'wheel'
     ],
     tests_require = [
+        'pyfakefs',
         'pytest',
         'mockredispy>=2.9.3',
         'deepdiff==5.2.3'
