@@ -19,7 +19,7 @@ def cli(ctx):
 @click.pass_context
 def generate_config(ctx):
     """ List available packages """
-    gen = CliGenerator('sonic-vlan')
+    gen = CliGenerator('sonic-device_metadata')
     gen.generate_config_plugin()
     pass
 
