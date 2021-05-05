@@ -8,7 +8,9 @@ except ImportError as e:
 class CliGenerator:
     """ SONiC CLI generator. This class provides public API
     for sonic-cli-gen python library. It can generate config,
-    show, sonic-clear commands """
+    show, sonic-clear commands
+    """
+
     def __init__(self,
                  yang_model):
         """ Initialize PackageManager. """
