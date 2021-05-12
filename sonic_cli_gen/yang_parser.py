@@ -137,7 +137,20 @@ def on_table_container(y_module: OrderedDict, tbl_cont: OrderedDict) -> dict:
             dynamic_obj_elem = on_object_container(y_module, tbl_cont_lists, is_list=True)
             y2d_elem['dynamic-objects'].append(dynamic_obj_elem)
 
+        # remove 'keys' elementsfrom 'attrs' list
+        remove_keys(y2d_elem['dynamic-objects'])
+
     return y2d_elem
+
+# TODO: think about name
+def remove_keys(dynamic_objects: OrderedDict):
+    for obj in dynamic_objects:
+        for key in obj.get('keys'):
+            for attr in obj.get('attrs'):
+                if key.get('name') == attr.get('name'):
+                    key['description'] = attr.get('description')
+                    obj['attrs'].remove(attr)
+                    break
 
 def on_object_container(y_module: OrderedDict, cont: OrderedDict, is_list: bool) -> dict:
     """ Parse a 'object container'.
@@ -295,17 +308,20 @@ def on_leaf(leaf: OrderedDict, is_leaf_list: bool) -> dict:
             dictionary - parsed 'leaf' element
     """
 
-    mandatory = False
-    if leaf.get('mandatory') is not None:
-        mandatory = True
-
     attr = { 'name': leaf.get('@name'),
              'description': get_description(leaf),
              'is-leaf-list': is_leaf_list,
-             'is-mandatory': mandatory }
+             'is-mandatory': get_mandatory(leaf) }
+
     return attr
 
 #----------------------GETERS-------------------------#
+
+def get_mandatory(y_leaf: OrderedDict) -> bool:
+    if y_leaf.get('mandatory') is not None:
+        return True
+
+    return False
 
 def get_description(y_entity: OrderedDict) -> str:
     """ Parse 'description' entity from any YANG element
