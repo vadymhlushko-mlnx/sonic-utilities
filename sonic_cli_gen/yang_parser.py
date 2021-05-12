@@ -104,13 +104,14 @@ def on_table_container(y_module: OrderedDict, tbl_cont: OrderedDict) -> dict:
 
     y2d_elem = {
         'name': tbl_cont.get('@name'),
-        'description': get_description(tbl_cont),
-        'dynamic-objects': list(),
-        'static-objects': list()
+        'description': get_description(tbl_cont)
     }
 
     # determine if 'table container' have a 'list' entity
     if tbl_cont.get('list') is None:
+        # TODO: comment aboit it
+        y2d_elem['static-objects'] = list()
+
         # 'object' container goes after 'table' container
         # 'object' container have 2 types - list (like sonic-flex_counter.yang) and NOT list (like sonic-device_metadata.yang)
         obj_cont = tbl_cont.get('container')
@@ -122,6 +123,10 @@ def on_table_container(y_module: OrderedDict, tbl_cont: OrderedDict) -> dict:
             static_obj_elem = on_object_container(y_module, obj_cont, is_list=False)
             y2d_elem['static-objects'].append(static_obj_elem)
     else:
+
+        # TODO: comment aboit it
+        y2d_elem['dynamic-objects'] = list()
+
         tbl_cont_lists = tbl_cont.get('list')
         # 'container' can have more than 1 'list'
         if isinstance(tbl_cont_lists, list):
