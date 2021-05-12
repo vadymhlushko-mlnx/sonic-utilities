@@ -132,7 +132,7 @@ def clear_list_entry_validated(db, table, key, attr):
 {%- for opt in opts %}
 @click.option(
     "--{{ cli_name(opt.name) }}",
-    help="{{ opt.description }}{% if opt.['is-mandatory'] %}[mandatory]{% endif %},
+    help="{{ opt.description }}{% if opt['is-mandatory'] %}[mandatory]{% endif %}",
 )
 {%- endfor %}
 {%- endmacro %}
@@ -419,7 +419,8 @@ def {{ table.name }}():
 {% for object in table["static-objects"] %}
 {{ config_static_object(table, object) }}
 {% endfor %}
-{% elif "dynamic-objects" in table %}
+
+{% if "dynamic-objects" in table %}
 {% for object in table["dynamic-objects"] %}
 {{ config_dynamic_object(table, object) }}
 {% endfor %}
