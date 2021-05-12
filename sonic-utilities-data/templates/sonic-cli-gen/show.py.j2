@@ -41,7 +41,7 @@ def {{ table.name }}_{{ object.name }}(db):
     body = []
 
     table = db.cfgdb.get_table("{{ table.name }}")
-    entry = table.get("{{ object.name }}")
+    entry = table.get("{{ object.name }}", {})
     row = [{%- for attr in object.attrs -%} {{ print_attr(attr) }}, {%- endfor %}]
     body.append(row)
     click.echo(tabulate.tabulate(body, header))
@@ -77,8 +77,7 @@ def {{ name }}(db):
     body = []
 
     table = db.cfgdb.get_table("{{ table.name }}")
-    for key in natsort.natsorted(table):
-        entry = table[key]
+    for key, entry in natsort.natsorted(table).items():
         if not isinstance(key, tuple):
             key = (key,)
 
