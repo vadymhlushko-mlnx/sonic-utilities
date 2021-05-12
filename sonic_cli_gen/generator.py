@@ -21,6 +21,7 @@ class CliGenerator:
         """ Generate CLI plugin for 'config' CLI group. """
         parser = YangParser(self.yang_model_name)
         yang_dict = parser.parse_yang_model()
+        import pprint; pprint.pprint(yang_dict)
         pass
 
     def generate_show_plugin(self):
