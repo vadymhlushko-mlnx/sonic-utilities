@@ -7,7 +7,7 @@ import natsort
 import utilities_common.cli as clicommon
 
 {% macro print_attr(attr) %}
-{%- if not attr.is_list %}
+{%- if not attr["is-leaf-list"] %}
 entry.get("{{ attr.name }}", "N/A")
 {%- else %}
 "\n".join(entry.get("{{ attr.name }}", []))
@@ -23,7 +23,7 @@ entry.get("{{ attr.name }}", "N/A")
 
 
 {% for table in tables %}
-{% if "static_objects" in table %}
+{% if "static-objects" in table %}
 @click.group(name="{{ cli_name(table.name) }}",
              cls=clicommon.AliasedGroup)
 def {{ table.name }}():
@@ -31,7 +31,7 @@ def {{ table.name }}():
 
     pass
 
-{% for object in table.static_objects %}
+{% for object in table["static-objects"] %}
 @{{ table.name }}.command(name="{{ cli_name(object.name) }}")
 @clicommon.pass_db
 def {{ table.name }}_{{ object.name }}(db):
@@ -47,8 +47,8 @@ def {{ table.name }}_{{ object.name }}(db):
     click.echo(tabulate.tabulate(body, header))
 
 {% endfor %}
-{% elif "dynamic_objects" in table %}
-{% if table.dynamic_objects|length > 1 %}
+{% elif "dynamic-objects" in table %}
+{% if table["dynamic-objects"]|length > 1 %}
 @click.group(name="{{ cli_name(table.name) }}",
              cls=clicommon.AliasedGroup)
 def {{ table.name }}():
@@ -56,9 +56,9 @@ def {{ table.name }}():
 
     pass
 {% endif %}
-{% for object in table.dynamic_objects %}
+{% for object in table["dynamic-objects"] %}
 {# Generate another nesting group in case table holds two types of objects #}
-{% if table.dynamic_objects|length > 1 %}
+{% if table["dynamic-objects"]|length > 1 %}
 {% set group = table.name %}
 {% set name = object.name %}
 {% else %}

@@ -122,7 +122,7 @@ def clear_list_entry_validated(db, table, key, attr):
 {%- for arg in args %}
 @click.argument(
     "{{ cli_name(arg.name) }}",
-    nargs={% if arg.is_list %}-1{% else %}1{% endif %},
+    nargs={% if arg["is-leaf-list"] %}-1{% else %}1{% endif %},
     required=True,
 )
 {%- endfor %}
@@ -132,6 +132,7 @@ def clear_list_entry_validated(db, table, key, attr):
 {%- for opt in opts %}
 @click.option(
     "--{{ cli_name(opt.name) }}",
+    help="{{ opt.description }}{% if opt.['is-mandatory'] %}[mandatory]{% endif %},
 )
 {%- endfor %}
 {%- endmacro %}
@@ -237,7 +238,7 @@ def {{ list_update_group }}_delete(
 
 {% macro config_object_list_update_all(group, table, object) %}
 {% for attr in object.attrs %}
-{% if attr.is_list %}
+{% if attr["is-leaf-list"] %}
 {{ config_object_list_update(group, table, object, attr) }}
 {% endif %}
 {% endfor %}
@@ -314,7 +315,7 @@ def {{ group }}_add(db, {{ pythonize(object["keys"] + object.attrs) }}):
     data = {}
 {%- for attr in object.attrs %}
     if {{ pythonize([attr]) }} is not None:
-{%- if not attr.is_list %}
+{%- if not attr["is-leaf-list"] %}
         data["{{ attr.name }}"] = {{ pythonize([attr]) }}
 {%- else %}
         data["{{ attr.name }}"] = {{ pythonize([attr]) }}.split(",")
@@ -350,7 +351,7 @@ def {{ group }}_update(db, {{ pythonize(object["keys"] + object.attrs) }}):
     data = {}
 {%- for attr in object.attrs %}
     if {{ pythonize([attr]) }} is not None:
-{%- if not attr.is_list %}
+{%- if not attr["is-leaf-list"] %}
         data["{{ attr.name }}"] = {{ pythonize([attr]) }}
 {%- else %}
         data["{{ attr.name }}"] = {{ pythonize([attr]) }}.split(",")
@@ -387,7 +388,7 @@ def {{ group }}_delete(db, {{ pythonize(object["keys"]) }}):
 
 {% macro config_dynamic_object(table, object) %}
 {# Generate another nesting group in case table holds two types of objects #}
-{% if table.dynamic_objects|length > 1 %}
+{% if table["dynamic-objects"]|length > 1 %}
 {% set group = table.name + "_" + object.name %}
 @{{ table.name }}.group(name="{{ cli_name(object.name) }}",
                         cls=clicommon.AliasedGroup)
@@ -414,12 +415,12 @@ def {{ table.name }}():
 
     pass
 
-{% if "static_objects" in table %}
-{% for object in table.static_objects %}
+{% if "static-objects" in table %}
+{% for object in table["static-objects"] %}
 {{ config_static_object(table, object) }}
 {% endfor %}
-{% elif "dynamic_objects" in table %}
-{% for object in table.dynamic_objects %}
+{% elif "dynamic-objects" in table %}
+{% for object in table["dynamic-objects"] %}
 {{ config_dynamic_object(table, object) }}
 {% endfor %}
 {% endif %}
