@@ -71,21 +71,22 @@ class YangParser:
             self.y_table_containers
 
             Raises:
-                KeyError: if invalid YANG model provided
-                KeyError: if YANG models is NOT exist
+                KeyError: if YANG model is invalid or NOT exist
         """
 
         self._find_index_of_yang_model()
 
-        if self.idx_yJson is not None:
-            self.y_module = self.conf_mgmt.sy.yJson[self.idx_yJson]['module']
-            if self.y_module.get('container') is not None:
-                self.y_top_level_container = self.y_module['container']
-                self.y_table_containers = self.y_top_level_container['container']
-            else:
-                raise KeyError('YANG model {} does NOT have "container" element'.format(self.yang_model_name))
-        else:
+        if self.idx_yJson is None:
             raise KeyError('YANG model {} is NOT exist'.format(self.yang_model_name))
+        self.y_module = self.conf_mgmt.sy.yJson[self.idx_yJson]['module']
+
+        if self.y_module.get('container') is None:
+            raise KeyError('YANG model {} does NOT have "top level container" element'.format(self.yang_model_name))
+        self.y_top_level_container = self.y_module.get('container')
+
+        if self.y_top_level_container.get('container') is None:
+            raise KeyError('YANG model {} does NOT have "container" element after "top level container"'.format(self.yang_model_name))
+        self.y_table_containers = self.y_top_level_container.get('container')
 
     def _find_index_of_yang_model(self):
         """ Find index of provided YANG model inside yJson object
