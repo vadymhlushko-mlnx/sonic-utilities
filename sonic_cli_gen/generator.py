@@ -20,9 +20,12 @@ class CliGenerator:
 
     def generate_cli_plugin(self, cli_group, plugin_name):
         """ Generate CLI plugin. """
-        parser = YangParser(plugin_name)
+
+        parser = YangParser(yang_model_name=plugin_name,
+                            config_db_path='configDB',
+                            allow_tbl_without_yang=True,
+                            debug=False)
         yang_dict = parser.parse_yang_model()
-        #import pprint; pprint.pprint(yang_dict)
         plugin_path = get_cli_plugin_path(cli_group, plugin_name + '_yang.py')
         template = self.env.get_template(cli_group + '.py.j2')
         with open(plugin_path, 'w') as plugin_py:

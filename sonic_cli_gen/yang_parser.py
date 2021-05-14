@@ -45,7 +45,10 @@ class YangParser:
         In case if YANG model does NOT have a 'list' entity, it has the same structure as above, but 'dynamic-objects' changed to 'static-objects' and have no 'keys'
     """
     def __init__(self,
-                 yang_model_name):
+                 yang_model_name,
+                 config_db_path,
+                 allow_tbl_without_yang,
+                 debug):
         self.yang_model_name = yang_model_name
         self.conf_mgmt = None
         self.idx_yJson = None
@@ -55,7 +58,9 @@ class YangParser:
         self.yang_2_dict = dict()
 
         try:
-            self.conf_mgmt = ConfigMgmt()
+            self.conf_mgmt = ConfigMgmt(source=config_db_path,
+                                        debug=debug,
+                                        allowTablesWithoutYang=allow_tbl_without_yang)
         except Exception as e:
             raise Exception("Failed to load the {} class".format(str(e)))
     
@@ -180,6 +185,9 @@ def on_object_container(y_module: OrderedDict, cont: OrderedDict, is_list: bool)
         Returns:
             dictionary - element for y2d_elem['static-objects'] OR y2d_elem['dynamic-objects']
     """
+
+    if cont is None:
+        return {}
 
     obj_elem = {
         'name': cont.get('@name'),
