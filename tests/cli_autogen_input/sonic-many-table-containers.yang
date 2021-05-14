@@ -1,0 +1,20 @@
+module sonic-many-table-containers {
+
+    yang-version 1.1;
+
+	namespace "http://github.com/Azure/sonic-many-table-cont";
+	prefix many-table-cont;
+
+	container sonic-many-table-containers {
+
+		container FIRST_TABLE {
+
+			description "FIRST_TABLE description";
+		}
+
+		container SECOND_TABLE {
+
+			description "SECOND_TABLE description";
+		}
+	}
+}

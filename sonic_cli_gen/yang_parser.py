@@ -81,16 +81,21 @@ class YangParser:
         self.y_module = self.conf_mgmt.sy.yJson[self.idx_yJson]['module']
 
         if self.y_module.get('container') is None:
-            raise KeyError('YANG model {} does NOT have "top level container" element'.format(self.yang_model_name))
+            raise KeyError('YANG model {} does NOT have "top level container" element \
+                            Please follow the SONiC YANG model guidelines: \
+                            https://github.com/Azure/SONiC/blob/master/doc/mgmt/SONiC_YANG_Model_Guidelines.md'.format(self.yang_model_name))
         self.y_top_level_container = self.y_module.get('container')
 
         if self.y_top_level_container.get('container') is None:
-            raise KeyError('YANG model {} does NOT have "container" element after "top level container"'.format(self.yang_model_name))
+            raise KeyError('YANG model {} does NOT have "container" element after "top level container" \
+                            Please follow the SONiC YANG model guidelines: \
+                            https://github.com/Azure/SONiC/blob/master/doc/mgmt/SONiC_YANG_Model_Guidelines.md'.format(self.yang_model_name))
         self.y_table_containers = self.y_top_level_container.get('container')
 
     def _find_index_of_yang_model(self):
-        """ Find index of provided YANG model inside yJson object
+        """ Find index of provided YANG model inside yJson object,
             and save it to self.idx_yJson variable
+            yJson object contain all yang-models parsed from directory - /usr/local/yang-models
         """
 
         for i in range(len(self.conf_mgmt.sy.yJson)):
@@ -99,7 +104,7 @@ class YangParser:
 
     def parse_yang_model(self) -> dict:
         """ Parse proviced YANG model
-            and save output to self.yang_2_dict obj 
+            and save output to self.yang_2_dict object 
 
             Returns:
                 dictionary - parsed YANG model in dictionary format
@@ -108,7 +113,7 @@ class YangParser:
         self._init_yang_module_and_containers()
         self.yang_2_dict['tables'] = list()
 
-        # determine how many (1 or couple) containers YANG model have after 'top level' container
+        # determine how many (1 or couple) containers a YANG model have after 'top level' container
         # 'table' container it is a container that goes after 'top level' container
         if isinstance(self.y_table_containers, list):
             for tbl_cont in self.y_table_containers:
