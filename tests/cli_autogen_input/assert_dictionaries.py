@@ -241,3 +241,125 @@ static_object_complex_2 = {
       }
    ]
 }
+
+dynamic_object_complex_1 = {
+   "tables":[
+      {
+         "description":"TABLE_1 description",
+         "name":"TABLE_1",
+         "dynamic-objects":[
+            {
+                "name":"OBJECT_1_LIST",
+                "description":"OBJECT_1_LIST description",
+                "attrs":[
+                    {
+                        "name":"OBJ_1_LEAF_1",
+                        "description": "OBJ_1_LEAF_1 description",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                    },
+                    {
+                        "name":"OBJ_1_LEAF_LIST_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": True,
+                    },
+                    {
+                        "name":"OBJ_1_CHOICE_1_LEAF_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                    },
+                    {
+                        "name":"OBJ_1_CHOICE_1_LEAF_2",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                    }
+                ],
+                "keys":[
+                    {
+                        "name": "KEY_LEAF_1",
+                        "description": "KEY_LEAF_1 description",
+                    }
+                ]
+            }
+         ]
+      }
+   ]
+}
+
+dynamic_object_complex_2 = {
+   "tables":[
+      {
+         "description":"TABLE_1 description",
+         "name":"TABLE_1",
+         "dynamic-objects":[
+            {
+                "name":"OBJECT_1_LIST",
+                "description":"OBJECT_1_LIST description",
+                "attrs":[
+                    {
+                        "name":"OBJ_1_LEAF_1",
+                        "description": "OBJ_1_LEAF_1 description",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                    },
+                    {
+                        "name":"OBJ_1_LEAF_2",
+                        "description": "OBJ_1_LEAF_2 description",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                    },
+                    {
+                        "name":"OBJ_1_LEAF_LIST_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": True,
+                    },
+                    {
+                        "name":"OBJ_1_LEAF_LIST_2",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": True,
+                    },
+                    {
+                        "name":"OBJ_1_CHOICE_1_LEAF_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                    },
+                    {
+                        "name":"OBJ_1_CHOICE_1_LEAF_2",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                    },
+                    {
+                        "name":"OBJ_1_CHOICE_2_LEAF_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                    },
+                    {
+                        "name":"OBJ_1_CHOICE_2_LEAF_2",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                    }
+                ],
+                "keys":[
+                    {
+                        "name": "KEY_LEAF_1",
+                        "description": "KEY_LEAF_1 description",
+                    },
+                    {
+                        "name": "KEY_LEAF_2",
+                        "description": "KEY_LEAF_2 description",
+                    }
+                ]
+            }
+         ]
+      }
+   ]
+}

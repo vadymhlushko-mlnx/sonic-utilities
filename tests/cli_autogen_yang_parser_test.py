@@ -53,6 +53,18 @@ class TestYangParser:
     #    yang_model_name = 'sonic-static-object-complex-2'
     #    template(yang_model_name, assert_dictionaries.static_object_complex_2)
 
+    #def test_dynamic_object_complex_1(self):
+    #    """ Test object container with: 1 key, 1 leaf, 1 leaf-list, 1 choice.
+    #    """
+    #    yang_model_name = 'sonic-dynamic-object-complex-1'
+    #    template(yang_model_name, assert_dictionaries.dynamic_object_complex_1)
+
+    def test_dynamic_object_complex_2(self):
+        """ Test object container with: 2 keys, 2 leafs, 2 leaf-list, 2 choice.
+        """
+        yang_model_name = 'sonic-dynamic-object-complex-2'
+        template(yang_model_name, assert_dictionaries.dynamic_object_complex_2)
+
 def template(yang_model_name, correct_dict):
     config_db_path =  os.path.join(test_path, 'cli_autogen_input/config_db.json')
     move_yang_model(yang_model_name)
