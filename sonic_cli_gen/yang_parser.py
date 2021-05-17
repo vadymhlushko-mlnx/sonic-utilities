@@ -26,7 +26,7 @@ class YangParser:
                     'attrs': [
                         {
                             'name': 'value',
-                            'descruption': 'value',
+                            'description': 'value',
                             'is-leaf-list': False,
                             'is-mandatory': False
                         }
@@ -44,6 +44,7 @@ class YangParser:
         }
         In case if YANG model does NOT have a 'list' entity, it has the same structure as above, but 'dynamic-objects' changed to 'static-objects' and have no 'keys'
     """
+
     def __init__(self,
                  yang_model_name,
                  config_db_path,

@@ -17,14 +17,41 @@ yang_models_path = '/usr/local/yang-models'
 
 class TestYangParser:
 
+    #def test_1_table_container(self):
+    #    yang_model_name = 'sonic-1-table-container'
+    #    template(yang_model_name, assert_dictionaries.one_table_container)
+    #   
+    #def test_2_table_containers(self):
+    #    yang_model_name = 'sonic-2-table-containers'
+    #    template(yang_model_name, assert_dictionaries.two_table_containers)
 
-    def test_one_table_container(self):
-        yang_model_name = 'sonic-one-table-container'
-        template('sonic-one-table-container', assert_dictionaries.one_table_container)
-        
-    def test_many_table_containers(self):
-        yang_model_name = 'sonic-many-table-containers'
-        template('sonic-many-table-containers', assert_dictionaries.many_table_containers)
+    #def test_1_object_container(self):
+    #    yang_model_name = 'sonic-1-object-container'
+    #    template(yang_model_name, assert_dictionaries.one_object_container)
+
+    #def test_2_object_containers(self):
+    #    yang_model_name = 'sonic-2-object-containers'
+    #    template(yang_model_name, assert_dictionaries.two_object_containers)
+
+    #def test_1_list(self):
+    #    yang_model_name = 'sonic-1-list'
+    #    template(yang_model_name, assert_dictionaries.one_list)
+
+    #def test_2_lists(self):
+    #    yang_model_name = 'sonic-2-lists'
+    #    template(yang_model_name, assert_dictionaries.two_lists)
+
+    #def test_static_object_complex_1(self):
+    #    """ Test object container with: 1 leaf, 1 leaf-list, 1 choice.
+    #    """
+    #    yang_model_name = 'sonic-static-object-complex-1'
+    #    template(yang_model_name, assert_dictionaries.static_object_complex_1)
+
+    #def test_static_object_complex_2(self):
+    #    """ Test object container with: 2 leafs, 2 leaf-lists, 2 choices.
+    #    """
+    #    yang_model_name = 'sonic-static-object-complex-2'
+    #    template(yang_model_name, assert_dictionaries.static_object_complex_2)
 
 def template(yang_model_name, correct_dict):
     config_db_path =  os.path.join(test_path, 'cli_autogen_input/config_db.json')
@@ -34,8 +61,8 @@ def template(yang_model_name, correct_dict):
                         allow_tbl_without_yang = True,
                         debug = False)
     yang_dict = parser.parse_yang_model()
-    # debug
-    pretty_log(yang_dict)
+
+    pretty_log_debug(yang_dict)
 
     assert yang_dict == correct_dict
 
@@ -62,7 +89,7 @@ def remove_yang_model(yang_model_name):
     os.system(cmd)
 
 # DEBUG function
-def pretty_log(dictionary):
+def pretty_log_debug(dictionary):
     for line in pprint.pformat(dictionary).split('\n'):
-        logging.warning(line)
+        logging.debug(line)
 
