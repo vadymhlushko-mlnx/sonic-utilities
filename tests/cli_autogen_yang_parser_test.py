@@ -17,53 +17,57 @@ yang_models_path = '/usr/local/yang-models'
 
 class TestYangParser:
 
-    #def test_1_table_container(self):
-    #    yang_model_name = 'sonic-1-table-container'
-    #    template(yang_model_name, assert_dictionaries.one_table_container)
-    #   
-    #def test_2_table_containers(self):
-    #    yang_model_name = 'sonic-2-table-containers'
-    #    template(yang_model_name, assert_dictionaries.two_table_containers)
+    def test_1_table_container(self):
+        yang_model_name = 'sonic-1-table-container'
+        template(yang_model_name, assert_dictionaries.one_table_container)
+       
+    def test_2_table_containers(self):
+        yang_model_name = 'sonic-2-table-containers'
+        template(yang_model_name, assert_dictionaries.two_table_containers)
 
-    #def test_1_object_container(self):
-    #    yang_model_name = 'sonic-1-object-container'
-    #    template(yang_model_name, assert_dictionaries.one_object_container)
+    def test_1_object_container(self):
+        yang_model_name = 'sonic-1-object-container'
+        template(yang_model_name, assert_dictionaries.one_object_container)
 
-    #def test_2_object_containers(self):
-    #    yang_model_name = 'sonic-2-object-containers'
-    #    template(yang_model_name, assert_dictionaries.two_object_containers)
+    def test_2_object_containers(self):
+        yang_model_name = 'sonic-2-object-containers'
+        template(yang_model_name, assert_dictionaries.two_object_containers)
 
-    #def test_1_list(self):
-    #    yang_model_name = 'sonic-1-list'
-    #    template(yang_model_name, assert_dictionaries.one_list)
+    def test_1_list(self):
+        yang_model_name = 'sonic-1-list'
+        template(yang_model_name, assert_dictionaries.one_list)
 
-    #def test_2_lists(self):
-    #    yang_model_name = 'sonic-2-lists'
-    #    template(yang_model_name, assert_dictionaries.two_lists)
+    def test_2_lists(self):
+        yang_model_name = 'sonic-2-lists'
+        template(yang_model_name, assert_dictionaries.two_lists)
 
-    #def test_static_object_complex_1(self):
-    #    """ Test object container with: 1 leaf, 1 leaf-list, 1 choice.
-    #    """
-    #    yang_model_name = 'sonic-static-object-complex-1'
-    #    template(yang_model_name, assert_dictionaries.static_object_complex_1)
+    def test_static_object_complex_1(self):
+        """ Test object container with: 1 leaf, 1 leaf-list, 1 choice.
+        """
+        yang_model_name = 'sonic-static-object-complex-1'
+        template(yang_model_name, assert_dictionaries.static_object_complex_1)
 
-    #def test_static_object_complex_2(self):
-    #    """ Test object container with: 2 leafs, 2 leaf-lists, 2 choices.
-    #    """
-    #    yang_model_name = 'sonic-static-object-complex-2'
-    #    template(yang_model_name, assert_dictionaries.static_object_complex_2)
+    def test_static_object_complex_2(self):
+        """ Test object container with: 2 leafs, 2 leaf-lists, 2 choices.
+        """
+        yang_model_name = 'sonic-static-object-complex-2'
+        template(yang_model_name, assert_dictionaries.static_object_complex_2)
 
-    #def test_dynamic_object_complex_1(self):
-    #    """ Test object container with: 1 key, 1 leaf, 1 leaf-list, 1 choice.
-    #    """
-    #    yang_model_name = 'sonic-dynamic-object-complex-1'
-    #    template(yang_model_name, assert_dictionaries.dynamic_object_complex_1)
+    def test_dynamic_object_complex_1(self):
+        """ Test object container with: 1 key, 1 leaf, 1 leaf-list, 1 choice.
+        """
+        yang_model_name = 'sonic-dynamic-object-complex-1'
+        template(yang_model_name, assert_dictionaries.dynamic_object_complex_1)
 
     def test_dynamic_object_complex_2(self):
         """ Test object container with: 2 keys, 2 leafs, 2 leaf-list, 2 choice.
         """
         yang_model_name = 'sonic-dynamic-object-complex-2'
         template(yang_model_name, assert_dictionaries.dynamic_object_complex_2)
+
+    # TODO: UT for choice
+    # TODO: UT for grouping 
+
 
 def template(yang_model_name, correct_dict):
     config_db_path =  os.path.join(test_path, 'cli_autogen_input/config_db.json')
