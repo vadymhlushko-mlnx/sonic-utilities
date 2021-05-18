@@ -206,8 +206,8 @@ def on_object_container(y_module: OrderedDict, cont: OrderedDict, conf_mgmt, is_
         obj_elem['keys'] = get_list_keys(cont)
 
     attrs_list = list()
-    attrs_list.extend(get_leafs(cont))
-    attrs_list.extend(get_leaf_lists(cont))
+    attrs_list.extend(get_leafs(cont, grouping_name = ''))
+    attrs_list.extend(get_leaf_lists(cont, grouping_name = ''))
     attrs_list.extend(get_choices(y_module, cont, conf_mgmt))
     # TODO: need to test 'grouping'
     attrs_list.extend(get_uses(y_module, cont, conf_mgmt))
@@ -237,13 +237,13 @@ def on_uses(y_module: OrderedDict, y_uses, conf_mgmt) -> list:
         if isinstance(y_uses, list):
             for use in y_uses:
                 if use.get('@name') == group.get('@name'):
-                    ret_attrs.extend(get_leafs(group))
-                    ret_attrs.extend(get_leaf_lists(group))
+                    ret_attrs.extend(get_leafs(group, group.get('@name')))
+                    ret_attrs.extend(get_leaf_lists(group, grouping_name = ''))
                     ret_attrs.extend(get_choices(y_module, group, conf_mgmt))
         else:
             if y_uses.get('@name') == group.get('@name'):
-                ret_attrs.extend(get_leafs(group))
-                ret_attrs.extend(get_leaf_lists(group))
+                ret_attrs.extend(get_leafs(group, group.get('@name')))
+                ret_attrs.extend(get_leaf_lists(group, grouping_name = ''))
                 ret_attrs.extend(get_choices(y_module, group, conf_mgmt))
 
     return ret_attrs
@@ -284,8 +284,8 @@ def on_choice_cases(y_module: OrderedDict, y_cases: list, conf_mgmt) -> list:
 
     if isinstance(y_cases, list):
         for case in y_cases:
-            ret_attrs.extend(get_leafs(case))
-            ret_attrs.extend(get_leaf_lists(case))
+            ret_attrs.extend(get_leafs(case, grouping_name = ''))
+            ret_attrs.extend(get_leaf_lists(case, grouping_name = ''))
             # TODO: need to deeply test it
             ret_attrs.extend(get_uses(y_module, case, conf_mgmt))
     else:
@@ -293,7 +293,7 @@ def on_choice_cases(y_module: OrderedDict, y_cases: list, conf_mgmt) -> list:
     
     return ret_attrs
 
-def on_leafs(y_leafs, is_leaf_list: bool) -> list:
+def on_leafs(y_leafs, grouping_name, is_leaf_list: bool) -> list:
     """ Parse all the 'leaf' or 'leaf-list' elements
 
         Args:
@@ -306,15 +306,15 @@ def on_leafs(y_leafs, is_leaf_list: bool) -> list:
     # The YANG 'container' entity may have only 1 'leaf' element OR a list of 'leaf' elements
     if isinstance(y_leafs, list): 
         for leaf in y_leafs:
-            attr = on_leaf(leaf, is_leaf_list)
+            attr = on_leaf(leaf, is_leaf_list, grouping_name)
             ret_attrs.append(attr)
     else:
-        attr = on_leaf(y_leafs, is_leaf_list)
+        attr = on_leaf(y_leafs, is_leaf_list, grouping_name)
         ret_attrs.append(attr)
 
     return ret_attrs
 
-def on_leaf(leaf: OrderedDict, is_leaf_list: bool) -> dict:
+def on_leaf(leaf: OrderedDict, is_leaf_list: bool, grouping_name: str) -> dict:
     """ Parse a single 'leaf' element
 
         Args:
@@ -326,7 +326,8 @@ def on_leaf(leaf: OrderedDict, is_leaf_list: bool) -> dict:
     attr = { 'name': leaf.get('@name'),
              'description': get_description(leaf),
              'is-leaf-list': is_leaf_list,
-             'is-mandatory': get_mandatory(leaf) }
+             'is-mandatory': get_mandatory(leaf),
+             'group': grouping_name}
 
     return attr
 
@@ -352,15 +353,15 @@ def get_description(y_entity: OrderedDict) -> str:
     else:
         return ''
 
-def get_leafs(y_entity: OrderedDict) -> list:
+def get_leafs(y_entity: OrderedDict, grouping_name) -> list:
     if y_entity.get('leaf') is not None:
-        return on_leafs(y_entity.get('leaf'), is_leaf_list=False)
+        return on_leafs(y_entity.get('leaf'), grouping_name, is_leaf_list=False)
 
     return []
 
-def get_leaf_lists(y_entity: OrderedDict) -> list:
+def get_leaf_lists(y_entity: OrderedDict, grouping_name) -> list:
     if y_entity.get('leaf-list') is not None:
-        return on_leafs(y_entity.get('leaf-list'), is_leaf_list=True)
+        return on_leafs(y_entity.get('leaf-list'), grouping_name, is_leaf_list=True)
 
     return []
 

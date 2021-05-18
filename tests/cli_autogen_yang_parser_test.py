@@ -65,6 +65,14 @@ class TestYangParser:
         yang_model_name = 'sonic-dynamic-object-complex-2'
         template(yang_model_name, assert_dictionaries.dynamic_object_complex_2)
 
+    #def test_choice_complex_1(self):
+    #    """ Test object container with choice that have: 1 leaf, 1 leaf-list, 1 uses
+    #    """
+    #    yang_model_name = 'sonic-choice-complex'
+    #    grouping_yang = 'sonic-grouping'
+    #    move_yang_model(grouping_yang)
+    #    template(yang_model_name, assert_dictionaries.dynamic_object_complex_2)
+
     # TODO: UT for choice
     # TODO: UT for grouping 
 

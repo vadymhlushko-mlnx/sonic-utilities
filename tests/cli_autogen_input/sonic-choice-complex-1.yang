@@ -1,0 +1,47 @@
+module sonic-static-object-complex-1 {
+
+    yang-version 1.1;
+
+	namespace "http://github.com/Azure/static-complex-1";
+	prefix static-complex-1;
+
+	import sonic-grouping {
+		prefix sgrop;
+	}
+
+	container sonic-static-object-complex-1 {
+		/* sonic-static-object-complex-1 - top level container */
+
+		container TABLE_1 {
+			/* TABLE_1 - table container */
+
+			description "TABLE_1 description";
+
+			container OBJECT_1 {
+				/* OBJECT_1 - object container, it have:
+				 * 1 choice
+				 */
+
+				description "OBJECT_1 description";
+
+				choice CHOICE_1 {
+					case CHOICE_1_CASE_1 {
+						leaf LEAF_1 {
+							type uint16;
+						}
+
+						leaf-list LEAF_LIST_1 {
+							type string;
+						}
+					}
+
+					case CHOICE_1_CASE_2 {
+						leaf LEAF_2 {
+							type string;
+						}
+					}
+				}
+			}
+		}
+	}
+}
