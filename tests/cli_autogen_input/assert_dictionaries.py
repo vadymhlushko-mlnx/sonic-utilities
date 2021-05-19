@@ -387,3 +387,239 @@ dynamic_object_complex_2 = {
       }
    ]
 }
+
+choice_complex = {
+   "tables":[
+      {
+         "description":"TABLE_1 description",
+         "name":"TABLE_1",
+         "static-objects":[
+            {
+                "name":"OBJECT_1",
+                "description":"OBJECT_1 description",
+                "attrs":[
+                    {
+                        "name":"LEAF_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": '',
+                    },
+                    {
+                        "name":"LEAF_LIST_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": True,
+                        "group": '',
+                    },
+                    {
+                        "name":"GR_1_LEAF_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": "GR_1",
+                    },
+                    {
+                        "name":"GR_1_LEAF_2",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": 'GR_1',
+                    },
+                    {
+                        "name":"LEAF_2",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": '',
+                    },
+                    {
+                        "name":"LEAF_3",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": '',
+                    },
+                    {
+                        "name":"LEAF_LIST_2",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": True,
+                        "group": '',
+                    },
+                    {
+                        "name":"LEAF_LIST_3",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": True,
+                        "group": '',
+                    },
+                    {
+                        "name":"GR_5_LEAF_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": 'GR_5',
+                    },
+                    {
+                        "name":"GR_5_LEAF_2",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": 'GR_5',
+                    },
+                    {
+                        "name":"GR_2_LEAF_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": 'GR_2',
+                    },
+                    {
+                        "name":"GR_2_LEAF_2",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": 'GR_2',
+                    },
+                    {
+                        "name":"GR_3_LEAF_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": 'GR_3',
+                    },
+                    {
+                        "name":"GR_3_LEAF_2",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": 'GR_3',
+                    },
+                ]
+            }
+         ]
+      }
+   ]
+}
+
+grouping_complex = {
+   "tables":[
+      {
+         "description":"TABLE_1 description",
+         "name":"TABLE_1",
+         "static-objects":[
+            {
+                "name":"OBJECT_1",
+                "description":"OBJECT_1 description",
+                "attrs":[
+                    {
+                        "name":"GR_1_LEAF_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": "GR_1",
+                    },
+                    {
+                        "name":"GR_1_LEAF_2",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": 'GR_1',
+                    },
+                ]
+            },
+            {
+                "name":"OBJECT_2",
+                "description":"OBJECT_2 description",
+                "attrs":[
+                    {
+                        "name":"GR_5_LEAF_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": "GR_5",
+                    },
+                    {
+                        "name":"GR_5_LEAF_LIST_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": True,
+                        "group": "GR_5",
+                    },
+                    {
+                        "name":"GR_6_LEAF_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": "GR_6",
+                    },
+                    {
+                        "name":"GR_6_LEAF_2",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": "GR_6",
+                    },
+                    {
+                        "name":"GR_6_CASE_1_LEAF_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": "GR_6",
+                    },
+                    {
+                        "name":"GR_6_CASE_1_LEAF_LIST_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": True,
+                        "group": "GR_6",
+                    },
+                    {
+                        "name":"GR_6_CASE_2_LEAF_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": "GR_6",
+                    },
+                    {
+                        "name":"GR_6_CASE_2_LEAF_2",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": "GR_6",
+                    },
+                    {
+                        "name":"GR_6_CASE_2_LEAF_LIST_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": True,
+                        "group": "GR_6",
+                    },
+                    {
+                        "name":"GR_6_CASE_2_LEAF_LIST_2",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": True,
+                        "group": "GR_6",
+                    },
+                    {
+                        "name":"GR_4_LEAF_1",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": "GR_4",
+                    },
+                    {
+                        "name":"GR_4_LEAF_2",
+                        "description": "",
+                        "is-mandatory": False,
+                        "is-leaf-list": False,
+                        "group": "GR_4",
+                    },
+                ]
+            }
+         ]
+      }
+   ]
+}

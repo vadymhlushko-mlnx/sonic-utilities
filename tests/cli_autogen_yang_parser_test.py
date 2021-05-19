@@ -17,6 +17,9 @@ yang_models_path = '/usr/local/yang-models'
 
 class TestYangParser:
 
+    #create function like 'start' which copy all YANG to location
+    #create function teardown
+
     def test_1_table_container(self):
         yang_model_name = 'sonic-1-table-container'
         template(yang_model_name, assert_dictionaries.one_table_container)
@@ -65,17 +68,32 @@ class TestYangParser:
         yang_model_name = 'sonic-dynamic-object-complex-2'
         template(yang_model_name, assert_dictionaries.dynamic_object_complex_2)
 
-    #def test_choice_complex_1(self):
-    #    """ Test object container with choice that have: 1 leaf, 1 leaf-list, 1 uses
-    #    """
-    #    yang_model_name = 'sonic-choice-complex'
-    #    grouping_yang = 'sonic-grouping'
-    #    move_yang_model(grouping_yang)
-    #    template(yang_model_name, assert_dictionaries.dynamic_object_complex_2)
+    def test_choice_complex(self):
+        """ Test object container with choice that have complex strucutre:
+            leafs, leaf-lists, multiple 'uses' from different files
+        """
+        yang_model_name = 'sonic-choice-complex'
+        grouping_yang_1 = 'sonic-grouping-1'
+        grouping_yang_2 = 'sonic-grouping-2'
+        move_yang_model(grouping_yang_1)
+        move_yang_model(grouping_yang_2)
+        template(yang_model_name, assert_dictionaries.choice_complex)
+        remove_yang_model(grouping_yang_1)
+        remove_yang_model(grouping_yang_2)
 
-    # TODO: UT for choice
-    # TODO: UT for grouping 
-
+    def test_choice_complex(self):
+        """ Test object container with muplitple 'uses' that using 'grouping'
+            from different files. The used 'grouping' have a complex strucutre:
+            leafs, leaf-lists, choices
+        """
+        yang_model_name = 'sonic-grouping-complex'
+        grouping_yang_1 = 'sonic-grouping-1'
+        grouping_yang_2 = 'sonic-grouping-2'
+        move_yang_model(grouping_yang_1)
+        move_yang_model(grouping_yang_2)
+        template(yang_model_name, assert_dictionaries.grouping_complex)
+        remove_yang_model(grouping_yang_1)
+        remove_yang_model(grouping_yang_2)
 
 def template(yang_model_name, correct_dict):
     config_db_path =  os.path.join(test_path, 'cli_autogen_input/config_db.json')

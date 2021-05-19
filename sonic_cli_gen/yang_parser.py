@@ -208,7 +208,7 @@ def on_object_container(y_module: OrderedDict, cont: OrderedDict, conf_mgmt, is_
     attrs_list = list()
     attrs_list.extend(get_leafs(cont, grouping_name = ''))
     attrs_list.extend(get_leaf_lists(cont, grouping_name = ''))
-    attrs_list.extend(get_choices(y_module, cont, conf_mgmt))
+    attrs_list.extend(get_choices(y_module, cont, conf_mgmt, grouping_name = ''))
     # TODO: need to test 'grouping'
     attrs_list.extend(get_uses(y_module, cont, conf_mgmt))
 
@@ -241,18 +241,18 @@ def on_uses(y_module: OrderedDict, y_uses, conf_mgmt) -> list:
             for use in y_uses:
                 if group.get('@name') == use.get('@name'):
                     ret_attrs.extend(get_leafs(group, group.get('@name')))
-                    ret_attrs.extend(get_leaf_lists(group, grouping_name = ''))
-                    ret_attrs.extend(get_choices(y_module, group, conf_mgmt))
+                    ret_attrs.extend(get_leaf_lists(group, group.get('@name')))
+                    ret_attrs.extend(get_choices(y_module, group, conf_mgmt, group.get('@name')))
         else:
             if group.get('@name') == y_uses.get('@name'):
                 ret_attrs.extend(get_leafs(group, group.get('@name')))
-                ret_attrs.extend(get_leaf_lists(group, grouping_name = ''))
-                ret_attrs.extend(get_choices(y_module, group, conf_mgmt))
+                ret_attrs.extend(get_leaf_lists(group, group.get('@name')))
+                ret_attrs.extend(get_choices(y_module, group, conf_mgmt, group.get('@name')))
 
     return ret_attrs
 
 
-def on_choices(y_module: OrderedDict, y_choices, conf_mgmt) -> list:
+def on_choices(y_module: OrderedDict, y_choices, conf_mgmt: ConfigMgmt, grouping_name: str) -> list:
     """ Parse a YANG 'choice' entities
 
         Args:
@@ -266,14 +266,14 @@ def on_choices(y_module: OrderedDict, y_choices, conf_mgmt) -> list:
     # the YANG model can have multiple 'choice' entities inside a 'container' or 'list'
     if isinstance(y_choices, list):
         for choice in y_choices:
-            attrs = on_choice_cases(y_module, choice.get('case'), conf_mgmt)
+            attrs = on_choice_cases(y_module, choice.get('case'), conf_mgmt, grouping_name)
             ret_attrs.extend(attrs)
     else:
-        ret_attrs = on_choice_cases(y_module, y_choices.get('case'), conf_mgmt)
+        ret_attrs = on_choice_cases(y_module, y_choices.get('case'), conf_mgmt, grouping_name)
 
     return ret_attrs
 
-def on_choice_cases(y_module: OrderedDict, y_cases: list, conf_mgmt) -> list:
+def on_choice_cases(y_module: OrderedDict, y_cases: list, conf_mgmt: ConfigMgmt, grouping_name: str) -> list:
     """ Parse a single YANG 'case' entity from 'choice' entity
         'case' element can have inside - 'leaf', 'leaf-list', 'uses'
 
@@ -288,8 +288,8 @@ def on_choice_cases(y_module: OrderedDict, y_cases: list, conf_mgmt) -> list:
 
     if isinstance(y_cases, list):
         for case in y_cases:
-            ret_attrs.extend(get_leafs(case, grouping_name = ''))
-            ret_attrs.extend(get_leaf_lists(case, grouping_name = ''))
+            ret_attrs.extend(get_leafs(case, grouping_name))
+            ret_attrs.extend(get_leaf_lists(case, grouping_name))
             # TODO: need to deeply test it
             ret_attrs.extend(get_uses(y_module, case, conf_mgmt))
     else:
@@ -369,9 +369,9 @@ def get_leaf_lists(y_entity: OrderedDict, grouping_name) -> list:
 
     return []
 
-def get_choices(y_module: OrderedDict, y_entity: OrderedDict, conf_mgmt) -> list:
+def get_choices(y_module: OrderedDict, y_entity: OrderedDict, conf_mgmt: ConfigMgmt, grouping_name: str) -> list:
     if y_entity.get('choice') is not None:
-        return on_choices(y_module, y_entity.get('choice'), conf_mgmt)
+        return on_choices(y_module, y_entity.get('choice'), conf_mgmt, grouping_name)
 
     return []
 
