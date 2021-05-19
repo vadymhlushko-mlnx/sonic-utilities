@@ -228,25 +228,29 @@ def on_uses(y_module: OrderedDict, y_uses, conf_mgmt) -> list:
     """
     ret_attrs = list()
     y_grouping = get_all_grouping(y_module, y_uses, conf_mgmt)
+    # trim prefixes in order to the next checks
+    trim_uses_prefixes(y_uses)
 
     if y_grouping == []:
         # not sure if it can happend
         raise Exception('EMPTY')
 
+    # TODO: 'refine' support
     for group in y_grouping:
         if isinstance(y_uses, list):
             for use in y_uses:
-                if use.get('@name') == group.get('@name'):
+                if group.get('@name') == use.get('@name'):
                     ret_attrs.extend(get_leafs(group, group.get('@name')))
                     ret_attrs.extend(get_leaf_lists(group, grouping_name = ''))
                     ret_attrs.extend(get_choices(y_module, group, conf_mgmt))
         else:
-            if y_uses.get('@name') == group.get('@name'):
+            if group.get('@name') == y_uses.get('@name'):
                 ret_attrs.extend(get_leafs(group, group.get('@name')))
                 ret_attrs.extend(get_leaf_lists(group, grouping_name = ''))
                 ret_attrs.extend(get_choices(y_module, group, conf_mgmt))
 
     return ret_attrs
+
 
 def on_choices(y_module: OrderedDict, y_choices, conf_mgmt) -> list:
     """ Parse a YANG 'choice' entities
@@ -378,6 +382,8 @@ def get_uses(y_module: OrderedDict, y_entity: OrderedDict, conf_mgmt) -> list:
     return []
 
 def get_all_grouping(y_module: OrderedDict, y_uses: OrderedDict, conf_mgmt) -> list:
+    """ Get all 'grouping' entities that is 'uses' in current YANG
+    """
     # WARNING
     # TODO add to the design statement that grouping should be defined under the 'module' and NOT in nested containers
     ret_grouping = list()
@@ -457,6 +463,28 @@ def get_import_prefixes(y_uses: OrderedDict) -> list:
             ret_prefixes.append(prefix)
 
     return ret_prefixes
+
+def trim_uses_prefixes(y_uses) -> list:
+    """ Trim prefixes from 'uses' YANG entities.
+        If YANG 'grouping' was imported from another YANG file, it use 'prefix' before 'grouping' name:
+        {
+            uses sgrop:endpoint;
+        }
+        Where 'sgrop' = 'prefix'; 'endpoint' = 'grouping' name.
+
+        Args:
+            y_uses - reference to 'uses'
+    """
+    prefixes = get_import_prefixes(y_uses)
+
+    for prefix in prefixes:
+        if isinstance(y_uses, list):
+            for use in y_uses:
+                if prefix in use.get('@name'):
+                    use['@name'] = use.get('@name').split(':')[1]
+        else:
+            if prefix in y_uses.get('@name'):
+                y_uses['@name'] = y_uses.get('@name').split(':')[1]
 
 def get_list_keys(y_list: OrderedDict) -> list:
     ret_list = list()
