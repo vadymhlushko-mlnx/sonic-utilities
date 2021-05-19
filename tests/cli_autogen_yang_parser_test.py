@@ -83,7 +83,7 @@ class TestYangParser:
         """
         template('sonic-choice-complex', assert_dictionaries.choice_complex)
 
-    def test_choice_complex(self):
+    def test_grouping_complex(self):
         """ Test object container with muplitple 'uses' that using 'grouping'
             from different files. The used 'grouping' have a complex strucutre:
             leafs, leaf-lists, choices
