@@ -26,14 +26,18 @@ class CliGenerator:
                             allow_tbl_without_yang=True,
                             debug=False)
         yang_dict = parser.parse_yang_model()
-        import pprint; pprint.pprint(yang_dict)
-        #plugin_path = get_cli_plugin_path(cli_group, plugin_name + '_yang.py')
-        #template = self.env.get_template(cli_group + '.py.j2')
-        #with open(plugin_path, 'w') as plugin_py:
-        #    plugin_py.write(template.render(yang_dict))
+        plugin_path = get_cli_plugin_path(cli_group, plugin_name + '_yang.py')
+        template = self.env.get_template(cli_group + '.py.j2')
+        with open(plugin_path, 'w') as plugin_py:
+            plugin_py.write(template.render(yang_dict))
+    
+    def remove_cli_plugin(self, cli_group, plugin_name):
+        plugin_path = get_cli_plugin_path(cli_group, plugin_name + '_yang.py')
+        if os.path.exists(plugin_path):
+            os.remove(plugin_path)
 
 def get_cli_plugin_path(command, plugin_name):
-    pkg_loader = pkgutil.get_loader(f'{command}.plugins')
+    pkg_loader = pkgutil.get_loader(f'{command}.plugins.auto')
     if pkg_loader is None:
         raise PackageManagerError(f'Failed to get plugins path for {command} CLI')
     plugins_pkg_path = os.path.dirname(pkg_loader.path)
