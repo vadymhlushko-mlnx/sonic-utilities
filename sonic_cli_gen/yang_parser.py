@@ -3,13 +3,14 @@
 from collections import OrderedDict
 from config.config_mgmt import ConfigMgmt
 
+yang_guidelines_link = 'https://github.com/Azure/SONiC/blob/master/doc/mgmt/SONiC_YANG_Model_Guidelines.md'
+
 class YangParser:
     """ YANG model parser
 
         Attributes:
         yang_model_name: Name of the YANG model file
         conf_mgmt: Instance of Config Mgmt class to help parse YANG models
-        idx_yJson: Index of yang_model_file (1 attr) inside conf_mgmt.sy.yJson object
         y_module: Reference to 'module' entity from YANG model file
         y_top_level_container: Reference to top level 'container' entity from YANG model file
         y_table_containers: Reference to 'container' entities from YANG model file
@@ -52,7 +53,6 @@ class YangParser:
                  debug):
         self.yang_model_name = yang_model_name
         self.conf_mgmt = None
-        self.idx_yJson = None
         self.y_module = None
         self.y_top_level_container = None
         self.y_table_containers = None
@@ -72,36 +72,36 @@ class YangParser:
             self.y_table_containers
 
             Raises:
-                KeyError: if YANG model is invalid or NOT exist
+                Exception: if YANG model is invalid or NOT exist
         """
 
-        self._find_index_of_yang_model()
+        self.y_module = self._find_yang_model_in_yjson_obj()
 
-        if self.idx_yJson is None:
-            raise KeyError('YANG model {} is NOT exist'.format(self.yang_model_name))
-        self.y_module = self.conf_mgmt.sy.yJson[self.idx_yJson]['module']
+        if self.y_module is None:
+            raise Exception('The YANG model {} is NOT exist'.format(self.yang_model_name))
 
         if self.y_module.get('container') is None:
-            raise KeyError('YANG model {} does NOT have "top level container" element \
-                            Please follow the SONiC YANG model guidelines: \
-                            https://github.com/Azure/SONiC/blob/master/doc/mgmt/SONiC_YANG_Model_Guidelines.md'.format(self.yang_model_name))
+            raise Exception('The YANG model {} does NOT have "top level container" element\
+                            Please follow the SONiC YANG model guidelines:\n{}'.format(self.yang_model_name, yang_guidelines_link))
         self.y_top_level_container = self.y_module.get('container')
 
         if self.y_top_level_container.get('container') is None:
-            raise KeyError('YANG model {} does NOT have "container" element after "top level container" \
-                            Please follow the SONiC YANG model guidelines: \
-                            https://github.com/Azure/SONiC/blob/master/doc/mgmt/SONiC_YANG_Model_Guidelines.md'.format(self.yang_model_name))
+            raise Exception('The YANG model {} does NOT have "container" element after "top level container"\
+                            Please follow the SONiC YANG model guidelines:\n{}'.format(self.yang_model_name, yang_guidelines_link))
         self.y_table_containers = self.y_top_level_container.get('container')
 
-    def _find_index_of_yang_model(self):
-        """ Find index of provided YANG model inside yJson object,
-            and save it to self.idx_yJson variable
+    def _find_yang_model_in_yjson_obj(self) -> OrderedDict:
+        """ Find provided YANG model inside yJson object,
             yJson object contain all yang-models parsed from directory - /usr/local/yang-models
+
+            Returns:
+                reference to yang_model_name
         """
 
-        for i in range(len(self.conf_mgmt.sy.yJson)):
-            if (self.conf_mgmt.sy.yJson[i]['module']['@name'] == self.yang_model_name):
-                self.idx_yJson = i
+        # TODO: consider to check yJson type
+        for yang_model in self.conf_mgmt.sy.yJson:
+            if yang_model.get('module').get('@name') == self.yang_model_name:
+                return yang_model.get('module')
 
     def parse_yang_model(self) -> dict:
         """ Parse proviced YANG model
@@ -598,3 +598,4 @@ def change_dyn_obj_struct(dynamic_objects: OrderedDict):
                     key['description'] = attr.get('description')
                     obj['attrs'].remove(attr)
                     break
+
