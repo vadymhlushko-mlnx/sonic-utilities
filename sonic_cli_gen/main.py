@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 
+import sys
 import click
+import logging
 from sonic_cli_gen.generator import CliGenerator
+
+logger = logging.getLogger('sonic-cli-gen')
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 @click.group()
 @click.pass_context
@@ -15,7 +20,7 @@ def cli(ctx):
     """
 
     context = {
-        'gen': CliGenerator()
+        'gen': CliGenerator(logger)
     }
     ctx.obj = context
 

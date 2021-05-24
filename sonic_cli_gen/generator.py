@@ -9,19 +9,25 @@ from sonic_cli_gen.yang_parser import YangParser
 class CliGenerator:
     """ SONiC CLI generator. This class provides public API
     for sonic-cli-gen python library. It can generate config,
-    show CLI plugins
+    show CLI plugins.
+
+        Attributes:
+            loader: the loaded j2 templates
+            env: j2 central object
+            logger: logger
     """
 
-    def __init__(self):
+    def __init__(self, logger):
         """ Initialize CliGenerator. """
 
         self.loader = jinja2.FileSystemLoader(['/usr/share/sonic/templates/sonic-cli-gen/'])
         self.env = jinja2.Environment(loader=self.loader)
+        self.logger = logger
 
 
     def generate_cli_plugin(self, cli_group, plugin_name):
         """ Generate click CLI plugin and put it to:
-            /usr/local/lib/python3.7/dist-packages/<CLI group>/plugins/auto/
+            /usr/local/lib/<python>/dist-packages/<CLI group>/plugins/auto/
         """
 
         parser = YangParser(yang_model_name=plugin_name,
@@ -34,19 +40,19 @@ class CliGenerator:
         template = self.env.get_template(cli_group + '.py.j2')
         with open(plugin_path, 'w') as plugin_py:
             plugin_py.write(template.render(yang_dict))
-            print('\nAuto-generation successful!\nLocation: {}'.format(plugin_path))
+            self.logger.info(' Auto-generation successful! Location: {}'.format(plugin_path))
 
     
     def remove_cli_plugin(self, cli_group, plugin_name):
         """ Remove CLI plugin from directory:
-            /usr/local/lib/python3.7/dist-packages/<CLI group>/plugins/auto/
+            /usr/local/lib/<python>/dist-packages/<CLI group>/plugins/auto/
         """
         plugin_path = get_cli_plugin_path(cli_group, plugin_name + '_yang.py')
         if os.path.exists(plugin_path):
             os.remove(plugin_path)
-            print('{} was removed.'.format(plugin_path))
+            self.logger.info(' {} was removed.'.format(plugin_path))
         else:
-            print('Path {} doest NOT exist!'.format(plugin_path))
+            self.logger.warning(' Path {} doest NOT exist!'.format(plugin_path))
 
 
 def get_cli_plugin_path(command, plugin_name):
