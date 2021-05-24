@@ -105,17 +105,17 @@ class YangParser:
                 return yang_model.get('module')
 
     def parse_yang_model(self) -> dict:
-        """ Parse proviced YANG model
+        """ Parse provided YANG model
             and save output to self.yang_2_dict object 
 
             Returns:
-                dictionary - parsed YANG model in dictionary format
+                parsed YANG model in dictionary format
         """
 
         self._init_yang_module_and_containers()
         self.yang_2_dict['tables'] = list()
 
-        # determine how many (1 or couple) containers a YANG model have after 'top level' container
+        # determine how many (1 or more) containers a YANG model have after 'top level' container
         # 'table' container it is a container that goes after 'top level' container
         if isinstance(self.y_table_containers, list):
             for tbl_container in self.y_table_containers:
@@ -140,7 +140,7 @@ def on_table_container(y_module: OrderedDict, tbl_container: OrderedDict, conf_m
             conf_mgmt: reference to ConfigMgmt class instance,
                        it have yJson object which contain all parsed YANG models
         Returns:
-            dictionary: element for self.yang_2_dict['tables'] 
+            element for self.yang_2_dict['tables'] 
     """
 
     y2d_elem = {
@@ -198,7 +198,7 @@ def on_object_container(y_module: OrderedDict, y_container: OrderedDict, conf_mg
                        it have yJson object which contain all parsed YANG models
             is_list: boolean flag to determine if container has 'list'
         Returns:
-            dictionary: element for y2d_elem['static-objects'] OR y2d_elem['dynamic-objects']
+            element for y2d_elem['static-objects'] OR y2d_elem['dynamic-objects']
     """
 
     if y_container is None:
@@ -235,7 +235,7 @@ def on_uses(y_module: OrderedDict, y_uses, conf_mgmt: ConfigMgmt) -> list:
             conf_mgmt: reference to ConfigMgmt class instance,
                        it have yJson object which contain all parsed YANG model
         Returns:
-            list: element for obj_elem['attrs'], 'attrs' contain a parsed 'leafs'
+            element for obj_elem['attrs'], 'attrs' contain a parsed 'leafs'
     """
 
     ret_attrs = list()
@@ -274,7 +274,7 @@ def on_choices(y_module: OrderedDict, y_choices, conf_mgmt: ConfigMgmt, grouping
                        it have yJson object which contain all parsed YANG model
             grouping_name: if YANG entity contain 'uses', this arg represent 'grouping' name
         Returns:
-            list: element for obj_elem['attrs'], 'attrs' contain a parsed 'leafs'
+            element for obj_elem['attrs'], 'attrs' contain a parsed 'leafs'
     """
 
     ret_attrs = list()
@@ -301,7 +301,7 @@ def on_choice_cases(y_module: OrderedDict, y_cases: list, conf_mgmt: ConfigMgmt,
                        it have yJson object which contain all parsed YANG model
             grouping_name: if YANG entity contain 'uses', this arg represent 'grouping' name
         Returns:
-            list: element for obj_elem['attrs'], 'attrs' contain a parsed 'leafs'
+            element for obj_elem['attrs'], 'attrs' contain a parsed 'leafs'
     """
 
     ret_attrs = list()
@@ -325,7 +325,7 @@ def on_leafs(y_leafs, grouping_name, is_leaf_list: bool) -> list:
             grouping_name: if YANG entity contain 'uses', this arg represent 'grouping' name
             is_leaf_list: boolean to determine if 'leaf-list' was passed in 'y_leafs' arg
         Returns:
-            list: list of parsed 'leaf' elements 
+            list of parsed 'leaf' elements 
     """
 
     ret_attrs = list()
@@ -349,7 +349,7 @@ def on_leaf(leaf: OrderedDict, is_leaf_list: bool, grouping_name: str) -> dict:
             grouping_name: if YANG entity contain 'uses', this arg represent 'grouping' name
             is_leaf_list: boolean to determine if 'leaf-list' was passed in 'y_leafs' arg
         Returns:
-            dictionary: parsed 'leaf' element
+            parsed 'leaf' element
     """
 
     attr = { 'name': leaf.get('@name'),
@@ -369,7 +369,7 @@ def get_mandatory(y_leaf: OrderedDict) -> bool:
         Args:
             y_leaf: reference to a 'leaf' entity
         Returns:
-            bool: 'leaf' 'mandatory' value
+            'leaf' 'mandatory' value
     """
 
     if y_leaf.get('mandatory') is not None:
@@ -384,7 +384,7 @@ def get_description(y_entity: OrderedDict) -> str:
         Args:
             y_entity: reference to YANG 'container' OR 'list' OR 'leaf' ...
         Returns:
-            str - text of the 'description'
+            text of the 'description'
     """
 
     if y_entity.get('description') is not None:
@@ -400,7 +400,7 @@ def get_leafs(y_entity: OrderedDict, grouping_name: str) -> list:
             y_entity: reference YANG 'container' or 'list' or 'choice' or 'uses'
             grouping_name: if YANG entity contain 'uses', this arg represent 'grouping' name
         Returns:
-            list: list of parsed 'leaf' elements 
+            list of parsed 'leaf' elements 
     """
 
     if y_entity.get('leaf') is not None:
@@ -416,7 +416,7 @@ def get_leaf_lists(y_entity: OrderedDict, grouping_name: str) -> list:
             y_entity: reference YANG 'container' or 'list' or 'choice' or 'uses'
             grouping_name: if YANG entity contain 'uses', this arg represent 'grouping' name
         Returns:
-            list: list of parsed 'leaf-list' elements 
+            list of parsed 'leaf-list' elements 
     """
 
     if y_entity.get('leaf-list') is not None:
@@ -435,7 +435,7 @@ def get_choices(y_module: OrderedDict, y_entity: OrderedDict, conf_mgmt: ConfigM
                        it have yJson object which contain all parsed YANG model
             grouping_name: if YANG entity contain 'uses', this arg represent 'grouping' name
         Returns:
-            list: list of parsed elements inside 'choice'
+            list of parsed elements inside 'choice'
     """
 
     if y_entity.get('choice') is not None:
@@ -453,7 +453,7 @@ def get_uses(y_module: OrderedDict, y_entity: OrderedDict, conf_mgmt: ConfigMgmt
             conf_mgmt: reference to ConfigMgmt class instance,
                        it have yJson object which contain all parsed YANG model
         Returns:
-            list: list of parsed elements inside 'grouping' that referenced by 'uses'
+            list of parsed elements inside 'grouping' that referenced by 'uses'
     """
 
     if y_entity.get('uses') is not None:
@@ -471,7 +471,7 @@ def get_all_grouping(y_module: OrderedDict, y_uses: OrderedDict, conf_mgmt: Conf
             conf_mgmt: reference to ConfigMgmt class instance,
                        it have yJson object which contain all parsed YANG model
         Returns:
-            list: list of 'grouping' elements
+            list of 'grouping' elements
     """
 
     ret_grouping = list()
@@ -510,7 +510,7 @@ def get_grouping_from_another_yang_model(yang_model_name: str, conf_mgmt) -> lis
                         it have yJson object which contain all parsed YANG models
 
         Returns:
-            list - list 'grouping' entities
+            list 'grouping' entities
     """
 
     ret_grouping = list()
@@ -539,7 +539,7 @@ def get_import_prefixes(y_uses: OrderedDict) -> list:
         Args:
             y_uses: refrence to YANG 'uses'
         Returns:
-            list - of parsed prefixes
+            list of parsed prefixes
     """
 
     ret_prefixes = list()
@@ -588,7 +588,7 @@ def get_list_keys(y_list: OrderedDict) -> list:
         Args:
             y_list: reference to 'list'
         Returns:
-            list: parsed keys
+            liss of parsed keys
     """
 
     ret_list = list()
@@ -600,7 +600,7 @@ def get_list_keys(y_list: OrderedDict) -> list:
     return ret_list
 
 
-def change_dyn_obj_struct(dynamic_objects: OrderedDict):
+def change_dyn_obj_struct(dynamic_objects: list):
     """ Rearrange self.yang_2_dict['dynamic_objects'] structure.
         If YANG model have a 'list' entity - inside the 'list' it has 'key' entity.
         'key' entity it is whitespace-separeted list of 'leafs', those 'leafs' was
