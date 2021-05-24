@@ -29,7 +29,8 @@ class YangParser:
                             'name': 'value',
                             'description': 'value',
                             'is-leaf-list': False,
-                            'is-mandatory': False
+                            'is-mandatory': False,
+                            'group': 'value'
                         }
                         ...
                     ],
@@ -126,6 +127,7 @@ class YangParser:
 
         return self.yang_2_dict
 
+
 #------------------------------HANDLERS--------------------------------#
 
 def on_table_container(y_module: OrderedDict, tbl_container: OrderedDict, conf_mgmt: ConfigMgmt) -> dict:
@@ -177,6 +179,7 @@ def on_table_container(y_module: OrderedDict, tbl_container: OrderedDict, conf_m
 
     return y2d_elem
 
+
 def on_object_container(y_module: OrderedDict, y_container: OrderedDict, conf_mgmt, is_list: bool) -> dict:
     """ Parse a 'object container'.
         'Object container' represent OBJECT inside Config DB schema:
@@ -221,6 +224,7 @@ def on_object_container(y_module: OrderedDict, y_container: OrderedDict, conf_mg
 
     return obj_elem
 
+
 def on_uses(y_module: OrderedDict, y_uses, conf_mgmt: ConfigMgmt) -> list:
     """ Parse a YANG 'uses' entities
         'uses' refearing to 'grouping' YANG entity
@@ -259,6 +263,7 @@ def on_uses(y_module: OrderedDict, y_uses, conf_mgmt: ConfigMgmt) -> list:
 
     return ret_attrs
 
+
 def on_choices(y_module: OrderedDict, y_choices, conf_mgmt: ConfigMgmt, grouping_name: str) -> list:
     """ Parse a YANG 'choice' entities
 
@@ -284,6 +289,7 @@ def on_choices(y_module: OrderedDict, y_choices, conf_mgmt: ConfigMgmt, grouping
 
     return ret_attrs
 
+
 def on_choice_cases(y_module: OrderedDict, y_cases: list, conf_mgmt: ConfigMgmt, grouping_name: str) -> list:
     """ Parse a single YANG 'case' entity from 'choice' entity
         'case' element can have inside - 'leaf', 'leaf-list', 'uses'
@@ -304,12 +310,12 @@ def on_choice_cases(y_module: OrderedDict, y_cases: list, conf_mgmt: ConfigMgmt,
         for case in y_cases:
             ret_attrs.extend(get_leafs(case, grouping_name))
             ret_attrs.extend(get_leaf_lists(case, grouping_name))
-            # TODO: need to deeply test it
             ret_attrs.extend(get_uses(y_module, case, conf_mgmt))
     else:
         raise Exception('It has no sense to using a single "case" element inside "choice" element')
     
     return ret_attrs
+
 
 def on_leafs(y_leafs, grouping_name, is_leaf_list: bool) -> list:
     """ Parse all the 'leaf' or 'leaf-list' elements
@@ -334,6 +340,7 @@ def on_leafs(y_leafs, grouping_name, is_leaf_list: bool) -> list:
 
     return ret_attrs
 
+
 def on_leaf(leaf: OrderedDict, is_leaf_list: bool, grouping_name: str) -> dict:
     """ Parse a single 'leaf' element
 
@@ -353,6 +360,7 @@ def on_leaf(leaf: OrderedDict, is_leaf_list: bool, grouping_name: str) -> dict:
 
     return attr
 
+
 #----------------------GETERS-------------------------#
 
 def get_mandatory(y_leaf: OrderedDict) -> bool:
@@ -369,6 +377,7 @@ def get_mandatory(y_leaf: OrderedDict) -> bool:
 
     return False
 
+
 def get_description(y_entity: OrderedDict) -> str:
     """ Parse 'description' entity from any YANG element
 
@@ -382,6 +391,7 @@ def get_description(y_entity: OrderedDict) -> str:
         return y_entity.get('description').get('text')
     else:
         return ''
+
 
 def get_leafs(y_entity: OrderedDict, grouping_name: str) -> list:
     """ Check if YANG entity have 'leafs', if so call handler
@@ -398,6 +408,7 @@ def get_leafs(y_entity: OrderedDict, grouping_name: str) -> list:
 
     return []
 
+
 def get_leaf_lists(y_entity: OrderedDict, grouping_name: str) -> list:
     """ Check if YANG entity have 'leaf-list', if so call handler
 
@@ -412,6 +423,7 @@ def get_leaf_lists(y_entity: OrderedDict, grouping_name: str) -> list:
         return on_leafs(y_entity.get('leaf-list'), grouping_name, is_leaf_list=True)
 
     return []
+
 
 def get_choices(y_module: OrderedDict, y_entity: OrderedDict, conf_mgmt: ConfigMgmt, grouping_name: str) -> list:
     """ Check if YANG entity have 'choice', if so call handler
@@ -431,6 +443,7 @@ def get_choices(y_module: OrderedDict, y_entity: OrderedDict, conf_mgmt: ConfigM
 
     return []
 
+
 def get_uses(y_module: OrderedDict, y_entity: OrderedDict, conf_mgmt: ConfigMgmt) -> list:
     """ Check if YANG entity have 'uses', if so call handler
 
@@ -448,6 +461,7 @@ def get_uses(y_module: OrderedDict, y_entity: OrderedDict, conf_mgmt: ConfigMgmt
 
     return []
 
+
 def get_all_grouping(y_module: OrderedDict, y_uses: OrderedDict, conf_mgmt: ConfigMgmt) -> list:
     """ Get all 'grouping' entities that is referenced by 'uses' in current YANG model
 
@@ -460,7 +474,6 @@ def get_all_grouping(y_module: OrderedDict, y_uses: OrderedDict, conf_mgmt: Conf
             list: list of 'grouping' elements
     """
 
-    # TODO add to the design statement that grouping should be defined under the 'module' and NOT in nested containers
     ret_grouping = list()
     prefix_list = get_import_prefixes(y_uses)
 
@@ -487,6 +500,7 @@ def get_all_grouping(y_module: OrderedDict, y_uses: OrderedDict, conf_mgmt: Conf
 
     return ret_grouping
 
+
 def get_grouping_from_another_yang_model(yang_model_name: str, conf_mgmt) -> list:
     """ Get the YANG 'grouping' entity
 
@@ -498,6 +512,7 @@ def get_grouping_from_another_yang_model(yang_model_name: str, conf_mgmt) -> lis
         Returns:
             list - list 'grouping' entities
     """
+
     ret_grouping = list()
 
     for i in range(len(conf_mgmt.sy.yJson)):
@@ -510,6 +525,7 @@ def get_grouping_from_another_yang_model(yang_model_name: str, conf_mgmt) -> lis
                 ret_grouping.append(grouping)
 
     return ret_grouping
+
 
 def get_import_prefixes(y_uses: OrderedDict) -> list:
     """ Parse 'import prefix' of YANG 'uses' entity
@@ -525,6 +541,7 @@ def get_import_prefixes(y_uses: OrderedDict) -> list:
         Returns:
             list - of parsed prefixes
     """
+
     ret_prefixes = list()
 
     if isinstance(y_uses, list):
@@ -538,6 +555,7 @@ def get_import_prefixes(y_uses: OrderedDict) -> list:
             ret_prefixes.append(prefix)
 
     return ret_prefixes
+
 
 def trim_uses_prefixes(y_uses) -> list:
     """ Trim prefixes from 'uses' YANG entities.
@@ -562,6 +580,7 @@ def trim_uses_prefixes(y_uses) -> list:
             if prefix in y_uses.get('@name'):
                 y_uses['@name'] = y_uses.get('@name').split(':')[1]
 
+
 def get_list_keys(y_list: OrderedDict) -> list:
     """ Parse YANG 'keys'
         If YANG have 'list', inside the list exist 'keys'
@@ -579,6 +598,7 @@ def get_list_keys(y_list: OrderedDict) -> list:
         ret_list.append(key)
 
     return ret_list
+
 
 def change_dyn_obj_struct(dynamic_objects: OrderedDict):
     """ Rearrange self.yang_2_dict['dynamic_objects'] structure.

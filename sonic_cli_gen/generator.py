@@ -13,14 +13,16 @@ class CliGenerator:
     """
 
     def __init__(self):
-        """ Initialize PackageManager. """
+        """ Initialize CliGenerator. """
 
         self.loader = jinja2.FileSystemLoader(['/usr/share/sonic/templates/sonic-cli-gen/'])
         self.env = jinja2.Environment(loader=self.loader)
 
 
     def generate_cli_plugin(self, cli_group, plugin_name):
-        """ Generate click CLI plugin. """
+        """ Generate click CLI plugin and put it to:
+            /usr/local/lib/python3.7/dist-packages/<CLI group>/plugins/auto/
+        """
 
         parser = YangParser(yang_model_name=plugin_name,
                             config_db_path='configDB',
@@ -36,6 +38,9 @@ class CliGenerator:
 
     
     def remove_cli_plugin(self, cli_group, plugin_name):
+        """ Remove CLI plugin from directory:
+            /usr/local/lib/python3.7/dist-packages/<CLI group>/plugins/auto/
+        """
         plugin_path = get_cli_plugin_path(cli_group, plugin_name + '_yang.py')
         if os.path.exists(plugin_path):
             os.remove(plugin_path)

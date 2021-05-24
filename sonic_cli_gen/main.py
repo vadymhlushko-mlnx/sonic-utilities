@@ -42,3 +42,4 @@ def remove(ctx, cli_group, yang_model_name):
 
 if __name__ == '__main__':
     cli()
+
