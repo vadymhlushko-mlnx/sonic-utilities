@@ -1,0 +1,15 @@
+module sonic-1-table-container {
+
+    yang-version 1.1;
+
+	namespace "http://github.com/Azure/s-1-table";
+	prefix s-1-table;
+
+	container sonic-1-table-container {
+
+		container TABLE_1 {
+
+			description "TABLE_1 description";
+		}
+	}
+}

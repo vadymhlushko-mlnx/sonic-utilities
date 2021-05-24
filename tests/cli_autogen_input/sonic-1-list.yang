@@ -1,0 +1,26 @@
+module sonic-1-list {
+
+    yang-version 1.1;
+
+	namespace "http://github.com/Azure/s-1-list";
+	prefix s-1-list;
+
+	container sonic-1-list {
+
+		container TABLE_1 {
+
+			description "TABLE_1 description";
+
+			list TABLE_1_LIST {
+
+				description "TABLE_1_LIST description";
+
+				key "key_name";
+
+				leaf key_name {
+					type string;
+				}
+			}
+		}
+	}
+}

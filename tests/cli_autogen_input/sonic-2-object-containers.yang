@@ -1,0 +1,25 @@
+module sonic-2-object-containers {
+
+    yang-version 1.1;
+
+	namespace "http://github.com/Azure/s-2-object";
+	prefix s-2-object;
+
+	container sonic-2-object-containers {
+
+		container TABLE_1 {
+
+			description "FIRST_TABLE description";
+
+			container OBJECT_1 {
+
+				description "OBJECT_1 description";
+			}
+
+			container OBJECT_2 {
+
+				description "OBJECT_2 description";
+			}
+		}
+	}
+}
