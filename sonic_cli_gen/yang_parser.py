@@ -3,6 +3,8 @@
 from collections import OrderedDict
 from config.config_mgmt import ConfigMgmt
 
+from typing import List, Dict
+
 yang_guidelines_link = 'https://github.com/Azure/SONiC/blob/master/doc/mgmt/SONiC_YANG_Model_Guidelines.md'
 
 class YangParser:
@@ -117,18 +119,20 @@ class YangParser:
 
         # determine how many (1 or more) containers a YANG model have after 'top level' container
         # 'table' container it is a container that goes after 'top level' container
-        if isinstance(self.y_table_containers, list):
-            for tbl_container in self.y_table_containers:
-                y2d_elem = on_table_container(self.y_module, tbl_container, self.conf_mgmt)
-                self.yang_2_dict['tables'].append(y2d_elem)
-        else:
-            y2d_elem = on_table_container(self.y_module, self.y_table_containers, self.conf_mgmt)
-            self.yang_2_dict['tables'].append(y2d_elem)
+        self.yang_2_dict['tables'] += list_handler(self.y_table_containers, lambda e: on_table_container(self.y_module, e, self.conf_mgmt))
 
         return self.yang_2_dict
 
 
 #------------------------------HANDLERS--------------------------------#
+
+def list_handler(y_entity, callback) -> List[Dict]:
+    """ Determine if the type of entity is a list, if so - call the callback for every list element """
+    if isinstance(y_entity, list):
+        return [callback(e) for e in y_entity]
+    else:
+        return [callback(y_entity)]
+
 
 def on_table_container(y_module: OrderedDict, tbl_container: OrderedDict, conf_mgmt: ConfigMgmt) -> dict:
     """ Parse 'table' container,
@@ -142,7 +146,6 @@ def on_table_container(y_module: OrderedDict, tbl_container: OrderedDict, conf_m
         Returns:
             element for self.yang_2_dict['tables'] 
     """
-
     y2d_elem = {
         'name': tbl_container.get('@name'),
         'description': get_description(tbl_container)
@@ -153,26 +156,15 @@ def on_table_container(y_module: OrderedDict, tbl_container: OrderedDict, conf_m
         y2d_elem['static-objects'] = list()
 
         # 'object' container goes after 'table' container
-        # 'object' container have 2 types - list (like sonic-flex_counter.yang) and NOT list (like sonic-device_metadata.yang)
         obj_container = tbl_container.get('container')
-        if isinstance(obj_container, list):
-            for y_container in obj_container:
-                static_obj_elem = on_object_container(y_module, y_container, conf_mgmt, is_list=False)
-                y2d_elem['static-objects'].append(static_obj_elem)
-        else:
-            static_obj_elem = on_object_container(y_module, obj_container, conf_mgmt, is_list=False)
-            y2d_elem['static-objects'].append(static_obj_elem)
+        # 'object' container have 2 types - list (like sonic-flex_counter.yang) and NOT list (like sonic-device_metadata.yang)
+        y2d_elem['static-objects'] += list_handler(obj_container, lambda e: on_object_container(y_module, e, conf_mgmt, is_list = False))
     else:
         y2d_elem['dynamic-objects'] = list()
         tbl_container_lists = tbl_container.get('list')
+
         # 'container' can have more than 1 'list' entity
-        if isinstance(tbl_container_lists, list):
-            for _list in tbl_container_lists:
-                dynamic_obj_elem = on_object_container(y_module, _list, conf_mgmt, is_list=True)
-                y2d_elem['dynamic-objects'].append(dynamic_obj_elem)
-        else:
-            dynamic_obj_elem = on_object_container(y_module, tbl_container_lists, conf_mgmt, is_list=True)
-            y2d_elem['dynamic-objects'].append(dynamic_obj_elem)
+        y2d_elem['dynamic-objects'] += list_handler(tbl_container_lists, lambda e: on_object_container(y_module, e, conf_mgmt, is_list = True))
 
         # move 'keys' elements from 'attrs' to 'keys'
         change_dyn_obj_struct(y2d_elem['dynamic-objects'])
@@ -566,7 +558,7 @@ def trim_uses_prefixes(y_uses) -> list:
         Where 'sgrop' = 'prefix'; 'endpoint' = 'grouping' name.
 
         Args:
-            y_uses - reference to 'uses'
+            y_uses: reference to 'uses'
     """
 
     prefixes = get_import_prefixes(y_uses)
@@ -588,7 +580,7 @@ def get_list_keys(y_list: OrderedDict) -> list:
         Args:
             y_list: reference to 'list'
         Returns:
-            liss of parsed keys
+            list of parsed keys
     """
 
     ret_list = list()
