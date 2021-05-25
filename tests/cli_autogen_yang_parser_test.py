@@ -115,7 +115,7 @@ class TestYangParser:
                  assert_dictionaries.static_object_complex_2)
 
     def test_dynamic_object_complex_1(self):
-        """ Test object container with:
+        """ Test for object container with:
             1 key, 1 leaf, 1 leaf-list, 1 choice.
         """
 
@@ -123,7 +123,7 @@ class TestYangParser:
                  assert_dictionaries.dynamic_object_complex_1)
 
     def test_dynamic_object_complex_2(self):
-        """ Test object container with:
+        """ Test for object container with:
             2 keys, 2 leafs, 2 leaf-list, 2 choice.
         """
 
@@ -131,7 +131,8 @@ class TestYangParser:
                  assert_dictionaries.dynamic_object_complex_2)
 
     def test_choice_complex(self):
-        """ Test object container with choice that have complex strucutre:
+        """ Test for object container with the 'choice'
+            that have complex strucutre:
             leafs, leaf-lists, multiple 'uses' from different files
         """
 
@@ -139,8 +140,8 @@ class TestYangParser:
                  assert_dictionaries.choice_complex)
 
     def test_grouping_complex(self):
-        """ Test object container with muplitple 'uses' that using 'grouping'
-            from different files. The used 'grouping' have a complex strucutre:
+        """ Test for object container with multitple 'uses' that using 'grouping'
+            from different files. The used 'grouping' have a complex structure:
             leafs, leaf-lists, choices
         """
 
@@ -149,6 +150,8 @@ class TestYangParser:
 
 
 def template(yang_model_name, correct_dict):
+    """ General template for every test case """
+
     config_db_path = os.path.join(test_path,
                                   'cli_autogen_input/config_db.json')
     parser = YangParser(yang_model_name=yang_model_name,
@@ -164,6 +167,7 @@ def move_yang_models_to_well_know_location():
     """ Move a test YANG models to known location
         in order to be parsed by YangParser class
     """
+
     for yang_model in test_yang_models:
         src_path = os.path.join(test_path,
                                 'cli_autogen_input',
@@ -176,6 +180,7 @@ def remove_yang_models_from_well_know_location():
     """ Remove a test YANG models to known location
         in order to be parsed by YangParser class
     """
+
     for yang_model in test_yang_models:
         yang_model_path = os.path.join(yang_models_path,
                                        yang_model + '.yang')
@@ -184,8 +189,8 @@ def remove_yang_models_from_well_know_location():
 
 
 def pretty_log_debug(dictionary):
-    """ Pretty print of parsed dictionary
-    """
+    """ Pretty print of parsed dictionary """
+
     for line in pprint.pformat(dictionary).split('\n'):
         logging.debug(line)
 
