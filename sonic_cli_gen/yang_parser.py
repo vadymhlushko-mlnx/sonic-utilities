@@ -259,10 +259,6 @@ def on_uses(y_module: OrderedDict,
     # trim prefixes in order to the next checks
     trim_uses_prefixes(y_uses)
 
-    # not sure if it can happend
-    if y_grouping == []:
-        raise Exception('Grouping NOT found')
-
     # TODO: 'refine' support
     for group in y_grouping:
         if isinstance(y_uses, list):
@@ -340,7 +336,9 @@ def on_choice_cases(y_module: OrderedDict,
             ret_attrs.extend(get_leaf_lists(case, grouping_name))
             ret_attrs.extend(get_uses(y_module, case, conf_mgmt))
     else:
-        raise Exception('It has no sense to using a single "case" element inside "choice" element')
+        ret_attrs.extend(get_leafs(y_cases, grouping_name))
+        ret_attrs.extend(get_leaf_lists(y_cases, grouping_name))
+        ret_attrs.extend(get_uses(y_module, y_cases, conf_mgmt))
 
     return ret_attrs
 
