@@ -8,6 +8,7 @@ from sonic_cli_gen.generator import CliGenerator
 logger = logging.getLogger('sonic-cli-gen')
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
+
 @click.group()
 @click.pass_context
 def cli(ctx):
@@ -26,23 +27,23 @@ def cli(ctx):
 
 
 @cli.command()
-@click.argument('cli_group', type = click.Choice(['config', 'show']))
-@click.argument('yang_model_name', type = click.STRING)
+@click.argument('cli_group', type=click.Choice(['config', 'show']))
+@click.argument('yang_model_name', type=click.STRING)
 @click.pass_context
 def generate(ctx, cli_group, yang_model_name):
     """ Generate click CLI plugin. """
 
-    ctx.obj['gen'].generate_cli_plugin(cli_group = cli_group, plugin_name = yang_model_name)
+    ctx.obj['gen'].generate_cli_plugin(cli_group, yang_model_name)
 
 
 @cli.command()
-@click.argument('cli_group', type = click.Choice(['config', 'show']))
-@click.argument('yang_model_name', type = click.STRING)
+@click.argument('cli_group', type=click.Choice(['config', 'show']))
+@click.argument('yang_model_name', type=click.STRING)
 @click.pass_context
 def remove(ctx, cli_group, yang_model_name):
     """ Remove generated click CLI plugin from. """
 
-    ctx.obj['gen'].remove_cli_plugin(cli_group = cli_group, plugin_name = yang_model_name)
+    ctx.obj['gen'].remove_cli_plugin(cli_group, yang_model_name)
 
 
 if __name__ == '__main__':
