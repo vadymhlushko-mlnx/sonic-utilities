@@ -6,17 +6,21 @@ module sonic-2-object-containers {
 	prefix s-2-object;
 
 	container sonic-2-object-containers {
+		/* sonic-2-object-containers - top level container */ 
 
 		container TABLE_1 {
+			/* TABLE_1 - table container */ 
 
 			description "FIRST_TABLE description";
 
 			container OBJECT_1 {
+				/* OBJECT_1 - object container */ 
 
 				description "OBJECT_1 description";
 			}
 
 			container OBJECT_2 {
+				/* OBJECT_2 - object container */ 
 
 				description "OBJECT_2 description";
 			}

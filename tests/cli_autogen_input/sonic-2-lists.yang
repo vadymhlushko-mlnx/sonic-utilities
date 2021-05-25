@@ -6,12 +6,16 @@ module sonic-2-lists {
 	prefix s-2-lists;
 
 	container sonic-2-lists {
+		/* sonic-2-lists - top level container */
 
 		container TABLE_1 {
+			/* TALBE_1 - table container */
+
 
 			description "TABLE_1 description";
 
 			list TABLE_1_LIST_1 {
+				/* TALBE_1_LIST_1 - object container */
 
 				description "TABLE_1_LIST_1 description";
 
@@ -23,6 +27,7 @@ module sonic-2-lists {
 			}
 
 			list TABLE_1_LIST_2 {
+				/* TALBE_1_LIST_2 - object container */
 
 				description "TABLE_1_LIST_2 description";
 

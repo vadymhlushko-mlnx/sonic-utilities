@@ -6,8 +6,10 @@ module sonic-1-table-container {
 	prefix s-1-table;
 
 	container sonic-1-table-container {
+		/* sonic-1-table-container - top level container */
 
 		container TABLE_1 {
+			/* TABLE_1 - table container */
 
 			description "TABLE_1 description";
 		}

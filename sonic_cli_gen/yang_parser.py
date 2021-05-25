@@ -196,7 +196,7 @@ def on_object_entity(y_module: OrderedDict,
                      conf_mgmt: ConfigMgmt,
                      is_list: bool) -> dict:
     """ Parse a 'object' entity, it could be a 'container' or a 'list'
-        'Object' entity represent OBJECT inside Config DB schema:
+        'Object' entity represent OBJECT in Config DB schema:
         {
             "TABLE": {
                 "OBJECT": {
