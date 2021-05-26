@@ -32,13 +32,13 @@ class TestYangParser:
     def setup_class(cls):
         logger.info("SETUP")
         os.environ['UTILITIES_UNIT_TESTING'] = "1"
-        move_yang_models_to_well_know_location()
+        move_yang_models()
 
     @classmethod
     def teardown_class(cls):
         logger.info("TEARDOWN")
         os.environ['UTILITIES_UNIT_TESTING'] = "0"
-        remove_yang_models_from_well_know_location()
+        remove_yang_models()
 
     def test_1_table_container(self):
         """ Test for 1 'table' container
@@ -53,13 +53,13 @@ class TestYangParser:
             }
         """
 
-        template('sonic-1-table-container',
+        base_test('sonic-1-table-container',
                  assert_dictionaries.one_table_container)
 
     def test_2_table_containers(self):
         """ Test for 2 'table' containers """
 
-        template('sonic-2-table-containers',
+        base_test('sonic-2-table-containers',
                  assert_dictionaries.two_table_containers)
 
     def test_1_object_container(self):
@@ -75,13 +75,13 @@ class TestYangParser:
             }
         """
 
-        template('sonic-1-object-container',
+        base_test('sonic-1-object-container',
                  assert_dictionaries.one_object_container)
 
     def test_2_object_containers(self):
         """ Test for 2 'object' containers """
 
-        template('sonic-2-object-containers',
+        base_test('sonic-2-object-containers',
                  assert_dictionaries.two_object_containers)
 
     def test_1_list(self):
@@ -89,21 +89,21 @@ class TestYangParser:
             the YANG 'list' entity
         """
 
-        template('sonic-1-list', assert_dictionaries.one_list)
+        base_test('sonic-1-list', assert_dictionaries.one_list)
 
     def test_2_lists(self):
         """ Test for 2 containers that have inside
             the YANG 'list' entity
         """
 
-        template('sonic-2-lists', assert_dictionaries.two_lists)
+        base_test('sonic-2-lists', assert_dictionaries.two_lists)
 
     def test_static_object_complex_1(self):
         """ Test for the object container with:
             1 leaf, 1 leaf-list, 1 choice.
         """
 
-        template('sonic-static-object-complex-1',
+        base_test('sonic-static-object-complex-1',
                  assert_dictionaries.static_object_complex_1)
 
     def test_static_object_complex_2(self):
@@ -111,7 +111,7 @@ class TestYangParser:
             2 leafs, 2 leaf-lists, 2 choices.
         """
 
-        template('sonic-static-object-complex-2',
+        base_test('sonic-static-object-complex-2',
                  assert_dictionaries.static_object_complex_2)
 
     def test_dynamic_object_complex_1(self):
@@ -119,7 +119,7 @@ class TestYangParser:
             1 key, 1 leaf, 1 leaf-list, 1 choice.
         """
 
-        template('sonic-dynamic-object-complex-1',
+        base_test('sonic-dynamic-object-complex-1',
                  assert_dictionaries.dynamic_object_complex_1)
 
     def test_dynamic_object_complex_2(self):
@@ -127,7 +127,7 @@ class TestYangParser:
             2 keys, 2 leafs, 2 leaf-list, 2 choice.
         """
 
-        template('sonic-dynamic-object-complex-2',
+        base_test('sonic-dynamic-object-complex-2',
                  assert_dictionaries.dynamic_object_complex_2)
 
     def test_choice_complex(self):
@@ -136,7 +136,7 @@ class TestYangParser:
             leafs, leaf-lists, multiple 'uses' from different files
         """
 
-        template('sonic-choice-complex',
+        base_test('sonic-choice-complex',
                  assert_dictionaries.choice_complex)
 
     def test_grouping_complex(self):
@@ -145,12 +145,12 @@ class TestYangParser:
             leafs, leaf-lists, choices
         """
 
-        template('sonic-grouping-complex',
+        base_test('sonic-grouping-complex',
                  assert_dictionaries.grouping_complex)
 
 
-def template(yang_model_name, correct_dict):
-    """ General template for every test case """
+def base_test(yang_model_name, correct_dict):
+    """ General logic for each test case """
 
     config_db_path = os.path.join(test_path,
                                   'cli_autogen_input/config_db.json')
@@ -163,7 +163,7 @@ def template(yang_model_name, correct_dict):
     assert yang_dict == correct_dict
 
 
-def move_yang_models_to_well_know_location():
+def move_yang_models():
     """ Move a test YANG models to known location
         in order to be parsed by YangParser class
     """
@@ -176,7 +176,7 @@ def move_yang_models_to_well_know_location():
         os.system(cmd)
 
 
-def remove_yang_models_from_well_know_location():
+def remove_yang_models():
     """ Remove a test YANG models to known location
         in order to be parsed by YangParser class
     """
