@@ -106,8 +106,14 @@ def clear_list_entry(db, table, key, attr):
 
     update_entry(db, table, key, {attr: None})
 
+@click.group(name='pbh',
+             cls=clicommon.AliasedGroup)
+def PBH():
+    """ Configure PBH (Policy based hashing) feature """
 
-@click.group(name="pbh-hash-field",
+    pass
+
+@PBH.group(name="hash-field",
              cls=clicommon.AliasedGroup)
 def PBH_HASH_FIELD():
     """ PBH_HASH_FIELD part of config_db.json """
@@ -209,7 +215,7 @@ def PBH_HASH_FIELD_delete(db, hash_field_name):
         exit_with_error(f"Error: {err}", fg="red")
 
 
-@click.group(name="pbh-hash",
+@PBH.group(name="hash",
              cls=clicommon.AliasedGroup)
 def PBH_HASH():
     """ PBH_HASH part of config_db.json """
@@ -287,87 +293,7 @@ def PBH_HASH_delete(db, hash_name):
         exit_with_error(f"Error: {err}", fg="red")
 
 
-@PBH_HASH.group(name="hash-field-list",
-                cls=clicommon.AliasedGroup)
-def PBH_HASH_hash_field_list():
-    """ Add/Delete hash_field_list in PBH_HASH """
-
-    pass
-
-
-@PBH_HASH_hash_field_list.command(name="add")
-@click.argument(
-    "hash-name",
-    nargs=1,
-    required=True,
-)
-@click.argument(
-    "hash-field-list",
-    nargs=-1,
-    required=True,
-)
-@clicommon.pass_db
-def PBH_HASH_hash_field_list_add(db, hash_name, hash_field_list):
-    """ Add hash_field_list in PBH_HASH """
-
-    table = "PBH_HASH"
-    key = hash_name
-    attr = "hash_field_list"
-    data = hash_field_list
-
-    try:
-        add_list_entry(db.cfgdb, table, key, attr, data)
-    except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
-
-
-@PBH_HASH_hash_field_list.command(name="delete")
-@click.argument(
-    "hash-name",
-    nargs=1,
-    required=True,
-)
-@click.argument(
-    "hash-field-list",
-    nargs=-1,
-    required=True,
-)
-@clicommon.pass_db
-def PBH_HASH_hash_field_list_delete(db, hash_name, hash_field_list):
-    """ Delete hash_field_list in PBH_HASH """
-
-    table = "PBH_HASH"
-    key = hash_name
-    attr = "hash_field_list"
-    data = hash_field_list
-
-    try:
-        del_list_entry(db.cfgdb, table, key, attr, data)
-    except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
-
-
-@PBH_HASH_hash_field_list.command(name="clear")
-@click.argument(
-    "hash-name",
-    nargs=1,
-    required=True,
-)
-@clicommon.pass_db
-def PBH_HASH_hash_field_list_clear(db, hash_name):
-    """ Clear hash_field_list in PBH_HASH """
-
-    table = "PBH_HASH"
-    key = hash_name
-    attr = "hash_field_list"
-
-    try:
-        clear_list_entry(db.cfgdb, table, key, attr)
-    except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
-
-
-@click.group(name="pbh-rule",
+@PBH.group(name="rule",
              cls=clicommon.AliasedGroup)
 def PBH_RULE():
     """ PBH_RULE part of config_db.json """
@@ -578,7 +504,7 @@ def PBH_RULE_delete(db, table_name, rule_name):
         exit_with_error(f"Error: {err}", fg="red")
 
 
-@click.group(name="pbh-table",
+@PBH.group(name="table",
              cls=clicommon.AliasedGroup)
 def PBH_TABLE():
     """ PBH_TABLE part of config_db.json """
@@ -750,19 +676,8 @@ def PBH_TABLE_interface_list_clear(db, table_name):
 
 
 def register(cli):
-    cli_node = PBH_HASH_FIELD
+    cli_node = PBH
     if cli_node.name in cli.commands:
         raise Exception(f"{cli_node.name} already exists in CLI")
-    cli.add_command(PBH_HASH_FIELD)
-    cli_node = PBH_HASH
-    if cli_node.name in cli.commands:
-        raise Exception(f"{cli_node.name} already exists in CLI")
-    cli.add_command(PBH_HASH)
-    cli_node = PBH_RULE
-    if cli_node.name in cli.commands:
-        raise Exception(f"{cli_node.name} already exists in CLI")
-    cli.add_command(PBH_RULE)
-    cli_node = PBH_TABLE
-    if cli_node.name in cli.commands:
-        raise Exception(f"{cli_node.name} already exists in CLI")
-    cli.add_command(PBH_TABLE)
+    cli.add_command(PBH)
+
