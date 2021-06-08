@@ -46,7 +46,15 @@ def format_group_value(entry, attrs):
     return tabulate.tabulate(data, tablefmt="plain")
 
 
-@click.group(name="pbh-hash-field",
+@click.group(name='pbh',
+             cls=clicommon.AliasedGroup)
+def PBH():
+    """ Show PBH (Policy based hashing) feature configuration """
+
+    pass
+
+
+@PBH.group(name="hash-field",
              cls=clicommon.AliasedGroup,
              invoke_without_command=True)
 @clicommon.pass_db
@@ -100,7 +108,7 @@ def PBH_HASH_FIELD(db):
     click.echo(tabulate.tabulate(body, header))
 
 
-@click.group(name="pbh-hash",
+@PBH.group(name="hash",
              cls=clicommon.AliasedGroup,
              invoke_without_command=True)
 @clicommon.pass_db
@@ -136,9 +144,9 @@ def PBH_HASH(db):
     click.echo(tabulate.tabulate(body, header))
 
 
-@click.group(name="pbh-rule",
-             cls=clicommon.AliasedGroup,
-             invoke_without_command=True)
+@PBH.group(name="rule",
+           cls=clicommon.AliasedGroup,
+           invoke_without_command=True)
 @clicommon.pass_db
 def PBH_RULE(db):
     """  [Callable command group] """
@@ -217,7 +225,10 @@ def PBH_RULE(db):
             format_attr_value(
                 entry,
                 {'name': 'hash',
-                 'description': 'The hash to apply with this rule', 'is-leaf-list': False, 'is-mandatory': True, 'group': ''}
+                 'description': 'The hash to apply with this rule',
+                 'is-leaf-list': False,
+                 'is-mandatory': True,
+                 'group': ''}
             ),
             format_attr_value(
                 entry,
@@ -242,9 +253,9 @@ def PBH_RULE(db):
     click.echo(tabulate.tabulate(body, header))
 
 
-@click.group(name="pbh-table",
-             cls=clicommon.AliasedGroup,
-             invoke_without_command=True)
+@PBH.group(name="table",
+           cls=clicommon.AliasedGroup,
+           invoke_without_command=True)
 @clicommon.pass_db
 def PBH_TABLE(db):
     """  [Callable command group] """
@@ -288,19 +299,8 @@ def PBH_TABLE(db):
 
 
 def register(cli):
-    cli_node = PBH_HASH_FIELD
+    cli_node = PBH
     if cli_node.name in cli.commands:
         raise Exception(f"{cli_node.name} already exists in CLI")
-    cli.add_command(PBH_HASH_FIELD)
-    cli_node = PBH_HASH
-    if cli_node.name in cli.commands:
-        raise Exception(f"{cli_node.name} already exists in CLI")
-    cli.add_command(PBH_HASH)
-    cli_node = PBH_RULE
-    if cli_node.name in cli.commands:
-        raise Exception(f"{cli_node.name} already exists in CLI")
-    cli.add_command(PBH_RULE)
-    cli_node = PBH_TABLE
-    if cli_node.name in cli.commands:
-        raise Exception(f"{cli_node.name} already exists in CLI")
-    cli.add_command(PBH_TABLE)
+    cli.add_command(PBH)
+
