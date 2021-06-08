@@ -7,6 +7,7 @@ CLI Auto-generation tool HLD - https://github.com/Azure/SONiC/pull/78
 """
 
 import click
+import ipaddress
 import utilities_common.cli as clicommon
 import utilities_common.general as general
 
@@ -67,45 +68,6 @@ def del_entry(db, table, key):
     db.set_entry(table, key, None)
 
 
-def add_list_entry(db, table, key, attr, data):
-    """ Add new entry into list in table and validate configuration"""
-
-    cfg = db.get_config()
-    cfg.setdefault(table, {})
-    if key not in cfg[table]:
-        raise Exception(f"{key} does not exist")
-    cfg[table][key].setdefault(attr, [])
-    for entry in data:
-        if entry in cfg[table][key][attr]:
-            raise Exception(f"{entry} already exists")
-        cfg[table][key][attr].append(entry)
-
-    db.set_entry(table, key, cfg[table][key])
-
-
-def del_list_entry(db, table, key, attr, data):
-    """ Delete entry from list in table and validate configuration"""
-
-    cfg = db.get_config()
-    cfg.setdefault(table, {})
-    if key not in cfg[table]:
-        raise Exception(f"{key} does not exist")
-    cfg[table][key].setdefault(attr, [])
-    for entry in data:
-        if entry not in cfg[table][key][attr]:
-            raise Exception(f"{entry} does not exist")
-        cfg[table][key][attr].remove(entry)
-    if not cfg[table][key][attr]:
-        cfg[table][key].pop(attr)
-
-    db.set_entry(table, key, cfg[table][key])
-
-
-def clear_list_entry(db, table, key, attr):
-    """ Clear list in object and validate configuration"""
-
-    update_entry(db, table, key, {attr: None})
-
 @click.group(name='pbh',
              cls=clicommon.AliasedGroup)
 def PBH():
@@ -113,8 +75,9 @@ def PBH():
 
     pass
 
+
 @PBH.group(name="hash-field",
-             cls=clicommon.AliasedGroup)
+           cls=clicommon.AliasedGroup)
 def PBH_HASH_FIELD():
     """ PBH_HASH_FIELD part of config_db.json """
 
@@ -126,10 +89,21 @@ def PBH_HASH_FIELD():
     "hash-field-name",
     nargs=1,
     required=True,
+    # add callback
 )
 @click.option(
     "--hash-field",
-    help="Configures native hash field for this hash field[mandatory]",
+    help="Configure native hash field for this hash field [mandatory] \
+         Acceptable values: INNER_IP_PROTOCOL; INNER_L4_DST_PORT; \
+         INNER_L4_SRC_PORT; INNER_DST_IPV4; INNER_SRC_IPV4; \
+         INNER_DST_IPV6; INNER_SRC_IPV6",
+    type=click.Choice(["INNER_IP_PROTOCOL",
+                       "INNER_L4_DST_PORT",
+                       "INNER_L4_SRC_PORT",
+                       "INNER_DST_IPV4",
+                       "INNER_SRC_IPV4",
+                       "INNER_DST_IPV6",
+                       "INNER_SRC_IPV6"]),
 )
 @click.option(
     "--ip-mask",
@@ -590,87 +564,6 @@ def PBH_TABLE_delete(db, table_name):
     key = table_name
     try:
         del_entry(db.cfgdb, table, key)
-    except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
-
-
-@PBH_TABLE.group(name="interface-list",
-                 cls=clicommon.AliasedGroup)
-def PBH_TABLE_interface_list():
-    """ Add/Delete interface_list in PBH_TABLE """
-
-    pass
-
-
-@PBH_TABLE_interface_list.command(name="add")
-@click.argument(
-    "table-name",
-    nargs=1,
-    required=True,
-)
-@click.argument(
-    "interface-list",
-    nargs=-1,
-    required=True,
-)
-@clicommon.pass_db
-def PBH_TABLE_interface_list_add(db, table_name, interface_list):
-    """ Add interface_list in PBH_TABLE """
-
-    table = "PBH_TABLE"
-    key = table_name
-    attr = "interface_list"
-    data = interface_list
-
-    try:
-        add_list_entry(db.cfgdb, table, key, attr, data)
-    except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
-
-
-@PBH_TABLE_interface_list.command(name="delete")
-@click.argument(
-    "table-name",
-    nargs=1,
-    required=True,
-)
-@click.argument(
-    "interface-list",
-    nargs=-1,
-    required=True,
-)
-@clicommon.pass_db
-def PBH_TABLE_interface_list_delete(db, table_name, interface_list):
-    """ Delete interface_list in PBH_TABLE """
-
-    table = "PBH_TABLE"
-    key = table_name
-    attr = "interface_list"
-    data = interface_list
-
-    try:
-        del_list_entry(db.cfgdb, table, key, attr, data)
-    except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
-
-
-
-@PBH_TABLE_interface_list.command(name="clear")
-@click.argument(
-    "table-name",
-    nargs=1,
-    required=True,
-)
-@clicommon.pass_db
-def PBH_TABLE_interface_list_clear(db, table_name):
-    """ Clear interface_list in PBH_TABLE """
-
-    table = "PBH_TABLE"
-    key = table_name
-    attr = "interface_list"
-
-    try:
-        clear_list_entry(db.cfgdb, table, key, attr)
     except Exception as err:
         exit_with_error(f"Error: {err}", fg="red")
 
