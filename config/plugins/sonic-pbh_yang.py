@@ -12,6 +12,19 @@ import utilities_common.cli as clicommon
 import utilities_common.general as general
 
 
+hash_field_types = ['INNER_IP_PROTOCOL',
+                    'INNER_L4_DST_PORT',
+                    'INNER_L4_SRC_PORT',
+                    'INNER_DST_IPV4',
+                    'INNER_SRC_IPV4',
+                    'INNER_DST_IPV6',
+                    'INNER_SRC_IPV6']
+
+packet_action_types = ['SET_ECMP_HASH', 'SET_LAG_HASH']
+
+flow_counter_state = ['DISABLED', 'ENABLED']
+
+
 def exit_with_error(*args, **kwargs):
     """ Print a message and abort CLI. """
 
@@ -93,17 +106,8 @@ def PBH_HASH_FIELD():
 )
 @click.option(
     "--hash-field",
-    help="Configure native hash field for this hash field [mandatory] \
-         Acceptable values: INNER_IP_PROTOCOL; INNER_L4_DST_PORT; \
-         INNER_L4_SRC_PORT; INNER_DST_IPV4; INNER_SRC_IPV4; \
-         INNER_DST_IPV6; INNER_SRC_IPV6",
-    type=click.Choice(["INNER_IP_PROTOCOL",
-                       "INNER_L4_DST_PORT",
-                       "INNER_L4_SRC_PORT",
-                       "INNER_DST_IPV4",
-                       "INNER_SRC_IPV4",
-                       "INNER_DST_IPV6",
-                       "INNER_SRC_IPV6"]),
+    help="Configure native hash field for this hash field [mandatory]",
+    type=click.Choice(hash_field_types)
 )
 @click.option(
     "--ip-mask",
