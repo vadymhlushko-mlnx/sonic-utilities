@@ -15,34 +15,36 @@ import utilities_common.cli as clicommon
 def format_attr_value(entry, attr):
     """ Helper that formats attribute to be presented in the table output.
 
-    Args:
-        entry (Dict[str, str]): CONFIG DB entry configuration.
-        attr (Dict): Attribute metadata.
+        Args:
+            entry (Dict[str, str]): CONFIG DB entry configuration.
+            attr (Dict): Attribute metadata.
 
-    Returns:
-        str: fomatted attribute value.
+        Returns:
+            str: fomatted attribute value.
     """
 
     if attr["is-leaf-list"]:
         return "\n".join(entry.get(attr["name"], []))
+
     return entry.get(attr["name"], "N/A")
 
 
 def format_group_value(entry, attrs):
     """ Helper that formats grouped attribute to be presented in the table output.
 
-    Args:
-        entry (Dict[str, str]): CONFIG DB entry configuration.
-        attrs (List[Dict]): Attributes metadata that belongs to the same group.
+        Args:
+            entry (Dict[str, str]): CONFIG DB entry configuration.
+            attrs (List[Dict]): Attributes metadata that belongs to the same group.
 
-    Returns:
-        str: fomatted group attributes.
+        Returns:
+            str: fomatted group attributes.
     """
 
     data = []
     for attr in attrs:
         if entry.get(attr["name"]):
             data.append((attr["name"] + ":", format_attr_value(entry, attr)))
+
     return tabulate.tabulate(data, tablefmt="plain")
 
 
@@ -84,35 +86,43 @@ def PBH_HASH_FIELD(db):
         row = [*key] + [
             format_attr_value(
                 entry,
-                {'name': 'hash_field',
-                 'description': 'Configures native hash field for this hash field',
-                 'is-leaf-list': False,
-                 'is-mandatory': True,
-                 'group': ''}
+                {
+                    'name': 'hash_field',
+                    'description': 'Configures native hash field for this hash field',
+                    'is-leaf-list': False,
+                    'is-mandatory': True,
+                    'group': ''
+                }
             ),
             format_attr_value(
                 entry,
-                {'name': 'ip_mask',
-                 'description': 'Configures IPv4/IPv6 address mask for this hash field',
-                 'is-leaf-list': False,
-                 'is-mandatory': True,
-                 'group': ''}
+                {
+                    'name': 'ip_mask',
+                    'description': 'Configures IPv4/IPv6 address mask for this hash field',
+                    'is-leaf-list': False,
+                    'is-mandatory': True,
+                    'group': ''
+                }
             ),
             format_attr_value(
                 entry,
-                {'name': 'sequence_id',
-                 'description': 'Configures in which order the fields are hashed and defines which fields should be associative',
-                 'is-leaf-list': False,
-                 'is-mandatory': True,
-                 'group': ''}
+                {
+                    'name': 'sequence_id',
+                    'description': 'Configures in which order the fields are hashed and defines which fields should be associative',
+                    'is-leaf-list': False,
+                    'is-mandatory': True,
+                    'group': ''
+                }
             ),
             format_attr_value(
                 entry,
-                {'name': 'symmetric',
-                 'description': 'symmetric',
-                 'is-leaf-list': False,
-                 'is-mandatory': False,
-                 'group': ''}
+                {
+                    'name': 'symmetric',
+                    'description': 'symmetric',
+                    'is-leaf-list': False,
+                    'is-mandatory': False,
+                    'group': ''
+                }
             ),
         ]
 
@@ -122,8 +132,8 @@ def PBH_HASH_FIELD(db):
 
 
 @PBH.group(name="hash",
-             cls=clicommon.AliasedGroup,
-             invoke_without_command=True)
+           cls=clicommon.AliasedGroup,
+           invoke_without_command=True)
 @clicommon.pass_db
 def PBH_HASH(db):
     """  Show the PBH hash configuration """
@@ -144,11 +154,13 @@ def PBH_HASH(db):
         row = [*key] + [
             format_attr_value(
                 entry,
-                {'name': 'hash_field_list',
-                 'description': 'The list of hash fields to apply with this hash',
-                 'is-leaf-list': True,
-                 'is-mandatory': False,
-                 'group': ''}
+                {
+                    'name': 'hash_field_list',
+                    'description': 'The list of hash fields to apply with this hash',
+                    'is-leaf-list': True,
+                    'is-mandatory': False,
+                    'group': ''
+                }
             ),
         ]
 
@@ -289,19 +301,23 @@ def PBH_TABLE(db):
         row = [*key] + [
             format_attr_value(
                 entry,
-                {'name': 'interface_list',
-                 'description': 'Interfaces to which this table is applied',
-                 'is-leaf-list': True,
-                 'is-mandatory': False,
-                 'group': ''}
+                {
+                    'name': 'interface_list',
+                    'description': 'Interfaces to which this table is applied',
+                    'is-leaf-list': True,
+                    'is-mandatory': False,
+                    'group': ''
+                }
             ),
             format_attr_value(
                 entry,
-                {'name': 'description',
-                 'description': 'The description of this table',
-                 'is-leaf-list': False,
-                 'is-mandatory': True,
-                 'group': ''}
+                {
+                    'name': 'description',
+                    'description': 'The description of this table',
+                    'is-leaf-list': False,
+                    'is-mandatory': True,
+                    'group': ''
+                }
             ),
         ]
 
