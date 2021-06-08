@@ -261,9 +261,9 @@ def PBH_TABLE(db):
     """  [Callable command group] """
 
     header = [
-        "TABLE NAME",
-        "DESCRIPTION",
-        "INTERFACE LIST",
+        "Name",
+        "Interface",
+        "Description",
     ]
 
     body = []
@@ -277,18 +277,18 @@ def PBH_TABLE(db):
         row = [*key] + [
             format_attr_value(
                 entry,
-                {'name': 'description',
-                 'description': 'The description of this table',
-                 'is-leaf-list': False,
-                 'is-mandatory': True, 
-                 'group': ''}
-            ),
-            format_attr_value(
-                entry,
                 {'name': 'interface_list',
                  'description': 'Interfaces to which this table is applied',
                  'is-leaf-list': True,
                  'is-mandatory': False,
+                 'group': ''}
+            ),
+            format_attr_value(
+                entry,
+                {'name': 'description',
+                 'description': 'The description of this table',
+                 'is-leaf-list': False,
+                 'is-mandatory': True,
                  'group': ''}
             ),
         ]
