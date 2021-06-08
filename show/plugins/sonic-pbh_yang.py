@@ -59,7 +59,7 @@ def PBH():
            invoke_without_command=True)
 @clicommon.pass_db
 def PBH_HASH_FIELD(db):
-    """  Show the PBH 'hash field' configuration """
+    """  Show the PBH hash field configuration """
 
     header = [
         "Name",
@@ -126,7 +126,7 @@ def PBH_HASH_FIELD(db):
              invoke_without_command=True)
 @clicommon.pass_db
 def PBH_HASH(db):
-    """  Show the PBH 'hash' configuration """
+    """  Show the PBH hash configuration """
 
     header = [
         "Hash",
@@ -162,20 +162,15 @@ def PBH_HASH(db):
            invoke_without_command=True)
 @clicommon.pass_db
 def PBH_RULE(db):
-    """  [Callable command group] """
+    """  Show the PBH rules configuration """
 
     header = [
-        "TABLE NAME",
-        "RULE NAME",
-        "PRIORITY",
-        "GRE KEY",
-        "IP PROTOCOL",
-        "IPV6 NEXT HEADER",
-        "L4 DST PORT",
-        "INNER ETHER TYPE",
-        "HASH",
-        "PACKET ACTION",
-        "FLOW COUNTER",
+        "Table",
+        "Rule",
+        "Priority",
+        "Match",
+        "Hash",
+        "Action",
     ]
 
     body = []
@@ -189,75 +184,79 @@ def PBH_RULE(db):
         row = [*key] + [
             format_attr_value(
                 entry,
-                {'name': 'priority',
-                 'description': 'Configures priority for this rule',
-                 'is-leaf-list': False,
-                 'is-mandatory': True,
-                 'group': ''}
+                {
+                    'name': 'priority',
+                    'description': 'Configures priority for this rule',
+                    'is-leaf-list': False,
+                    'is-mandatory': True,
+                    'group': ''
+                }
+            ),
+            format_group_value(
+                entry,
+                [
+                    {
+                        'name': 'gre_key',
+                        'description': 'Configures packet match for this rule: GRE key (value/mask)',
+                        'is-leaf-list':False,
+                        'is-mandatory': False,
+                        'group': 'Match'
+                    },
+                    {
+                        'name': 'ip_protocol',
+                        'description': 'Configures packet match for this rule: IP protocol (value/mask)',
+                        'is-leaf-list': False,
+                        'is-mandatory': False,
+                        'group': 'Match'
+                    },
+                    {
+                        'name': 'ipv6_next_header',
+                        'description': 'Configures packet match for this rule: IPv6 Next header (value/mask)',
+                        'is-leaf-list': False,
+                        'is-mandatory': False,
+                        'group': 'Match'
+                    },
+                    {
+                        'name': 'l4_dst_port',
+                        'description': 'Configures packet match for this rule: L4 destination port (value/mask)',
+                        'is-leaf-list': False,
+                        'is-mandatory': False,
+                        'group': 'Match'
+                    },
+                    {
+                        'name': 'inner_ether_type',
+                        'description': 'Configures packet match for this rule: inner EtherType (value/mask)',
+                        'is-leaf-list': False,
+                        'is-mandatory': False,
+                        'group': 'Match'
+                    },
+                    {
+                        'name': 'flow_counter',
+                        'description': 'Enables/Disables packet/byte counter for this rule',
+                        'is-leaf-list': False,
+                        'is-mandatory': False,
+                        'group': 'Match'
+                    },
+                ]
             ),
             format_attr_value(
                 entry,
-                {'name': 'gre_key',
-                 'description': 'Configures packet match for this rule: GRE key (value/mask)',
-                 'is-leaf-list': False,
-                 'is-mandatory': False,
-                 'group': ''}
+                {
+                    'name': 'hash',
+                    'description':'The hash to apply with this rule',
+                    'is-leaf-list': False,
+                    'is-mandatory': True,
+                    'group': ''}
             ),
             format_attr_value(
                 entry,
-                {'name': 'ip_protocol',
-                 'description': 'Configures packet match for this rule: IP protocol (value/mask)',
-                 'is-leaf-list': False,
-                 'is-mandatory': False,
-                 'group': ''}
-            ),
-            format_attr_value(
-                entry,
-                {'name': 'ipv6_next_header',
-                 'description': 'Configures packet match for this rule: IPv6 Next header (value/mask)',
-                 'is-leaf-list': False,
-                 'is-mandatory': False,
-                 'group': ''}
-            ),
-            format_attr_value(
-                entry,
-                {'name': 'l4_dst_port',
-                 'description': 'Configures packet match for this rule: L4 destination port (value/mask)',
-                 'is-leaf-list': False,
-                 'is-mandatory': False,
-                 'group': ''}
-            ),
-            format_attr_value(
-                entry,
-                {'name': 'inner_ether_type',
-                 'description': 'Configures packet match for this rule: inner EtherType (value/mask)',
-                 'is-leaf-list': False,
-                 'is-mandatory': False,
-                 'group': ''}
-            ),
-            format_attr_value(
-                entry,
-                {'name': 'hash',
-                 'description': 'The hash to apply with this rule',
-                 'is-leaf-list': False,
-                 'is-mandatory': True,
-                 'group': ''}
-            ),
-            format_attr_value(
-                entry,
-                {'name': 'packet_action',
-                 'description': 'Configures packet action for this rule',
-                 'is-leaf-list': False,
-                 'is-mandatory': False,
-                 'group': ''}
-            ),
-            format_attr_value(
-                entry,
-                {'name': 'flow_counter',
-                 'description': 'Enables/Disables packet/byte counter for this rule',
-                 'is-leaf-list': False,
-                 'is-mandatory': False,
-                 'group': ''}
+                {
+                    'name': 'packet_action',
+                    'description': 'Configures packet action for this rule',
+                    'is-leaf-list': False,
+                    'is-mandatory': False,
+                    'group': ''
+                }
             ),
         ]
 
@@ -271,7 +270,7 @@ def PBH_RULE(db):
            invoke_without_command=True)
 @clicommon.pass_db
 def PBH_TABLE(db):
-    """  [Callable command group] """
+    """  Show the PBH table configuration """
 
     header = [
         "Name",
