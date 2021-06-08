@@ -55,24 +55,29 @@ def PBH():
 
 
 @PBH.group(name="hash-field",
-             cls=clicommon.AliasedGroup,
-             invoke_without_command=True)
+           cls=clicommon.AliasedGroup,
+           invoke_without_command=True)
 @clicommon.pass_db
 def PBH_HASH_FIELD(db):
-    """  [Callable command group] """
+    """  Show PBH hash fields configuration """
 
     header = [
-        "HASH FIELD NAME",
-        "HASH FIELD",
-        "IP MASK",
-        "SEQUENCE ID",
+        "Name",
+        "Field",
+        "Mask",
+        "Sequence",
+        "Symmetric",
     ]
 
     body = []
 
     table = db.cfgdb.get_table("PBH_HASH_FIELD")
     for key in natsort.natsorted(table):
+
+        is_pbh_hash_field_symmetric(table, key)
+
         entry = table[key]
+
         if not isinstance(key, tuple):
             key = (key,)
 
@@ -99,6 +104,14 @@ def PBH_HASH_FIELD(db):
                  'description': 'Configures in which order the fields are hashed and defines which fields should be associative',
                  'is-leaf-list': False,
                  'is-mandatory': True,
+                 'group': ''}
+            ),
+            format_attr_value(
+                entry,
+                {'name': 'symmetric',
+                 'description': 'symmetric',
+                 'is-leaf-list': False,
+                 'is-mandatory': False,
                  'group': ''}
             ),
         ]
@@ -303,4 +316,27 @@ def register(cli):
     if cli_node.name in cli.commands:
         raise Exception(f"{cli_node.name} already exists in CLI")
     cli.add_command(PBH)
+
+
+def is_pbh_hash_field_symmetric(table: dict, key_to_check: str):
+    """ The 'Symmetric' parameter will have 'Yes' value
+        if there are 2 'pbh hash fields' with identical 'sequence_id' value
+
+        Args:
+            table: 'PBH_HASH_FIELD' table from CONFIG DB.
+            key_to_check: key from the table above to check
+    """
+
+    if table[key_to_check].get('symmetric') is None:
+        counter = 0
+
+        for key in table:
+            if key_to_check != key:
+                if table[key_to_check].get('sequence_id') == table[key].get('sequence_id'):
+                    counter += 1
+
+        if counter == 1:
+            table[key_to_check]['symmetric'] = 'Yes'
+        else:
+            table[key_to_check]['symmetric'] = 'No'
 
