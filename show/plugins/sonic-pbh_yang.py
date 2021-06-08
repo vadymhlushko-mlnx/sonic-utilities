@@ -59,7 +59,7 @@ def PBH():
            invoke_without_command=True)
 @clicommon.pass_db
 def PBH_HASH_FIELD(db):
-    """  Show PBH hash fields configuration """
+    """  Show the PBH 'hash field' configuration """
 
     header = [
         "Name",
@@ -126,11 +126,11 @@ def PBH_HASH_FIELD(db):
              invoke_without_command=True)
 @clicommon.pass_db
 def PBH_HASH(db):
-    """  [Callable command group] """
+    """  Show the PBH 'hash' configuration """
 
     header = [
-        "HASH NAME",
-        "HASH FIELD LIST",
+        "Hash",
+        "Hash field",
     ]
 
     body = []
