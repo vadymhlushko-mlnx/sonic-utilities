@@ -81,6 +81,36 @@ def del_entry(db, table, key):
     db.set_entry(table, key, None)
 
 
+def is_valid_ip_address(ctx, param, value):
+    """ Check if the given ip address is valid """
+
+    # need to clarify
+    ip = ipaddress.ip_address(value)
+    if (ip.is_reserved) or (ip.is_multicast) or (ip.is_global) or (ip.is_link_local):
+        raise ipaddress.AddressValueError
+
+    return str(ip)
+
+
+def is_hash_field_list_valid(db, hash_field_list):
+    """ Check if --hash-field-list values are valid,
+        i.e was previously added by 'config pbh hash-field ...' command
+
+        Args:
+            db: reference to Config DB,
+            hash_field_list: value of --hash-field-list option
+    """
+    pbh_hash_field_table = db.cfgdb.get_table("PBH_HASH_FIELD")
+    correct_hash_fields = list(pbh_hash_field_table.keys())
+
+    hash_fields = hash_field_list.split(',')
+
+    for hf in hash_fields:
+        if hf not in correct_hash_fields:
+            exit_with_error("Error: invalid --hash-field-list value, \
+                please use {}".format(correct_hash_fields), fg="red")
+
+
 @click.group(name='pbh',
              cls=clicommon.AliasedGroup)
 def PBH():
@@ -92,7 +122,7 @@ def PBH():
 @PBH.group(name="hash-field",
            cls=clicommon.AliasedGroup)
 def PBH_HASH_FIELD():
-    """ PBH_HASH_FIELD part of config_db.json """
+    """ Configure PBH hash field """
 
     pass
 
@@ -102,20 +132,22 @@ def PBH_HASH_FIELD():
     "hash-field-name",
     nargs=1,
     required=True,
-    # add callback
 )
 @click.option(
     "--hash-field",
     help="Configure native hash field for this hash field [mandatory]",
+    required=True,
     type=click.Choice(hash_field_types)
 )
 @click.option(
     "--ip-mask",
-    help="Configures IPv4/IPv6 address mask for this hash field[mandatory]",
+    help="Configures IPv4/IPv6 address mask for this hash field [mandatory]",
+    callback=is_valid_ip_address
 )
 @click.option(
     "--sequence-id",
-    help="Configures in which order the fields are hashed and defines which fields should be associative[mandatory]",
+    help="Configures in which order the fields are hashed and defines which fields should be associative [mandatory]",
+    type=click.INT,
 )
 @clicommon.pass_db
 def PBH_HASH_FIELD_add(db, hash_field_name, hash_field, ip_mask, sequence_id):
@@ -146,14 +178,17 @@ def PBH_HASH_FIELD_add(db, hash_field_name, hash_field, ip_mask, sequence_id):
 @click.option(
     "--hash-field",
     help="Configures native hash field for this hash field[mandatory]",
+    type=click.Choice(hash_field_types)
 )
 @click.option(
     "--ip-mask",
     help="Configures IPv4/IPv6 address mask for this hash field[mandatory]",
+    callback=is_valid_ip_address
 )
 @click.option(
     "--sequence-id",
     help="Configures in which order the fields are hashed and defines which fields should be associative[mandatory]",
+    type=click.INT,
 )
 @clicommon.pass_db
 def PBH_HASH_FIELD_update(db, hash_field_name, hash_field, ip_mask, sequence_id):
@@ -196,7 +231,7 @@ def PBH_HASH_FIELD_delete(db, hash_field_name):
 @PBH.group(name="hash",
              cls=clicommon.AliasedGroup)
 def PBH_HASH():
-    """ PBH_HASH part of config_db.json """
+    """ Configure PBH hash """
 
     pass
 
@@ -214,6 +249,8 @@ def PBH_HASH():
 @clicommon.pass_db
 def PBH_HASH_add(db, hash_name, hash_field_list):
     """ Add object in PBH_HASH. """
+
+    is_hash_field_list_valid(db, hash_field_list)
 
     table = "PBH_HASH"
     key = hash_name
@@ -240,6 +277,8 @@ def PBH_HASH_add(db, hash_name, hash_field_list):
 @clicommon.pass_db
 def PBH_HASH_update(db, hash_name, hash_field_list):
     """ Add object in PBH_HASH. """
+
+    is_hash_field_list_valid(db, hash_field_list)
 
     table = "PBH_HASH"
     key = hash_name
