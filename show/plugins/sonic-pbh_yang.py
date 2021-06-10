@@ -184,6 +184,7 @@ def PBH_RULE(db):
         "Match",
         "Hash",
         "Action",
+        "Flow counter",
     ]
 
     body = []
@@ -243,13 +244,6 @@ def PBH_RULE(db):
                         'is-mandatory': False,
                         'group': 'Match'
                     },
-                    {
-                        'name': 'flow_counter',
-                        'description': 'Enables/Disables packet/byte counter for this rule',
-                        'is-leaf-list': False,
-                        'is-mandatory': False,
-                        'group': 'Match'
-                    },
                 ]
             ),
             format_attr_value(
@@ -265,6 +259,16 @@ def PBH_RULE(db):
                 entry,
                 {
                     'name': 'packet_action',
+                    'description': 'Configures packet action for this rule',
+                    'is-leaf-list': False,
+                    'is-mandatory': False,
+                    'group': ''
+                }
+            ),
+            format_attr_value(
+                entry,
+                {
+                    'name': 'flow_counter',
                     'description': 'Configures packet action for this rule',
                     'is-leaf-list': False,
                     'is-mandatory': False,
