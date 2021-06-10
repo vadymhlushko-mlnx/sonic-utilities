@@ -10,6 +10,7 @@ import click
 import tabulate
 import natsort
 import utilities_common.cli as clicommon
+from swsscommon.swsscommon import SonicV2Connector, ConfigDBConnector
 
 
 def format_attr_value(entry, attr):
@@ -325,6 +326,44 @@ def PBH_TABLE(db):
 
     click.echo(tabulate.tabulate(body, header))
 
+@PBH.group(name="statistics",
+           cls=clicommon.AliasedGroup,
+           invoke_without_command=True)
+@clicommon.pass_db
+def PBH_STATISTICS(db):
+    """  Show the PBH counters """
+
+    header = [
+        "Table",
+        "Rule",
+        "Packets count",
+        "Bytes count",
+    ]
+
+    body = []
+
+    db_connector = SonicV2Connector(use_unix_socket_path=False)
+    db_connector.connect(db_connector.COUNTERS_DB)
+
+    pbh_counters = {}
+    pbh_rules = db.cfgdb.get_table("PBH_RULE")
+
+    if pbh_rules is not None:
+        for table, rule in natsort.natsorted(pbh_rules):
+            counter_props = lowercase_keys(db_connector.get_all(db_connector.COUNTERS_DB, "COUNTERS:%s:%s" % (table, rule)))
+            row = []
+            if counter_props is not None:
+                row = [
+                    table,
+                    rule,
+                    counter_props['packets'],
+                    counter_props['bytes']
+                ]
+
+            body.append(row)
+
+    click.echo(tabulate.tabulate(body, header))
+
 
 def register(cli):
     cli_node = PBH
@@ -354,4 +393,8 @@ def is_pbh_hash_field_symmetric(table: dict, key_to_check: str):
             table[key_to_check]['symmetric'] = 'Yes'
         else:
             table[key_to_check]['symmetric'] = 'No'
+
+
+def lowercase_keys(dictionary):
+    return dict((k.lower(), v) for k, v in dictionary.items()) if dictionary else None
 
