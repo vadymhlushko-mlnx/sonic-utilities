@@ -92,23 +92,26 @@ def is_valid_ip_address(ctx, param, value):
     return str(ip)
 
 
-def is_hash_field_list_valid(db, hash_field_list):
-    """ Check if --hash-field-list values are valid,
-        i.e was previously added by 'config pbh hash-field ...' command
+def is_exist_in_db(db, _list, conf_db_key, option_name):
+    """ Check if provided CLI option already exist in Config DB,
+        i.g in case of --hash-field-list option it will check
+        if 'hash-field' was previously added by
+        'config pbh hash-field ...' CLI command
 
         Args:
             db: reference to Config DB,
-            hash_field_list: value of --hash-field-list option
+            _list: value of 'click' option
+            conf_db_key: key to search in Config DB
+            option_name: name of 'click' option
     """
-    pbh_hash_field_table = db.cfgdb.get_table("PBH_HASH_FIELD")
-    correct_hash_fields = list(pbh_hash_field_table.keys())
+    table = db.cfgdb.get_table(conf_db_key)
+    correct_list = list(table.keys())
 
-    hash_fields = hash_field_list.split(',')
+    splited_list = _list.split(',')
 
-    for hf in hash_fields:
-        if hf not in correct_hash_fields:
-            exit_with_error("Error: invalid --hash-field-list value, \
-                please use {}".format(correct_hash_fields), fg="red")
+    for elem in splited_list:
+        if elem not in correct_list:
+            exit_with_error("Error: invalid value for {}, please use {}".format(option_name, correct_list), fg="red")
 
 
 @click.group(name='pbh',
@@ -250,7 +253,7 @@ def PBH_HASH():
 def PBH_HASH_add(db, hash_name, hash_field_list):
     """ Add object in PBH_HASH. """
 
-    is_hash_field_list_valid(db, hash_field_list)
+    is_exist_in_db(db, hash_field_list, "PBH_HASH_FIELD", "--hash-field-list")
 
     table = "PBH_HASH"
     key = hash_name
@@ -278,7 +281,7 @@ def PBH_HASH_add(db, hash_name, hash_field_list):
 def PBH_HASH_update(db, hash_name, hash_field_list):
     """ Add object in PBH_HASH. """
 
-    is_hash_field_list_valid(db, hash_field_list)
+    is_exist_in_db(db, hash_field_list, "PBH_HASH_FIELD", "--hash-field-list")
 
     table = "PBH_HASH"
     key = hash_name
@@ -331,7 +334,8 @@ def PBH_RULE():
 )
 @click.option(
     "--priority",
-    help="Configures priority for this rule[mandatory]",
+    help="Configures priority for this rule [mandatory]",
+    type=click.INT,
 )
 @click.option(
     "--gre-key",
@@ -360,10 +364,12 @@ def PBH_RULE():
 @click.option(
     "--packet-action",
     help="Configures packet action for this rule",
+    type=click.Choice(packet_action_types)
 )
 @click.option(
     "--flow-counter",
     help="Enables/Disables packet/byte counter for this rule",
+    type=click.Choice(flow_counter_state)
 )
 @clicommon.pass_db
 def PBH_RULE_add(db,
@@ -379,6 +385,9 @@ def PBH_RULE_add(db,
                  packet_action,
                  flow_counter):
     """ Add object in PBH_RULE. """
+
+    is_exist_in_db(db, table_name, "PBH_TABLE", "--table-name")
+    is_exist_in_db(db, hash, "PBH_HASH", "--hash")
 
     table = "PBH_RULE"
     key = table_name, rule_name
@@ -422,6 +431,7 @@ def PBH_RULE_add(db,
 @click.option(
     "--priority",
     help="Configures priority for this rule[mandatory]",
+    type=click.INT,
 )
 @click.option(
     "--gre-key",
@@ -450,10 +460,12 @@ def PBH_RULE_add(db,
 @click.option(
     "--packet-action",
     help="Configures packet action for this rule",
+    type=click.Choice(packet_action_types)
 )
 @click.option(
     "--flow-counter",
     help="Enables/Disables packet/byte counter for this rule",
+    type=click.Choice(flow_counter_state)
 )
 @clicommon.pass_db
 def PBH_RULE_update(db,
@@ -469,6 +481,9 @@ def PBH_RULE_update(db,
                     packet_action,
                     flow_counter):
     """ Add object in PBH_RULE. """
+
+    is_exist_in_db(db, table_name, "PBH_TABLE", "--table-name")
+    is_exist_in_db(db, hash, "PBH_HASH", "--hash")
 
     table = "PBH_RULE"
     key = table_name, rule_name
