@@ -10,6 +10,7 @@ import click
 import tabulate
 import natsort
 import utilities_common.cli as clicommon
+from operator import itemgetter
 from swsscommon.swsscommon import SonicV2Connector, ConfigDBConnector
 
 
@@ -129,7 +130,9 @@ def PBH_HASH_FIELD(db):
 
         body.append(row)
 
-    click.echo(tabulate.tabulate(body, header))
+    # sorted by 'sequence_id'
+    body_sorted = sorted(body, key=itemgetter(3))
+    click.echo(tabulate.tabulate(body_sorted, header))
 
 
 @PBH.group(name="hash",
@@ -279,7 +282,9 @@ def PBH_RULE(db):
 
         body.append(row)
 
-    click.echo(tabulate.tabulate(body, header))
+    # sorted by 'Priority'
+    body_sorted = sorted(body, key=itemgetter(2))
+    click.echo(tabulate.tabulate(body_sorted, header))
 
 
 @PBH.group(name="table",
@@ -352,19 +357,18 @@ def PBH_STATISTICS(db):
     pbh_counters = {}
     pbh_rules = db.cfgdb.get_table("PBH_RULE")
 
-    if pbh_rules is not None:
-        for table, rule in natsort.natsorted(pbh_rules):
-            counter_props = lowercase_keys(db_connector.get_all(db_connector.COUNTERS_DB, "COUNTERS:%s:%s" % (table, rule)))
-            row = []
-            if counter_props is not None:
-                row = [
-                    table,
-                    rule,
-                    counter_props['packets'],
-                    counter_props['bytes']
-                ]
+    for table, rule in natsort.natsorted(pbh_rules):
+        counter_props = lowercase_keys(db_connector.get_all(db_connector.COUNTERS_DB, "COUNTERS:%s:%s" % (table, rule)))
+        row = []
+        if counter_props is not None:
+            row = [
+                table,
+                rule,
+                counter_props['packets'],
+                counter_props['bytes']
+            ]
 
-            body.append(row)
+        body.append(row)
 
     click.echo(tabulate.tabulate(body, header))
 
@@ -393,7 +397,7 @@ def is_pbh_hash_field_symmetric(table: dict, key_to_check: str):
                 if table[key_to_check].get('sequence_id') == table[key].get('sequence_id'):
                     counter += 1
 
-        if counter == 1:
+        if counter >= 1:
             table[key_to_check]['symmetric'] = 'Yes'
         else:
             table[key_to_check]['symmetric'] = 'No'
