@@ -50,7 +50,7 @@ def add_entry(db, table, key, data):
 
 def update_entry(db, table, key, data, create_if_not_exists=False):
     """ Update entry in table and validate configuration.
-    If attribute value in data is None, the attribute is deleted.
+        If attribute value in data is None, the attribute is deleted.
     """
 
     cfg = db.get_config()
@@ -84,7 +84,7 @@ def del_entry(db, table, key):
     db.set_entry(table, key, None)
 
 
-def is_valid_ip_address(ctx, param, value):
+def ip_address_validator(ctx, param, value):
     """ Check if the given ip address is valid """
 
     # need to clarify
@@ -94,7 +94,7 @@ def is_valid_ip_address(ctx, param, value):
 
     return str(ip)
 
-def is_match(ctx, param, value):
+def pbh_match(ctx, param, value):
     """ Check if PBH rule options is valid """
 
     if value is not None:
@@ -149,23 +149,24 @@ def PBH_HASH_FIELD():
 )
 @click.option(
     "--hash-field",
-    help="Configure native hash field for this hash field [mandatory]",
+    help="Configure native hash field for this hash field",
     required=True,
     type=click.Choice(hash_field_types)
 )
 @click.option(
     "--ip-mask",
-    help="Configures IPv4/IPv6 address mask for this hash field [mandatory]",
-    callback=is_valid_ip_address
+    help="Configures IPv4/IPv6 address mask for this hash field",
+    callback=ip_address_validator
 )
 @click.option(
     "--sequence-id",
-    help="Configures in which order the fields are hashed and defines which fields should be associative [mandatory]",
+    help="Configures in which order the fields are hashed and defines which fields should be associative",
+    required=True,
     type=click.INT,
 )
 @clicommon.pass_db
 def PBH_HASH_FIELD_add(db, hash_field_name, hash_field, ip_mask, sequence_id):
-    """ Add object in PBH_HASH_FIELD. """
+    """ Add object in PBH_HASH_FIELD table. """
 
     table = "PBH_HASH_FIELD"
     key = hash_field_name
@@ -191,22 +192,22 @@ def PBH_HASH_FIELD_add(db, hash_field_name, hash_field, ip_mask, sequence_id):
 )
 @click.option(
     "--hash-field",
-    help="Configures native hash field for this hash field[mandatory]",
+    help="Configures native hash field for this hash field",
     type=click.Choice(hash_field_types)
 )
 @click.option(
     "--ip-mask",
-    help="Configures IPv4/IPv6 address mask for this hash field[mandatory]",
-    callback=is_valid_ip_address
+    help="Configures IPv4/IPv6 address mask for this hash field",
+    callback=ip_address_validator
 )
 @click.option(
     "--sequence-id",
-    help="Configures in which order the fields are hashed and defines which fields should be associative[mandatory]",
+    help="Configures in which order the fields are hashed and defines which fields should be associative",
     type=click.INT,
 )
 @clicommon.pass_db
 def PBH_HASH_FIELD_update(db, hash_field_name, hash_field, ip_mask, sequence_id):
-    """ Add object in PBH_HASH_FIELD. """
+    """ Update object in PBH_HASH_FIELD table """
 
     table = "PBH_HASH_FIELD"
     key = hash_field_name
@@ -232,7 +233,7 @@ def PBH_HASH_FIELD_update(db, hash_field_name, hash_field, ip_mask, sequence_id)
 )
 @clicommon.pass_db
 def PBH_HASH_FIELD_delete(db, hash_field_name):
-    """ Delete object in PBH_HASH_FIELD. """
+    """ Delete object from PBH_HASH_FIELD table """
 
     table = "PBH_HASH_FIELD"
     key = hash_field_name
@@ -259,10 +260,11 @@ def PBH_HASH():
 @click.option(
     "--hash-field-list",
     help="The list of hash fields to apply with this hash",
+    required=True,
 )
 @clicommon.pass_db
 def PBH_HASH_add(db, hash_name, hash_field_list):
-    """ Add object in PBH_HASH. """
+    """ Add object in PBH_HASH table """
 
     is_exist_in_db(db, hash_field_list, "PBH_HASH_FIELD", "--hash-field-list")
 
@@ -290,7 +292,7 @@ def PBH_HASH_add(db, hash_name, hash_field_list):
 )
 @clicommon.pass_db
 def PBH_HASH_update(db, hash_name, hash_field_list):
-    """ Add object in PBH_HASH. """
+    """ Update object in PBH_HASH table """
 
     is_exist_in_db(db, hash_field_list, "PBH_HASH_FIELD", "--hash-field-list")
 
@@ -314,7 +316,7 @@ def PBH_HASH_update(db, hash_name, hash_field_list):
 )
 @clicommon.pass_db
 def PBH_HASH_delete(db, hash_name):
-    """ Delete object in PBH_HASH. """
+    """ Delete object from PBH_HASH table """
 
     table = "PBH_HASH"
     key = hash_name
@@ -327,7 +329,7 @@ def PBH_HASH_delete(db, hash_name):
 @PBH.group(name="rule",
              cls=clicommon.AliasedGroup)
 def PBH_RULE():
-    """ PBH_RULE part of config_db.json """
+    """ Configure PBH rule """
 
     pass
 
@@ -345,39 +347,39 @@ def PBH_RULE():
 )
 @click.option(
     "--priority",
-    help="[MANDATORY] Configures priority",
+    help="Configures priority",
     required=True,
     type=click.INT,
 )
 @click.option(
     "--gre-key",
     help="Configures packet match: GRE key (value/mask)",
-    callback=is_match,
+    callback=pbh_match,
 )
 @click.option(
     "--ip-protocol",
     help="Configures packet match: IP protocol (value/mask)",
-    callback=is_match,
+    callback=pbh_match,
 )
 @click.option(
     "--ipv6-next-header",
     help="Configures packet match: IPv6 Next header (value/mask)",
-    callback=is_match,
+    callback=pbh_match,
 )
 @click.option(
     "--l4-dst-port",
     help="Configures packet match: L4 destination port (value/mask)",
-    callback=is_match,
+    callback=pbh_match,
 )
 @click.option(
     "--inner-ether-type",
     help="Configures packet match: inner EtherType (value/mask)",
-    callback=is_match,
+    callback=pbh_match,
 )
 @click.option(
     "--hash",
     required=True,
-    help="[MANDATORY] Configures the hash to apply",
+    help="Configures the hash to apply",
 )
 @click.option(
     "--packet-action",
@@ -402,7 +404,7 @@ def PBH_RULE_add(db,
                  hash,
                  packet_action,
                  flow_counter):
-    """ Add object in PBH_RULE. """
+    """ Add object in PBH_RULE table """
 
     is_exist_in_db(db, table_name, "PBH_TABLE", "--table-name")
     is_exist_in_db(db, hash, "PBH_HASH", "--hash")
@@ -448,39 +450,39 @@ def PBH_RULE_add(db,
 )
 @click.option(
     "--priority",
-    help="[MANDATORY] Configures priority",
+    help="Configures priority",
     required=True,
     type=click.INT,
 )
 @click.option(
     "--gre-key",
     help="Configures packet match: GRE key (value/mask)",
-    callback=is_match,
+    callback=pbh_match,
 )
 @click.option(
     "--ip-protocol",
     help="Configures packet match: IP protocol (value/mask)",
-    callback=is_match,
+    callback=pbh_match,
 )
 @click.option(
     "--ipv6-next-header",
     help="Configures packet match: IPv6 Next header (value/mask)",
-    callback=is_match,
+    callback=pbh_match,
 )
 @click.option(
     "--l4-dst-port",
     help="Configures packet match: L4 destination port (value/mask)",
-    callback=is_match,
+    callback=pbh_match,
 )
 @click.option(
     "--inner-ether-type",
     help="Configures packet match: inner EtherType (value/mask)",
-    callback=is_match,
+    callback=pbh_match,
 )
 @click.option(
     "--hash",
     required=True,
-    help="[MANDATORY] The hash to apply with this rule",
+    help="The hash to apply with this rule",
 )
 @click.option(
     "--packet-action",
@@ -505,7 +507,7 @@ def PBH_RULE_update(db,
                     hash,
                     packet_action,
                     flow_counter):
-    """ Add object in PBH_RULE. """
+    """ Update object in PBH_RULE table """
 
     is_exist_in_db(db, table_name, "PBH_TABLE", "--table-name")
     is_exist_in_db(db, hash, "PBH_HASH", "--hash")
@@ -551,7 +553,7 @@ def PBH_RULE_update(db,
 )
 @clicommon.pass_db
 def PBH_RULE_delete(db, table_name, rule_name):
-    """ Delete object in PBH_RULE. """
+    """ Delete object from PBH_RULE table """
 
     table = "PBH_RULE"
     key = table_name, rule_name
@@ -594,7 +596,7 @@ def interfaces_list_validator(db, interface_list):
 )
 @click.option(
     "--description",
-    help="[MANDATORY] The description of this table",
+    help="The description of this table",
     required=True,
 )
 @click.option(
@@ -604,7 +606,7 @@ def interfaces_list_validator(db, interface_list):
 )
 @clicommon.pass_db
 def PBH_TABLE_add(db, table_name, description, interface_list):
-    """ Add object in PBH_TABLE. """
+    """ Add object in PBH_TABLE table """
 
     interfaces_list_validator(db, interface_list)
 
@@ -630,8 +632,7 @@ def PBH_TABLE_add(db, table_name, description, interface_list):
 )
 @click.option(
     "--description",
-    help="[MANDATORY] The description of this table",
-    required=True,
+    help="The description of this table",
 )
 @click.option(
     "--interface-list",
@@ -639,7 +640,7 @@ def PBH_TABLE_add(db, table_name, description, interface_list):
 )
 @clicommon.pass_db
 def PBH_TABLE_update(db, table_name, description, interface_list):
-    """ Add object in PBH_TABLE. """
+    """ Update object in PBH_TABLE table """
 
     table = "PBH_TABLE"
     key = table_name
@@ -663,7 +664,7 @@ def PBH_TABLE_update(db, table_name, description, interface_list):
 )
 @clicommon.pass_db
 def PBH_TABLE_delete(db, table_name):
-    """ Delete object in PBH_TABLE. """
+    """ Delete object from PBH_TABLE table """
 
     table = "PBH_TABLE"
     key = table_name
