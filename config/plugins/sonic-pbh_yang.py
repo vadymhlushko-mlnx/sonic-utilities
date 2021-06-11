@@ -88,11 +88,13 @@ def ip_address_validator(ctx, param, value):
     """ Check if the given ip address is valid """
 
     # need to clarify
-    ip = ipaddress.ip_address(value)
-    if (ip.is_reserved) or (ip.is_multicast) or (ip.is_global) or (ip.is_link_local):
-        raise ipaddress.AddressValueError
+    if value is not None:
+        ip = ipaddress.ip_address(value)
+        if (ip.is_reserved) or (ip.is_multicast) or (ip.is_global) or (ip.is_link_local):
+            exit_with_error("Error: invalid value for {}".format(param.name), fg="red")
 
-    return str(ip)
+    return value
+
 
 def pbh_match(ctx, param, value):
     """ Check if PBH rule options is valid """
@@ -100,6 +102,8 @@ def pbh_match(ctx, param, value):
     if value is not None:
         if re.match(pbh_pattern, str(value)) is None:
             exit_with_error("Error: invalid value for {}".format(param.name), fg="red")
+
+    return value
 
 
 def is_exist_in_db(db, _list, conf_db_key, option_name):
@@ -156,7 +160,7 @@ def PBH_HASH_FIELD():
 @click.option(
     "--ip-mask",
     help="Configures IPv4/IPv6 address mask for this hash field",
-    callback=ip_address_validator
+    callback=ip_address_validator,
 )
 @click.option(
     "--sequence-id",
@@ -166,7 +170,7 @@ def PBH_HASH_FIELD():
 )
 @clicommon.pass_db
 def PBH_HASH_FIELD_add(db, hash_field_name, hash_field, ip_mask, sequence_id):
-    """ Add object in PBH_HASH_FIELD table. """
+    """ Add object to PBH_HASH_FIELD table """
 
     table = "PBH_HASH_FIELD"
     key = hash_field_name
@@ -198,7 +202,7 @@ def PBH_HASH_FIELD_add(db, hash_field_name, hash_field, ip_mask, sequence_id):
 @click.option(
     "--ip-mask",
     help="Configures IPv4/IPv6 address mask for this hash field",
-    callback=ip_address_validator
+    callback=ip_address_validator,
 )
 @click.option(
     "--sequence-id",
@@ -264,7 +268,7 @@ def PBH_HASH():
 )
 @clicommon.pass_db
 def PBH_HASH_add(db, hash_name, hash_field_list):
-    """ Add object in PBH_HASH table """
+    """ Add object to PBH_HASH table """
 
     is_exist_in_db(db, hash_field_list, "PBH_HASH_FIELD", "--hash-field-list")
 
@@ -404,7 +408,7 @@ def PBH_RULE_add(db,
                  hash,
                  packet_action,
                  flow_counter):
-    """ Add object in PBH_RULE table """
+    """ Add object to PBH_RULE table """
 
     is_exist_in_db(db, table_name, "PBH_TABLE", "--table-name")
     is_exist_in_db(db, hash, "PBH_HASH", "--hash")
@@ -606,7 +610,7 @@ def interfaces_list_validator(db, interface_list):
 )
 @clicommon.pass_db
 def PBH_TABLE_add(db, table_name, description, interface_list):
-    """ Add object in PBH_TABLE table """
+    """ Add object to PBH_TABLE table """
 
     interfaces_list_validator(db, interface_list)
 

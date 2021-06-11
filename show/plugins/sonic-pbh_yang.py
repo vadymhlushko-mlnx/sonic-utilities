@@ -143,7 +143,7 @@ def PBH_HASH(db):
     """  Show the PBH hash configuration """
 
     header = [
-        "Hash",
+        "Name",
         "Hash field",
     ]
 
@@ -187,7 +187,7 @@ def PBH_RULE(db):
         "Match",
         "Hash",
         "Action",
-        "Flow counter",
+        "Counter",
     ]
 
     body = []
