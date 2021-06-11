@@ -8,6 +8,7 @@ CLI Auto-generation tool HLD - https://github.com/Azure/SONiC/pull/78
 
 import click
 import ipaddress
+import re
 import utilities_common.cli as clicommon
 import utilities_common.general as general
 
@@ -23,6 +24,8 @@ hash_field_types = ['INNER_IP_PROTOCOL',
 packet_action_types = ['SET_ECMP_HASH', 'SET_LAG_HASH']
 
 flow_counter_state = ['DISABLED', 'ENABLED']
+
+pbh_pattern = r"(0x){1}[a-fA-F0-9]+/(0x){1}[a-fA-F0-9]+"
 
 
 def exit_with_error(*args, **kwargs):
@@ -91,6 +94,13 @@ def is_valid_ip_address(ctx, param, value):
 
     return str(ip)
 
+def is_match(ctx, param, value):
+    """ Check if PBH rule options is valid """
+
+    if value is not None:
+        if re.match(pbh_pattern, str(value)) is None:
+            exit_with_error("Error: invalid value for {}".format(param.name), fg="red")
+
 
 def is_exist_in_db(db, _list, conf_db_key, option_name):
     """ Check if provided CLI option already exist in Config DB,
@@ -111,7 +121,8 @@ def is_exist_in_db(db, _list, conf_db_key, option_name):
 
     for elem in splited_list:
         if elem not in correct_list:
-            exit_with_error("Error: invalid value for {}, please use {}".format(option_name, correct_list), fg="red")
+            exit_with_error("Error: invalid value for {}, \
+                please use {}".format(option_name, correct_list), fg="red")
 
 
 @click.group(name='pbh',
@@ -334,41 +345,48 @@ def PBH_RULE():
 )
 @click.option(
     "--priority",
-    help="Configures priority for this rule [mandatory]",
+    help="[MANDATORY] Configures priority",
+    required=True,
     type=click.INT,
 )
 @click.option(
     "--gre-key",
-    help="Configures packet match for this rule: GRE key (value/mask)",
+    help="Configures packet match: GRE key (value/mask)",
+    callback=is_match,
 )
 @click.option(
     "--ip-protocol",
-    help="Configures packet match for this rule: IP protocol (value/mask)",
+    help="Configures packet match: IP protocol (value/mask)",
+    callback=is_match,
 )
 @click.option(
     "--ipv6-next-header",
-    help="Configures packet match for this rule: IPv6 Next header (value/mask)",
+    help="Configures packet match: IPv6 Next header (value/mask)",
+    callback=is_match,
 )
 @click.option(
     "--l4-dst-port",
-    help="Configures packet match for this rule: L4 destination port (value/mask)",
+    help="Configures packet match: L4 destination port (value/mask)",
+    callback=is_match,
 )
 @click.option(
     "--inner-ether-type",
-    help="Configures packet match for this rule: inner EtherType (value/mask)",
+    help="Configures packet match: inner EtherType (value/mask)",
+    callback=is_match,
 )
 @click.option(
     "--hash",
-    help="The hash to apply with this rule[mandatory]",
+    required=True,
+    help="[MANDATORY] Configures the hash to apply",
 )
 @click.option(
     "--packet-action",
-    help="Configures packet action for this rule",
+    help="Configures packet action",
     type=click.Choice(packet_action_types)
 )
 @click.option(
     "--flow-counter",
-    help="Enables/Disables packet/byte counter for this rule",
+    help="Enables/Disables packet/byte counter",
     type=click.Choice(flow_counter_state)
 )
 @clicommon.pass_db
@@ -430,41 +448,48 @@ def PBH_RULE_add(db,
 )
 @click.option(
     "--priority",
-    help="Configures priority for this rule[mandatory]",
+    help="[MANDATORY] Configures priority",
+    required=True,
     type=click.INT,
 )
 @click.option(
     "--gre-key",
-    help="Configures packet match for this rule: GRE key (value/mask)",
+    help="Configures packet match: GRE key (value/mask)",
+    callback=is_match,
 )
 @click.option(
     "--ip-protocol",
-    help="Configures packet match for this rule: IP protocol (value/mask)",
+    help="Configures packet match: IP protocol (value/mask)",
+    callback=is_match,
 )
 @click.option(
     "--ipv6-next-header",
-    help="Configures packet match for this rule: IPv6 Next header (value/mask)",
+    help="Configures packet match: IPv6 Next header (value/mask)",
+    callback=is_match,
 )
 @click.option(
     "--l4-dst-port",
-    help="Configures packet match for this rule: L4 destination port (value/mask)",
+    help="Configures packet match: L4 destination port (value/mask)",
+    callback=is_match,
 )
 @click.option(
     "--inner-ether-type",
-    help="Configures packet match for this rule: inner EtherType (value/mask)",
+    help="Configures packet match: inner EtherType (value/mask)",
+    callback=is_match,
 )
 @click.option(
     "--hash",
-    help="The hash to apply with this rule[mandatory]",
+    required=True,
+    help="[MANDATORY] The hash to apply with this rule",
 )
 @click.option(
     "--packet-action",
-    help="Configures packet action for this rule",
+    help="Configures packet action",
     type=click.Choice(packet_action_types)
 )
 @click.option(
     "--flow-counter",
-    help="Enables/Disables packet/byte counter for this rule",
+    help="Enables/Disables packet/byte counter",
     type=click.Choice(flow_counter_state)
 )
 @clicommon.pass_db
@@ -539,9 +564,26 @@ def PBH_RULE_delete(db, table_name, rule_name):
 @PBH.group(name="table",
              cls=clicommon.AliasedGroup)
 def PBH_TABLE():
-    """ PBH_TABLE part of config_db.json """
+    """ Configure PBH table"""
 
     pass
+
+def interfaces_list_validator(db, interface_list):
+    error = False
+    interfaces = interface_list.split(',')
+
+    for intf in interfaces:
+        if intf.startswith('Ethernet'):
+            if not clicommon.is_valid_port(db.cfgdb, intf):
+                error = True
+        elif intf.startswith('PortChannel'):
+            if not clicommon.is_valid_portchannel(db.cfgdb, intf):
+                error = True
+        else:
+            error = True
+
+    if error:
+        exit_with_error("Error: invaliad value {}, for --interface-list option".format(interface_list), fg="red")
 
 
 @PBH_TABLE.command(name="add")
@@ -552,15 +594,19 @@ def PBH_TABLE():
 )
 @click.option(
     "--description",
-    help="The description of this table[mandatory]",
+    help="[MANDATORY] The description of this table",
+    required=True,
 )
 @click.option(
     "--interface-list",
     help="Interfaces to which this table is applied",
+    required=True,
 )
 @clicommon.pass_db
 def PBH_TABLE_add(db, table_name, description, interface_list):
     """ Add object in PBH_TABLE. """
+
+    interfaces_list_validator(db, interface_list)
 
     table = "PBH_TABLE"
     key = table_name
@@ -584,7 +630,8 @@ def PBH_TABLE_add(db, table_name, description, interface_list):
 )
 @click.option(
     "--description",
-    help="The description of this table[mandatory]",
+    help="[MANDATORY] The description of this table",
+    required=True,
 )
 @click.option(
     "--interface-list",
