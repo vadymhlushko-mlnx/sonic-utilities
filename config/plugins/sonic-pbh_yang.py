@@ -87,13 +87,13 @@ def del_entry(db, table, key):
 def ip_address_validator(ctx, param, value):
     """ Check if the given ip address is valid """
 
-    # need to clarify
     if value is not None:
-        ip = ipaddress.ip_address(value)
-        if (ip.is_reserved) or (ip.is_multicast) or (ip.is_global) or (ip.is_link_local):
-            exit_with_error("Error: invalid value for {}".format(param.name), fg="red")
+        try:
+            ip = ipaddress.ip_address(value)
+        except Exception as e:
+            exit_with_error("Error: invalid value for <{}>\n{}".format(param.name, e), fg="red")
 
-    return value
+        return str(ip)
 
 
 def pbh_match(ctx, param, value):
@@ -101,9 +101,9 @@ def pbh_match(ctx, param, value):
 
     if value is not None:
         if re.match(pbh_pattern, str(value)) is None:
-            exit_with_error("Error: invalid value for {}".format(param.name), fg="red")
+            exit_with_error("Error: invalid value for <{}>".format(param.name), fg="red")
 
-    return value
+        return value
 
 
 def is_exist_in_db(db, _list, conf_db_key, option_name):
@@ -125,7 +125,7 @@ def is_exist_in_db(db, _list, conf_db_key, option_name):
 
     for elem in splited_list:
         if elem not in correct_list:
-            exit_with_error("Error: invalid value for {}, \
+            exit_with_error("Error: invalid value for <{}>, \
                 please use {}".format(option_name, correct_list), fg="red")
 
 
