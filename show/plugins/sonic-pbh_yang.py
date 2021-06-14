@@ -131,7 +131,7 @@ def PBH_HASH_FIELD(db):
         body.append(row)
 
     # sorted by 'sequence_id'
-    body_sorted = sorted(body, key=itemgetter(3))
+    body_sorted = sorted(body, key=lambda e: int(e[3]))
     click.echo(tabulate.tabulate(body_sorted, header))
 
 
@@ -283,7 +283,7 @@ def PBH_RULE(db):
         body.append(row)
 
     # sorted by 'Priority'
-    body_sorted = sorted(body, key=itemgetter(2))
+    body_sorted = sorted(body, key=lambda e: int(e[2]))
     click.echo(tabulate.tabulate(body_sorted, header))
 
 

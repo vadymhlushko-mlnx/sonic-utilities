@@ -125,8 +125,7 @@ def is_exist_in_db(db, _list, conf_db_key, option_name):
 
     for elem in splited_list:
         if elem not in correct_list:
-            exit_with_error("Error: invalid value for <{}>, \
-                please use {}".format(option_name, correct_list), fg="red")
+            exit_with_error("Error: invalid value for <{}>, please use {}".format(option_name, correct_list), fg="red")
 
 
 @click.group(name='pbh',
