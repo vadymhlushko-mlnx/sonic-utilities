@@ -454,7 +454,6 @@ def PBH_RULE_add(db,
 @click.option(
     "--priority",
     help="Configures priority",
-    required=True,
     type=click.INT,
 )
 @click.option(
@@ -484,7 +483,6 @@ def PBH_RULE_add(db,
 )
 @click.option(
     "--hash",
-    required=True,
     help="The hash to apply with this rule",
 )
 @click.option(
