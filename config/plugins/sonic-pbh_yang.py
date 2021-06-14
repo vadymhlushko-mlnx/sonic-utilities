@@ -118,6 +118,10 @@ def is_exist_in_db(db, _list, conf_db_key, option_name):
             conf_db_key: key to search in Config DB
             option_name: name of 'click' option
     """
+
+    if _list is None:
+        return
+
     table = db.cfgdb.get_table(conf_db_key)
     correct_list = list(table.keys())
 
