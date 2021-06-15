@@ -11,6 +11,7 @@ import ipaddress
 import re
 import utilities_common.cli as clicommon
 import utilities_common.general as general
+from ipaddress import IPv4Address, IPv6Address
 
 
 hash_field_types = ['INNER_IP_PROTOCOL',
@@ -91,7 +92,7 @@ def ip_address_validator(ctx, param, value):
         try:
             ip = ipaddress.ip_address(value)
         except Exception as e:
-            exit_with_error("Error: invalid value for <{}>\n{}".format(param.name, e), fg="red")
+            exit_with_error("Error: invalid value for '{}'\n{}".format(param.name, e), fg="red")
 
         return str(ip)
 
@@ -101,7 +102,7 @@ def pbh_match(ctx, param, value):
 
     if value is not None:
         if re.match(pbh_pattern, str(value)) is None:
-            exit_with_error("Error: invalid value for <{}>".format(param.name), fg="red")
+            exit_with_error("Error: invalid value for '{}'".format(param.name), fg="red")
 
         return value
 
@@ -129,7 +130,23 @@ def is_exist_in_db(db, _list, conf_db_key, option_name):
 
     for elem in splited_list:
         if elem not in correct_list:
-            exit_with_error("Error: invalid value for <{}>, please use {}".format(option_name, correct_list), fg="red")
+            exit_with_error("Error: invalid value for '{}', please use {}".format(option_name, correct_list), fg="red")
+
+
+def ip_mask_hash_field_correspondence(ip_mask, hash_field):
+
+    # ask Nazarii
+    if ((hash_field == 'INNER_IP_PROTOCOL' or hash_field == 'INNER_L4_DST_PORT' or
+        hash_field == 'INNER_L4_SRC_PORT') and (ip_mask is not None)):
+        exit_with_error("Error: if the --hash-field value is '{}', the value of --ip-mask shoud be empty".format(hash_field))
+
+    if ((hash_field == 'INNER_DST_IPV4' or hash_field == 'INNER_SRC_IPV4') and
+         (not isinstance(ipaddress.ip_address(ip_mask), IPv4Address))):
+         exit_with_error("Error: --hash-field value '{}' not correspond to --ip-mask value '{}'".format(hash_field, ip_mask))
+
+    if ((hash_field == 'INNER_DST_IPV6' or hash_field == 'INNER_SRC_IPV6') and
+        (not isinstance(ipaddress.ip_address(ip_mask), IPv6Address))):
+        exit_with_error("Error: --hash-field value '{}' not correspond to --ip-mask value '{}'".format(hash_field, ip_mask))
 
 
 @click.group(name='pbh',
@@ -175,6 +192,8 @@ def PBH_HASH_FIELD():
 @clicommon.pass_db
 def PBH_HASH_FIELD_add(db, hash_field_name, hash_field, ip_mask, sequence_id):
     """ Add object to PBH_HASH_FIELD table """
+
+    ip_mask_hash_field_correspondence(ip_mask, hash_field)
 
     table = "PBH_HASH_FIELD"
     key = hash_field_name
