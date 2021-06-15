@@ -162,7 +162,8 @@ def PBH_HASH_FIELD():
 )
 @click.option(
     "--ip-mask",
-    help="Configures IPv4/IPv6 address mask for this hash field",
+    help="""Configures IPv4/IPv6 address mask for this hash field required when the value of --hash-field are - INNER_DST_IPV4 or
+    INNER_SRC_IPV4 or INNER_SRC_IPV4 or INNER_SRC_IPV4 """,
     callback=ip_address_validator,
 )
 @click.option(
