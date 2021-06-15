@@ -12,6 +12,9 @@ from click.testing import CliRunner
 logger = logging.getLogger(__name__)
 test_path = os.path.dirname(os.path.abspath(__file__))
 
+SUCCESS = 0
+ERROR = 1
+
 
 class TestPBH:
     @classmethod
@@ -33,9 +36,8 @@ class TestPBH:
 
         logger.debug(result.output)
         logger.debug(result.exit_code)
-        logger.debug(result.stdout)
 
-        assert result.exit_code == 0
+        assert result.exit_code == SUCCESS
 
     def test_hash_field_add_ip4_mask(self):
         db = Db()
@@ -50,9 +52,8 @@ class TestPBH:
 
         logger.debug(result.output)
         logger.debug(result.exit_code)
-        logger.debug(result.stdout)
 
-        assert result.exit_code == 0
+        assert result.exit_code == SUCCESS
 
     def test_hash_field_add_ip6_mask(self):
         db = Db()
@@ -67,57 +68,110 @@ class TestPBH:
 
         logger.debug(result.output)
         logger.debug(result.exit_code)
-        logger.debug(result.stdout)
 
-        assert result.exit_code == 0
+        assert result.exit_code == SUCCESS
+
+    # negative add: --hash-field & --ip-mask mismatch
+    def test_hash_field_add_hash_field_with_ip(self):
+        db = Db()
+        obj = { 'db': db.cfgdb }
+        runner = CliRunner()
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["hash-field"].commands["add"],
+            ["inner_ip_protocol", "--hash-field", "INNER_IP_PROTOCOL",
+            "--ip-mask", "255.0.0.0",
+            "--sequence-id", "1"], obj=obj)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+
+        assert result.exit_code == ERROR
+
+    # negative add: --hash-field v6 & --ip-mask v4 mismatch
+    def test_hash_field_add_ipv4_mismatch(self):
+        db = Db()
+        obj = { 'db': db.cfgdb }
+        runner = CliRunner()
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["hash-field"].commands["add"],
+            ["inner_src_ipv6", "--hash-field", "INNER_SRC_IPV6",
+            "--ip-mask", "255.0.0.0",
+            "--sequence-id", "4"], obj=obj)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+
+        assert result.exit_code == ERROR
+
+    # negative add: --hash-field v4 & --ip-mask v6 mismatch
+    def test_hash_field_add_ipv6_mismatch(self):
+        db = Db()
+        obj = { 'db': db.cfgdb }
+        runner = CliRunner()
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["hash-field"].commands["add"],
+            ["inner_src_ipv4", "--hash-field", "INNER_SRC_IPV4",
+            "--ip-mask", "ffff::",
+            "--sequence-id", "2"], obj=obj)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+
+        assert result.exit_code == ERROR
+
+    # negative add: invalid --ip-mask
+    def test_hash_field_add_invalid_ip(self):
+        db = Db()
+        obj = { 'db': db.cfgdb }
+        runner = CliRunner()
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["hash-field"].commands["add"],
+            ["inner_src_ipv4", "--hash-field", "INNER_SRC_IPV4",
+            "--ip-mask", "WRONG",
+            "--sequence-id", "2"], obj=obj)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+
+        assert result.exit_code == ERROR
+
+    # negative add: None --ip-mask
+    def test_hash_field_add_none_ipv4(self):
+        db = Db()
+        obj = { 'db': db.cfgdb }
+        runner = CliRunner()
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["hash-field"].commands["add"],
+            ["inner_src_ipv4", "--hash-field", "INNER_SRC_IPV4",
+            "--sequence-id", "2"], obj=obj)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+
+        assert result.exit_code == ERROR
+
+    # negative add: None --ip-mask
+    def test_hash_field_add_none_ipv6(self):
+        db = Db()
+        obj = { 'db': db.cfgdb }
+        runner = CliRunner()
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["hash-field"].commands["add"],
+            ["inner_src_ipv6", "--hash-field", "INNER_SRC_IPV6",
+            "--sequence-id", "2"], obj=obj)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+
+        assert result.exit_code == ERROR
 
     ########## HASH-FIELD ##########
-
-    #def test_config_pbh_table_add(self):
-    #    db = Db()
-    #    obj = { 'db': db.cfgdb }
-    #    runner = CliRunner()
-    #    result = runner.invoke(config.config.commands["pbh"].
-    #        commands["table"].commands["add"],
-    #        ["pbh_table", "--interface-list", "Ethernet0,Ethernet4",
-    #        "--description", "NVGRE"], obj=obj)
-    #    logger.debug(result.exit_code)
-    #    logger.debug(result.output)
-    #    #import pdb; pdb.set_trace()
-    #    assert result.exit_code == 0
-    #    #assert result.outup == correct_dict
-
-    #def test_(self):
-    #    db = Db()
-    #    obj = { 'db': db.cfgdb }
-    #    runner = CliRunner()
-
-    #    result = runner.invoke(config.config.commands["pbh"].
-    #        commands[""].commands["add"],
-    #        ["", "--", "",
-    #        "--", ""], obj=obj)
-
-    #    logger.debug(result.stdout)
-    #    logger.debug(result.exit_code)
-    #    logger.debug(result.output)
-
-    #    #assert result.exit_code == 0
-    #    #assert result.outup == correct_dict
-
-    #def test_config_pbh_hash_field(self):
-    #    db = Db()
-    #    obj = { 'db': db.cfgdb }
-    #    runner = CliRunner()
-    #    result = runner.invoke(config.config.commands["pbh"].
-    #        commands["hash-field"].commands["add"],
-    #        ["inner_ip_proto", "--hash-field", "INNER_IP_PROTOCOL",
-    #        "--sequence-id", "1"], obj=obj)
-    #    logger.debug(result.exit_code)
-    #    logger.debug(result.output)
-    #    #import pdb; pdb.set_trace()
-    #    assert result.exit_code == 0
-    #    # assert for dict
-
 
     @classmethod
     def teardown_class(cls):
