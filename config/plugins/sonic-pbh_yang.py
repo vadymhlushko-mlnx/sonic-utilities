@@ -134,19 +134,54 @@ def is_exist_in_db(db, _list, conf_db_key, option_name):
 
 
 def ip_mask_hash_field_correspondence(ip_mask, hash_field):
+    # at this point
+    # --ip_mask value can be None or VALID IP
+    # --hash_field always valid
 
-    # ask Nazarii
-    if ((hash_field == 'INNER_IP_PROTOCOL' or hash_field == 'INNER_L4_DST_PORT' or
-        hash_field == 'INNER_L4_SRC_PORT') and (ip_mask is not None)):
-        exit_with_error("Error: if the --hash-field value is '{}', the value of --ip-mask shoud be empty".format(hash_field))
+    if ((ip_mask is None) and
+        (hash_field == 'INNER_DST_IPV4' or hash_field == 'INNER_SRC_IPV4' or
+        hash_field == 'INNER_DST_IPV6' or hash_field == 'INNER_SRC_IPV6')):
+        exit_with_error("Error: the value of --hash-field='{}' is NOT compatible with the value of --ip-mask='{}'".format(hash_field, ip_mask), fg='red')
+
+    if ((ip_mask is not None) and
+        (hash_field == 'INNER_IP_PROTOCOL' or
+        hash_field == 'INNER_L4_DST_PORT' or
+        hash_field == 'INNER_L4_SRC_PORT')):
+        exit_with_error("Error: the value of --hash-field='{}' is NOT compatible with the value of --ip-mask='{}'".format(hash_field, ip_mask), fg='red')
 
     if ((hash_field == 'INNER_DST_IPV4' or hash_field == 'INNER_SRC_IPV4') and
-         (not isinstance(ipaddress.ip_address(ip_mask), IPv4Address))):
-         exit_with_error("Error: --hash-field value '{}' not correspond to --ip-mask value '{}'".format(hash_field, ip_mask))
+        (not isinstance(ipaddress.ip_address(ip_mask), IPv4Address))):
+        exit_with_error("Error: the value of --hash-field='{}' is NOT compatible with the value of --ip-mask='{}'".format(hash_field, ip_mask), fg='red')
 
     if ((hash_field == 'INNER_DST_IPV6' or hash_field == 'INNER_SRC_IPV6') and
         (not isinstance(ipaddress.ip_address(ip_mask), IPv6Address))):
-        exit_with_error("Error: --hash-field value '{}' not correspond to --ip-mask value '{}'".format(hash_field, ip_mask))
+        exit_with_error("Error: the value of --hash-field='{}' is NOT compatible with the value of --ip-mask='{}'".format(hash_field, ip_mask), fg='red')
+
+def update_ip_mask_hash_field(db, hash_field_name, ip_mask, hash_field):
+
+    if (ip_mask is None) and (hash_field is None):
+        return
+
+    table = db.cfgdb.get_table('PBH_HASH_FIELD')
+    hash_field_obj = table[hash_field_name]
+
+    if (ip_mask is None) and (hash_field is not None):
+
+        try:
+            ip_mask = hash_field_obj['ip_mask']
+        except Exception as e:
+            ip_mask = None
+
+        ip_mask_hash_field_correspondence(ip_mask, hash_field)
+
+    if (ip_mask is not None) and (hash_field is None):
+
+        try:
+            hash_field = hash_field_obj['hash_field']
+        except Exception as e:
+            hash_field = None
+
+        ip_mask_hash_field_correspondence(ip_mask, hash_field_obj['hash_field'])
 
 
 @click.group(name='pbh',
@@ -235,6 +270,8 @@ def PBH_HASH_FIELD_add(db, hash_field_name, hash_field, ip_mask, sequence_id):
 @clicommon.pass_db
 def PBH_HASH_FIELD_update(db, hash_field_name, hash_field, ip_mask, sequence_id):
     """ Update object in PBH_HASH_FIELD table """
+
+    update_ip_mask_hash_field(db, hash_field_name, ip_mask, hash_field)
 
     table = "PBH_HASH_FIELD"
     key = hash_field_name
