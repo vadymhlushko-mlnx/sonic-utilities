@@ -7,9 +7,11 @@ import config.main as config
 
 from utilities_common.db import Db
 from click.testing import CliRunner
-
+from .mock_tables import dbconnector
 
 logger = logging.getLogger(__name__)
+test_path = os.path.dirname(os.path.abspath(__file__))
+mock_db_path = os.path.join(test_path, "pbh_input")
 
 SUCCESS = 0
 ERROR = 1
@@ -20,6 +22,11 @@ class TestPBH:
     def setup_class(cls):
         logger.info("SETUP")
         os.environ['UTILITIES_UNIT_TESTING'] = "1"
+
+    @classmethod
+    def teardown_class(cls):
+        logger.info("TEARDOWN")
+        os.environ['UTILITIES_UNIT_TESTING'] = "0"
 
     ########## HASH-FIELD ##########
 
@@ -338,11 +345,27 @@ class TestPBH:
 
         assert result.exit_code == ERROR
 
+    ########## HASH ##########
 
-    ########## HASH-FIELD ##########
+    def test_hash_add(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'hash_fields')
+        db = Db()
+        runner = CliRunner()
 
-    @classmethod
-    def teardown_class(cls):
-        logger.info("TEARDOWN")
-        os.environ['UTILITIES_UNIT_TESTING'] = "0"
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["hash"].commands["add"],
+            ["inner_v4_hash", "--hash-field-list",
+            "inner_ip_proto,inner_l4_dst_port,inner_l4_src_port,inner_dst_ipv4,inner_dst_ipv4"],
+            obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+
+        result = runner.invoke(show.cli.commands["pbh"].
+            commands["hash"], [], obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+
 
