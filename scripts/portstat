@@ -353,7 +353,7 @@ class Portstat(object):
             print("Time Since Counters Last Cleared............... " + str(cnstat_old_dict.get('time')))
 
 
-    def cnstat_diff_print(self, cnstat_new_dict, cnstat_old_dict, ratestat_dict, intf_list, use_json, print_all, errors_only, rates_only): 
+    def cnstat_diff_print(self, cnstat_new_dict, cnstat_old_dict, ratestat_dict, intf_list, use_json, print_all, errors_only, rates_only, detail=False): 
         """
             Print the difference between two cnstat results.
         """
