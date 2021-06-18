@@ -371,7 +371,7 @@ class TestPBH:
         assert result.exit_code == SUCCESS
 
 
-    def test_hash_add_ipv6(self):
+    def test_hash_add_update_ipv6(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'hash_fields')
         db = Db()
         runner = CliRunner()
@@ -379,7 +379,17 @@ class TestPBH:
         result = runner.invoke(config.config.commands["pbh"].
             commands["hash"].commands["add"],
             ["inner_v6_hash", "--hash-field-list",
-            "inner_ip_proto,inner_l4_dst_port,inner_l4_src_port,inner_dst_ipv4,inner_dst_ipv4"],
+            "inner_ip_proto,inner_l4_dst_port,inner_l4_src_port,inner_dst_ipv6,inner_dst_ipv6"],
+            obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["hash"].commands["update"],
+            ["inner_v6_hash", "--hash-field-list",
+            "inner_l4_dst_port,inner_l4_src_port,inner_dst_ipv6,inner_dst_ipv6"],
             obj=db)
 
         logger.debug(result.output)
@@ -387,7 +397,6 @@ class TestPBH:
         assert result.exit_code == SUCCESS
 
 
-    #check to NONE
     def test_hash_add_invalid_hash_field_list(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'hash_fields')
         db = Db()
@@ -397,6 +406,20 @@ class TestPBH:
             commands["hash"].commands["add"],
             ["inner_v6_hash", "--hash-field-list",
             "INVALID"], obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == ERROR
+
+    def test_hash_add_empty_hash_field_list(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'hash_fields')
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["hash"].commands["add"],
+            ["inner_v6_hash", "--hash-field-list",
+            ""], obj=db)
 
         logger.debug(result.output)
         logger.debug(result.exit_code)
