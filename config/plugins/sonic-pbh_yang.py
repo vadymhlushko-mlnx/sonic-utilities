@@ -130,7 +130,7 @@ def is_exist_in_db(db, _list, conf_db_key, option_name):
 
     for elem in splited_list:
         if elem not in correct_list:
-            exit_with_error("Error: invalid value for '{}', please use {}".format(option_name, correct_list), fg="red")
+            exit_with_error("Error: invalid value '{}' for '{}', please use {}".format(elem, option_name, correct_list), fg="red")
 
 
 def ip_mask_hash_field_correspondence(ip_mask, hash_field):
@@ -633,6 +633,9 @@ def PBH_TABLE():
     pass
 
 def interfaces_list_validator(db, interface_list):
+    if interface_list is None:
+        exit_with_error("Error: invaliad value '{}', for '--interface-list' option".format(interface_list), fg="red")
+
     error = False
     interfaces = interface_list.split(',')
 
