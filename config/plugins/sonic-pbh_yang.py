@@ -92,7 +92,7 @@ def ip_address_validator(ctx, param, value):
         try:
             ip = ipaddress.ip_address(value)
         except Exception as e:
-            exit_with_error("Error: invalid value for '{}'\n{}".format(param.name, e), fg="red")
+            exit_with_error("Error: invalid value for '{}' option\n{}".format(param.name, e), fg="red")
 
         return str(ip)
 
@@ -102,7 +102,7 @@ def pbh_match(ctx, param, value):
 
     if value is not None:
         if re.match(pbh_pattern, str(value)) is None:
-            exit_with_error("Error: invalid value for '{}'".format(param.name), fg="red")
+            exit_with_error("Error: invalid value for '{}' option".format(param.name), fg="red")
 
         return value
 
@@ -130,7 +130,7 @@ def is_exist_in_db(db, _list, conf_db_key, option_name):
 
     for elem in splited_list:
         if elem not in correct_list:
-            exit_with_error("Error: invalid value '{}' for '{}', please use {}".format(elem, option_name, correct_list), fg="red")
+            exit_with_error("Error: invalid value '{}' for '{}' option, please use {}".format(elem, option_name, correct_list), fg="red")
 
 
 def ip_mask_hash_field_correspondence(ip_mask, hash_field):

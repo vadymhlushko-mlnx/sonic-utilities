@@ -15,6 +15,7 @@ mock_db_path = os.path.join(test_path, "pbh_input")
 
 SUCCESS = 0
 ERROR = 1
+ERROR2 = 2
 
 
 class TestPBH:
@@ -28,7 +29,7 @@ class TestPBH:
         logger.info("TEARDOWN")
         os.environ['UTILITIES_UNIT_TESTING'] = "0"
 
-    ########## HASH-FIELD ##########
+    ########## PBH HASH-FIELD ##########
 
     def test_hash_field_add_delete_no_ip_mask(self):
         db = Db()
@@ -345,7 +346,7 @@ class TestPBH:
 
         assert result.exit_code == ERROR
 
-    ########## HASH ##########
+    ########## PBH HASH ##########
 
     def test_hash_add_delete_ipv4(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'hash_fields')
@@ -426,7 +427,7 @@ class TestPBH:
         assert result.exit_code == ERROR
 
 
-    ########## TABLE ##########
+    ########## PBH TABLE ##########
 
     def test_table_add_delete_ports(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'table')
@@ -502,3 +503,182 @@ class TestPBH:
         logger.debug(result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
+
+
+    def test_table_add_invalid_port(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'table')
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["table"].commands["add"],
+            ["pbh_table3", "--interface-list", "INVALID",
+            "--description", "VxLAN adn NVGRE"], obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == ERROR
+
+
+    ########## PBH RULE ##########
+
+
+    def test_rule_add_delete_nvgre(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'rule')
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["rule"].commands["add"],
+            ["pbh_table1", "nvgre", "--priority", "1", "--gre-key",
+            "0x2500/0xffffff00", "--inner-ether-type", "0x86dd/0xffff",
+            "--hash", "inner_v6_hash", "--packet-action", "SET_ECMP_HASH",
+            "--flow-counter", "DISABLED"], obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["rule"].commands["delete"], ["pbh_table1", "nvgre"], obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+
+
+    def test_rule_add_update_vxlan(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'rule')
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["rule"].commands["add"],
+            ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
+            "0x11/0xff", "--inner-ether-type", "0x0800/0xfff",
+            "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v6_hash",
+            "--packet-action", "SET_ECMP_HASH", "--flow-counter", "ENABLED"], obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["rule"].commands["update"],
+            ["pbh_table1", "vxlan ", "--priority", "3", "--inner-ether-type", "0x086dd/0xfff",
+            "--packet-action", "SET_LAG_HASH", "--flow-counter", "DISABLED"], obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+
+
+    def test_rule_update_invalid(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'rule')
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["rule"].commands["add"],
+            ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
+            "0x11/0xff", "--inner-ether-type", "0x0800/0xfff",
+            "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v6_hash",
+            "--packet-action", "SET_ECMP_HASH", "--flow-counter", "ENABLED"], obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["rule"].commands["update"],
+            ["pbh_table1", "vxlan ", "--flow-counter", "INVALID"], obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == ERROR2
+
+
+    def test_rule_add_invalid_ip_priotiry(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'rule')
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["rule"].commands["add"],
+            ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
+            "INVALID", "--inner-ether-type", "0x0800/0xfff",
+            "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v6_hash",
+            "--packet-action", "SET_ECMP_HASH", "--flow-counter", "ENABLED"], obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == ERROR 
+
+
+    def test_rule_add_invalid_inner_ether_type(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'rule')
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["rule"].commands["add"],
+            ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
+            "0x11/0xff", "--inner-ether-type", "INVALID",
+            "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v6_hash",
+            "--packet-action", "SET_ECMP_HASH", "--flow-counter", "ENABLED"], obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == ERROR
+
+
+    def test_rule_add_invalid_hash(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'rule')
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["rule"].commands["add"],
+            ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
+            "0x11/0xff", "--inner-ether-type", "0x0800/0xfff",
+            "--l4-dst-port", "0x12b5/0xffff", "--hash", "INVALID",
+            "--packet-action", "SET_ECMP_HASH", "--flow-counter", "ENABLED"], obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == ERROR
+
+
+    def test_rule_add_invalid_packet_action(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'rule')
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["rule"].commands["add"],
+            ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
+            "0x11/0xff", "--inner-ether-type", "0x0800/0xfff",
+            "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v6_hash",
+            "--packet-action", "INVALID", "--flow-counter", "ENABLED"], obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == ERROR2
+
+
+    def test_rule_add_invalid_flow_counter(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'rule')
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["rule"].commands["add"],
+            ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
+            "0x11/0xff", "--inner-ether-type", "0x0800/0xfff",
+            "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v6_hash",
+            "--packet-action", "SET_ECMP_HASH", "--flow-counter", "INVALID"], obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == ERROR2
+
