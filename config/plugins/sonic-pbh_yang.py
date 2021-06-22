@@ -632,9 +632,9 @@ def PBH_TABLE():
 
     pass
 
-def interfaces_list_validator(db, interface_list):
-    if interface_list is None:
-        exit_with_error("Error: invaliad value '{}', for '--interface-list' option".format(interface_list), fg="red")
+def interfaces_list_validator(db, interface_list, is_update: bool):
+    if is_update and (interface_list is None):
+        return
 
     error = False
     interfaces = interface_list.split(',')
@@ -673,7 +673,7 @@ def interfaces_list_validator(db, interface_list):
 def PBH_TABLE_add(db, table_name, description, interface_list):
     """ Add object to PBH_TABLE table """
 
-    interfaces_list_validator(db, interface_list)
+    interfaces_list_validator(db, interface_list, is_update=False)
 
     table = "PBH_TABLE"
     key = table_name
@@ -706,6 +706,8 @@ def PBH_TABLE_add(db, table_name, description, interface_list):
 @clicommon.pass_db
 def PBH_TABLE_update(db, table_name, description, interface_list):
     """ Update object in PBH_TABLE table """
+
+    interfaces_list_validator(db, interface_list, is_update=True)
 
     table = "PBH_TABLE"
     key = table_name

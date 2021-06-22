@@ -66,11 +66,11 @@ def PBH_HASH_FIELD(db):
     """  Show the PBH hash field configuration """
 
     header = [
-        "Name",
-        "Field",
-        "Mask",
-        "Sequence",
-        "Symmetric",
+        "NAME",
+        "FIELD",
+        "MASK",
+        "SEQUENCE",
+        "SYMMETRIC",
     ]
 
     body = []
@@ -143,8 +143,8 @@ def PBH_HASH(db):
     """  Show the PBH hash configuration """
 
     header = [
-        "Name",
-        "Hash field",
+        "NAME",
+        "HASH FIELD",
     ]
 
     body = []
@@ -181,13 +181,13 @@ def PBH_RULE(db):
     """  Show the PBH rules configuration """
 
     header = [
-        "Table",
-        "Rule",
-        "Priority",
-        "Match",
-        "Hash",
-        "Action",
-        "Counter",
+        "TABLE",
+        "RULE",
+        "PRIORITY",
+        "MATCH",
+        "HASH",
+        "ACTION",
+        "COUNTER",
     ]
 
     body = []
@@ -295,9 +295,9 @@ def PBH_TABLE(db):
     """  Show the PBH table configuration """
 
     header = [
-        "Name",
-        "Interface",
-        "Description",
+        "NAME",
+        "INTERFACE",
+        "DESCRIPTION",
     ]
 
     body = []
@@ -343,10 +343,10 @@ def PBH_STATISTICS(db):
     """  Show the PBH counters """
 
     header = [
-        "Table",
-        "Rule",
-        "Packets count",
-        "Bytes count",
+        "TABLE",
+        "RULE",
+        "PACKETS COUNT",
+        "BYTES COUNT",
     ]
 
     body = []

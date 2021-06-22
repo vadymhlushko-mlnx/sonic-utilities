@@ -429,6 +429,7 @@ class TestPBH:
 
     ########## PBH TABLE ##########
 
+
     def test_table_add_delete_ports(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'table')
         db = Db()
@@ -449,6 +450,7 @@ class TestPBH:
         logger.debug(result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
+
 
     def test_table_add_update_portchannels(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'table')
@@ -514,6 +516,29 @@ class TestPBH:
             commands["table"].commands["add"],
             ["pbh_table3", "--interface-list", "INVALID",
             "--description", "VxLAN adn NVGRE"], obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == ERROR
+
+
+    def test_table_add_update_wrong_interface(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'table')
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["table"].commands["add"],
+            ["pbh_table2", "--interface-list", "PortChannel0001",
+            "--description", "VxLAN"], obj=db)
+
+        logger.debug(result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["table"].commands["update"],
+            ["pbh_table2", "--interface-list", "INVALID"], obj=db)
 
         logger.debug(result.output)
         logger.debug(result.exit_code)
@@ -681,4 +706,3 @@ class TestPBH:
         logger.debug(result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR2
-
