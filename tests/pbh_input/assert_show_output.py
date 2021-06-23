@@ -1,5 +1,5 @@
 """
-Module holding correct show CLI command outputs for the pbh_test.py
+Module holding the correct values for show CLI command outputs for the pbh_test.py
 """
 
 show_pbh_hash_fields="""\
@@ -53,4 +53,12 @@ pbh_table1  nvgre            1  gre_key:           0x2500/0xffffff00  inner_v6_h
 pbh_table2  vxlan            2  ip_protocol:       0x11/0xff          inner_v4_hash  SET_LAG_HASH   ENABLED
                                 l4_dst_port:       0x12b5/0xffff
                                 inner_ether_type:  0x0800/0xfff
+"""
+
+
+show_pbh_statistics="""\
+TABLE       RULE      PACKETS COUNT    BYTES COUNT
+----------  ------  ---------------  -------------
+pbh_table1  nvgre               111            222
+pbh_table2  vxlan               333            444
 """
