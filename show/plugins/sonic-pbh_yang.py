@@ -283,7 +283,7 @@ def PBH_RULE(db):
         body.append(row)
 
     # sorted by 'Priority'
-    body_sorted = sorted(body, key=lambda e: int(e[2]))
+    body_sorted = sorted(body, key=lambda e: int(e[2]), reverse=True)
     click.echo(tabulate.tabulate(body_sorted, header))
 
 
