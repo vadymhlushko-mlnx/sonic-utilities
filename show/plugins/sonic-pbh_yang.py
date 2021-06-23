@@ -353,13 +353,11 @@ def PBH_STATISTICS(db):
 
     db_connector = SonicV2Connector(use_unix_socket_path=False)
     db_connector.connect(db_connector.COUNTERS_DB)
-
-    pbh_counters = {}
+    
     pbh_rules = db.cfgdb.get_table("PBH_RULE")
 
     for table, rule in natsort.natsorted(pbh_rules):
         counter_props = lowercase_keys(db_connector.get_all(db_connector.COUNTERS_DB, "COUNTERS:%s:%s" % (table, rule)))
-        row = []
         if counter_props is not None:
             row = [
                 table,
@@ -367,8 +365,7 @@ def PBH_STATISTICS(db):
                 counter_props['packets'],
                 counter_props['bytes']
             ]
-
-        body.append(row)
+            body.append(row)
 
     click.echo(tabulate.tabulate(body, header))
 
