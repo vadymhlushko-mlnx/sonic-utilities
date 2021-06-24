@@ -86,7 +86,16 @@ def del_entry(db, table, key):
 
 
 def ip_address_validator(ctx, param, value):
-    """ Check if the given ip address is valid """
+    """ Check if the given ip address is valid
+
+        Args:
+            ctx: click context,
+            param: click parameter context,
+            value: value of parameter
+
+        Returns:
+            str: ip address
+    """
 
     if value is not None:
         try:
@@ -98,7 +107,16 @@ def ip_address_validator(ctx, param, value):
 
 
 def re_match(value, param_name, regexp):
-    """ Regexp validation of given parameter """
+    """ Regexp validation of given parameter
+
+        Args:
+            value: value to validate,
+            param_name: parameter name,
+            regexp: regular expression
+
+        Return:
+            str: validated value
+    """
 
     if re.match(regexp, str(value)) is None:
         exit_with_error("Error: invalid value for '{}' option".format(param_name), fg="red")
@@ -107,7 +125,16 @@ def re_match(value, param_name, regexp):
 
 
 def pbh_re_match(ctx, param, value):
-    """ Check if PBH rule options are valid """
+    """ Check if PBH rule options are valid
+
+        Args:
+            ctx: click context,
+            param: click parameter context,
+            value: value of parameter
+
+        Returns:
+            str: validated parameter
+    """
 
     if value is not None:
         if param.name == 'gre_key':
