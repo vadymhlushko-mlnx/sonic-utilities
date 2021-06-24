@@ -210,6 +210,15 @@ def ip_mask_hash_field_correspondence(ip_mask, hash_field):
 
 
 def update_ip_mask_hash_field(db, hash_field_name, ip_mask, hash_field):
+    """ Function to validate --ip-mask and --hash-field
+        correspondence, during update flow
+
+        Args:
+            db: reference to CONFIG DB,
+            hash_field_name: name of the hash-field,
+            ip_mask: ip address,
+            hash_field: native hash field value
+    """
 
     if (ip_mask is None) and (hash_field is None):
         return
