@@ -138,24 +138,25 @@ def ip_mask_hash_field_correspondence(ip_mask, hash_field):
     # --ip_mask value can be None or VALID IP
     # --hash_field always valid
 
-    if ((ip_mask is None) and
-        (hash_field == 'INNER_DST_IPV4' or hash_field == 'INNER_SRC_IPV4' or
-        hash_field == 'INNER_DST_IPV6' or hash_field == 'INNER_SRC_IPV6')):
+    hf_v4_and_v6 = ['INNER_DST_IPV4', 'INNER_SRC_IPV4', 'INNER_DST_IPV6', 'INNER_SRC_IPV6']
+    hf_no_ip = ['INNER_IP_PROTOCOL', 'INNER_L4_DST_PORT', 'INNER_L4_SRC_PORT']
+    hf_v4 = ['INNER_DST_IPV4', 'INNER_SRC_IPV4']
+    hf_v6 = ['INNER_DST_IPV6', 'INNER_SRC_IPV6']
+
+    if (ip_mask is None) and (hash_field in hf_v4_and_v6):
         exit_with_error("Error: the value of --hash-field='{}' is NOT compatible with the value of --ip-mask='{}'".format(hash_field, ip_mask), fg='red')
 
-    if ((ip_mask is not None) and
-        (hash_field == 'INNER_IP_PROTOCOL' or
-        hash_field == 'INNER_L4_DST_PORT' or
-        hash_field == 'INNER_L4_SRC_PORT')):
+    if (ip_mask is not None) and (hash_field in hf_no_ip):
         exit_with_error("Error: the value of --hash-field='{}' is NOT compatible with the value of --ip-mask='{}'".format(hash_field, ip_mask), fg='red')
 
-    if ((hash_field == 'INNER_DST_IPV4' or hash_field == 'INNER_SRC_IPV4') and
-        (not isinstance(ipaddress.ip_address(ip_mask), IPv4Address))):
-        exit_with_error("Error: the value of --hash-field='{}' is NOT compatible with the value of --ip-mask='{}'".format(hash_field, ip_mask), fg='red')
+    if ip_mask is not None:
+        ip_addr_version = ipaddress.ip_address(ip_mask).version
 
-    if ((hash_field == 'INNER_DST_IPV6' or hash_field == 'INNER_SRC_IPV6') and
-        (not isinstance(ipaddress.ip_address(ip_mask), IPv6Address))):
-        exit_with_error("Error: the value of --hash-field='{}' is NOT compatible with the value of --ip-mask='{}'".format(hash_field, ip_mask), fg='red')
+        if (hash_field in hf_v4) and (ip_addr_version != 4):
+            exit_with_error("Error: the value of --hash-field='{}' is NOT compatible with the value of --ip-mask='{}'".format(hash_field, ip_mask), fg='red')
+
+        if (hash_field in hf_v6) and (ip_addr_version != 6):
+            exit_with_error("Error: the value of --hash-field='{}' is NOT compatible with the value of --ip-mask='{}'".format(hash_field, ip_mask), fg='red')
 
 def update_ip_mask_hash_field(db, hash_field_name, ip_mask, hash_field):
 
