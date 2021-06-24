@@ -98,6 +98,8 @@ def ip_address_validator(ctx, param, value):
 
 
 def re_match(value, param_name, regexp):
+    """ Regexp validation of given parameter """
+
     if re.match(regexp, str(value)) is None:
         exit_with_error("Error: invalid value for '{}' option".format(param_name), fg="red")
 
@@ -105,7 +107,7 @@ def re_match(value, param_name, regexp):
 
 
 def pbh_re_match(ctx, param, value):
-    """ Check if PBH rule options is valid """
+    """ Check if PBH rule options are valid """
 
     if value is not None:
         if param.name == 'gre_key':
@@ -147,29 +149,38 @@ def is_exist_in_db(db, _list, conf_db_key, option_name):
 
 
 def ip_mask_hash_field_correspondence(ip_mask, hash_field):
-    # at this point
-    # --ip_mask value can be None or VALID IP
-    # --hash_field always valid
+    """ Check if the --ip-mask option are correspond to
+        the --hash-field option
 
+        Args:
+            ip_mask: ip address,
+            hash_field: hash field value, which was configured before
+    """
+
+    is_error = False
     hf_v4_and_v6 = ['INNER_DST_IPV4', 'INNER_SRC_IPV4', 'INNER_DST_IPV6', 'INNER_SRC_IPV6']
     hf_no_ip = ['INNER_IP_PROTOCOL', 'INNER_L4_DST_PORT', 'INNER_L4_SRC_PORT']
     hf_v4 = ['INNER_DST_IPV4', 'INNER_SRC_IPV4']
     hf_v6 = ['INNER_DST_IPV6', 'INNER_SRC_IPV6']
 
     if (ip_mask is None) and (hash_field in hf_v4_and_v6):
-        exit_with_error("Error: the value of --hash-field='{}' is NOT compatible with the value of --ip-mask='{}'".format(hash_field, ip_mask), fg='red')
+        is_error = True
 
     if (ip_mask is not None) and (hash_field in hf_no_ip):
-        exit_with_error("Error: the value of --hash-field='{}' is NOT compatible with the value of --ip-mask='{}'".format(hash_field, ip_mask), fg='red')
+        is_error = True
 
     if ip_mask is not None:
         ip_addr_version = ipaddress.ip_address(ip_mask).version
 
         if (hash_field in hf_v4) and (ip_addr_version != 4):
-            exit_with_error("Error: the value of --hash-field='{}' is NOT compatible with the value of --ip-mask='{}'".format(hash_field, ip_mask), fg='red')
+            is_error = True
 
         if (hash_field in hf_v6) and (ip_addr_version != 6):
-            exit_with_error("Error: the value of --hash-field='{}' is NOT compatible with the value of --ip-mask='{}'".format(hash_field, ip_mask), fg='red')
+            is_error = True
+
+    if is_error:
+        exit_with_error("Error: the value of --hash-field='{}' is NOT compatible with the value of --ip-mask='{}'".format(hash_field, ip_mask), fg='red')
+
 
 def update_ip_mask_hash_field(db, hash_field_name, ip_mask, hash_field):
 

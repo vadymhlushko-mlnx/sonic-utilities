@@ -57,8 +57,8 @@ pbh_table1  nvgre            1  gre_key:           0x2500/0xffffff00  inner_v6_h
 
 
 show_pbh_statistics="""\
-TABLE       RULE      PACKETS COUNT    BYTES COUNT
-----------  ------  ---------------  -------------
-pbh_table1  nvgre               111            222
-pbh_table2  vxlan               333            444
+TABLE       RULE      RX PACKETS COUNT    RX BYTES COUNT
+----------  ------  ------------------  ----------------
+pbh_table1  nvgre                  111               222
+pbh_table2  vxlan                  333               444
 """

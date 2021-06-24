@@ -43,18 +43,16 @@ class TestPBH:
             ["inner_ip_proto", "--hash-field", "INNER_IP_PROTOCOL",
             "--sequence-id", "1"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == SUCCESS
 
         result = runner.invoke(config.config.commands["pbh"].
             commands["hash-field"].commands["delete"],
             ["inner_ip_proto"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == SUCCESS
 
 
@@ -68,7 +66,7 @@ class TestPBH:
             "--ip-mask", "255.0.0.0",
             "--sequence-id", "3"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
 
         assert result.exit_code == SUCCESS
@@ -84,9 +82,8 @@ class TestPBH:
             "--ip-mask", "ffff::",
             "--sequence-id", "4"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == SUCCESS
 
 
@@ -101,9 +98,8 @@ class TestPBH:
             "--ip-mask", "255.0.0.0",
             "--sequence-id", "1"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == ERROR
 
 
@@ -118,9 +114,8 @@ class TestPBH:
             "--ip-mask", "255.0.0.0",
             "--sequence-id", "4"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == ERROR
 
 
@@ -135,9 +130,8 @@ class TestPBH:
             "--ip-mask", "ffff::",
             "--sequence-id", "2"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == ERROR
 
     # negative add: invalid --ip-mask
@@ -151,9 +145,8 @@ class TestPBH:
             "--ip-mask", "WRONG",
             "--sequence-id", "2"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == ERROR
 
 
@@ -167,9 +160,8 @@ class TestPBH:
             ["inner_src_ipv4", "--hash-field", "INNER_SRC_IPV4",
             "--sequence-id", "2"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == ERROR
 
 
@@ -183,9 +175,8 @@ class TestPBH:
             ["inner_src_ipv6", "--hash-field", "INNER_SRC_IPV6",
             "--sequence-id", "2"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == ERROR
 
 
@@ -198,16 +189,14 @@ class TestPBH:
             ["inner_ip_proto", "--hash-field", "INNER_IP_PROTOCOL",
             "--sequence-id", "1"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == SUCCESS
 
         result = runner.invoke(config.config.commands["pbh"].
             commands["hash-field"].commands["update"],
             ["inner_ip_proto", "--hash-field", "INNER_IP_PROTOCOL",
             "--sequence-id", "2"], obj=db)
-
         assert result.exit_code == SUCCESS
 
 
@@ -220,9 +209,8 @@ class TestPBH:
             ["inner_ip_proto", "--hash-field", "INNER_IP_PROTOCOL",
             "--sequence-id", "1"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == SUCCESS
 
         result = runner.invoke(config.config.commands["pbh"].
@@ -230,9 +218,8 @@ class TestPBH:
             ["inner_ip_proto", "--hash-field", "INNER_L4_DST_PORT",
             "--sequence-id", "2"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == SUCCESS
 
 
@@ -245,9 +232,8 @@ class TestPBH:
             ["inner_dst_ipv4", "--hash-field", "INNER_DST_IPV4",
             "--ip-mask", "255.0.0.0", "--sequence-id", "1"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == SUCCESS
 
         result = runner.invoke(config.config.commands["pbh"].
@@ -255,9 +241,8 @@ class TestPBH:
             ["inner_dst_ipv4", "--hash-field", "INNER_SRC_IPV4",
             "--ip-mask", "0.0.0.255", "--sequence-id", "2"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == SUCCESS
 
 
@@ -270,9 +255,8 @@ class TestPBH:
             ["inner_ip_proto", "--hash-field", "INNER_IP_PROTOCOL",
             "--sequence-id", "1"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == SUCCESS
 
         result = runner.invoke(config.config.commands["pbh"].
@@ -280,9 +264,8 @@ class TestPBH:
             ["inner_ip_proto", "--hash-field", "INNER_DST_IPV4",
             "--sequence-id", "2"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == ERROR
 
 
@@ -295,18 +278,16 @@ class TestPBH:
             ["inner_ip_proto", "--hash-field", "INNER_IP_PROTOCOL",
             "--sequence-id", "1"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == SUCCESS
 
         result = runner.invoke(config.config.commands["pbh"].
             commands["hash-field"].commands["update"],
             ["inner_ip_proto", "--ip-mask", "0.0.0.255"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == ERROR
 
 
@@ -319,18 +300,16 @@ class TestPBH:
             ["inner_dst_ipv6", "--hash-field", "INNER_DST_IPV6",
             "--ip-mask", "ffff::", "--sequence-id", "3"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == SUCCESS
 
         result = runner.invoke(config.config.commands["pbh"].
             commands["hash-field"].commands["update"],
             ["inner_dst_ipv6", "--ip-mask", "255.0.0.0", "--sequence-id", "2"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == ERROR
 
 
@@ -343,18 +322,16 @@ class TestPBH:
             ["inner_dst_ipv4", "--hash-field", "INNER_DST_IPV4",
             "--ip-mask", "255.0.0.0", "--sequence-id", "3"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == SUCCESS
 
         result = runner.invoke(config.config.commands["pbh"].
             commands["hash-field"].commands["update"],
             ["inner_dst_ipv4", "--ip-mask", "ffff::", "--sequence-id", "2"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == ERROR
 
 
@@ -372,7 +349,7 @@ class TestPBH:
             "inner_ip_proto,inner_l4_dst_port,inner_l4_src_port,inner_dst_ipv4,inner_dst_ipv4"],
             obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
@@ -380,7 +357,7 @@ class TestPBH:
             commands["hash"].commands["delete"],
             ["inner_v4_hash"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
@@ -396,7 +373,7 @@ class TestPBH:
             "inner_ip_proto,inner_l4_dst_port,inner_l4_src_port,inner_dst_ipv6,inner_dst_ipv6"],
             obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
@@ -406,7 +383,7 @@ class TestPBH:
             "inner_l4_dst_port,inner_l4_src_port,inner_dst_ipv6,inner_dst_ipv6"],
             obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
@@ -421,7 +398,7 @@ class TestPBH:
             ["inner_v6_hash", "--hash-field-list",
             "INVALID"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
@@ -436,7 +413,7 @@ class TestPBH:
             ["inner_v6_hash", "--hash-field-list",
             ""], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
@@ -454,14 +431,14 @@ class TestPBH:
             ["pbh_table1", "--interface-list", "Ethernet0,Ethernet4",
             "--description", "NVGRE"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
         result = runner.invoke(config.config.commands["pbh"].
             commands["table"].commands["delete"], ["pbh_table1"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
@@ -476,7 +453,7 @@ class TestPBH:
             ["pbh_table2", "--interface-list", "PortChannel0001",
             "--description", "VxLAN"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
@@ -485,7 +462,7 @@ class TestPBH:
             ["pbh_table2", "--interface-list", "PortChannel0002",
             "--description", "VxLAN TEST"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
@@ -493,7 +470,7 @@ class TestPBH:
             commands["table"].commands["update"],
             ["pbh_table2", "--interface-list", "PortChannel0001"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
@@ -501,7 +478,7 @@ class TestPBH:
             commands["table"].commands["update"],
             ["pbh_table2", "--description", "TEST"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
@@ -516,7 +493,7 @@ class TestPBH:
             ["pbh_table3", "--interface-list", "PortChannel0002,Ethernet8",
             "--description", "VxLAN adn NVGRE"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
@@ -531,7 +508,7 @@ class TestPBH:
             ["pbh_table3", "--interface-list", "INVALID",
             "--description", "VxLAN adn NVGRE"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
@@ -546,7 +523,7 @@ class TestPBH:
             ["pbh_table2", "--interface-list", "PortChannel0001",
             "--description", "VxLAN"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
@@ -554,7 +531,7 @@ class TestPBH:
             commands["table"].commands["update"],
             ["pbh_table2", "--interface-list", "INVALID"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
@@ -574,14 +551,14 @@ class TestPBH:
             "--hash", "inner_v6_hash", "--packet-action", "SET_ECMP_HASH",
             "--flow-counter", "DISABLED"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
         result = runner.invoke(config.config.commands["pbh"].
             commands["rule"].commands["delete"], ["pbh_table1", "nvgre"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
@@ -598,7 +575,7 @@ class TestPBH:
             "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v4_hash",
             "--packet-action", "SET_LAG_HASH", "--flow-counter", "ENABLED"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
@@ -607,7 +584,7 @@ class TestPBH:
             ["pbh_table1", "vxlan ", "--priority", "3", "--inner-ether-type", "0x086dd/0xfff",
             "--packet-action", "SET_LAG_HASH", "--flow-counter", "DISABLED"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
@@ -624,7 +601,7 @@ class TestPBH:
             "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v6_hash",
             "--packet-action", "SET_ECMP_HASH", "--flow-counter", "ENABLED"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
@@ -632,7 +609,7 @@ class TestPBH:
             commands["rule"].commands["update"],
             ["pbh_table1", "vxlan ", "--flow-counter", "INVALID"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR2
 
@@ -649,7 +626,7 @@ class TestPBH:
             "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v6_hash",
             "--packet-action", "SET_ECMP_HASH", "--flow-counter", "ENABLED"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR 
 
@@ -666,7 +643,7 @@ class TestPBH:
             "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v6_hash",
             "--packet-action", "SET_ECMP_HASH", "--flow-counter", "ENABLED"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
@@ -683,7 +660,7 @@ class TestPBH:
             "--l4-dst-port", "0x12b5/0xffff", "--hash", "INVALID",
             "--packet-action", "SET_ECMP_HASH", "--flow-counter", "ENABLED"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
@@ -700,7 +677,7 @@ class TestPBH:
             "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v6_hash",
             "--packet-action", "INVALID", "--flow-counter", "ENABLED"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR2
 
@@ -717,7 +694,7 @@ class TestPBH:
             "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v6_hash",
             "--packet-action", "SET_ECMP_HASH", "--flow-counter", "INVALID"], obj=db)
 
-        logger.debug(result.output)
+        logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR2
 
