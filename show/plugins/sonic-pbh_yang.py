@@ -345,8 +345,8 @@ def PBH_STATISTICS(db):
     header = [
         "TABLE",
         "RULE",
-        "PACKETS COUNT",
-        "BYTES COUNT",
+        "RX PACKETS COUNT",
+        "RX BYTES COUNT",
     ]
 
     body = []
