@@ -11,8 +11,6 @@ import ipaddress
 import re
 import utilities_common.cli as clicommon
 import utilities_common.general as general
-from ipaddress import IPv4Address, IPv6Address
-
 
 hash_field_types = ['INNER_IP_PROTOCOL',
                     'INNER_L4_DST_PORT',
@@ -21,12 +19,14 @@ hash_field_types = ['INNER_IP_PROTOCOL',
                     'INNER_SRC_IPV4',
                     'INNER_DST_IPV6',
                     'INNER_SRC_IPV6']
-
 packet_action_types = ['SET_ECMP_HASH', 'SET_LAG_HASH']
-
 flow_counter_state = ['DISABLED', 'ENABLED']
 
-pbh_pattern = r"(0x){1}[a-fA-F0-9]+/(0x){1}[a-fA-F0-9]+"
+gre_key_re = r"(0x){1}[a-fA-F0-9]{1,8}/(0x){1}[a-fA-F0-9]{1,8}"
+ip_protocol_re = r"(0x){1}[a-fA-F0-9]{1,2}"
+ipv6_next_header_re = ip_protocol_re
+l4_dst_port_re = r"(0x){1}[a-fA-F0-9]{1,4}"
+inner_ether_type_re = l4_dst_port_re
 
 
 def exit_with_error(*args, **kwargs):
@@ -97,14 +97,27 @@ def ip_address_validator(ctx, param, value):
         return str(ip)
 
 
-def pbh_match(ctx, param, value):
+def re_match(value, param_name, regexp):
+    if re.match(regexp, str(value)) is None:
+        exit_with_error("Error: invalid value for '{}' option".format(param_name), fg="red")
+
+    return value
+
+
+def pbh_re_match(ctx, param, value):
     """ Check if PBH rule options is valid """
 
     if value is not None:
-        if re.match(pbh_pattern, str(value)) is None:
-            exit_with_error("Error: invalid value for '{}' option".format(param.name), fg="red")
-
-        return value
+        if param.name == 'gre_key':
+            return re_match(value, param.name, gre_key_re)
+        elif param.name == 'ip_protocol':
+            return re_match(value, param.name, ip_protocol_re)
+        elif param.name == 'ipv6_next_header':
+            return re_match(value, param.name, ipv6_next_header_re)
+        elif param.name == 'l4_dst_port':
+            return re_match(value, param.name, l4_dst_port_re)
+        elif param.name == 'inner_ether_type':
+            return re_match(value, param.name, inner_ether_type_re)
 
 
 def is_exist_in_db(db, _list, conf_db_key, option_name):
@@ -419,27 +432,27 @@ def PBH_RULE():
 @click.option(
     "--gre-key",
     help="Configures packet match: GRE key (value/mask)",
-    callback=pbh_match,
+    callback=pbh_re_match,
 )
 @click.option(
     "--ip-protocol",
     help="Configures packet match: IP protocol (value/mask)",
-    callback=pbh_match,
+    callback=pbh_re_match,
 )
 @click.option(
     "--ipv6-next-header",
     help="Configures packet match: IPv6 Next header (value/mask)",
-    callback=pbh_match,
+    callback=pbh_re_match,
 )
 @click.option(
     "--l4-dst-port",
     help="Configures packet match: L4 destination port (value/mask)",
-    callback=pbh_match,
+    callback=pbh_re_match,
 )
 @click.option(
     "--inner-ether-type",
     help="Configures packet match: inner EtherType (value/mask)",
-    callback=pbh_match,
+    callback=pbh_re_match,
 )
 @click.option(
     "--hash",
@@ -521,27 +534,27 @@ def PBH_RULE_add(db,
 @click.option(
     "--gre-key",
     help="Configures packet match: GRE key (value/mask)",
-    callback=pbh_match,
+    callback=pbh_re_match,
 )
 @click.option(
     "--ip-protocol",
     help="Configures packet match: IP protocol (value/mask)",
-    callback=pbh_match,
+    callback=pbh_re_match,
 )
 @click.option(
     "--ipv6-next-header",
     help="Configures packet match: IPv6 Next header (value/mask)",
-    callback=pbh_match,
+    callback=pbh_re_match,
 )
 @click.option(
     "--l4-dst-port",
     help="Configures packet match: L4 destination port (value/mask)",
-    callback=pbh_match,
+    callback=pbh_re_match,
 )
 @click.option(
     "--inner-ether-type",
     help="Configures packet match: inner EtherType (value/mask)",
-    callback=pbh_match,
+    callback=pbh_re_match,
 )
 @click.option(
     "--hash",

@@ -637,7 +637,7 @@ class TestPBH:
         assert result.exit_code == ERROR2
 
 
-    def test_config_pbh_rule_add_invalid_ip_priotiry(self):
+    def test_config_pbh_rule_add_invalid_ip_protocol(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'rule')
         db = Db()
         runner = CliRunner()
