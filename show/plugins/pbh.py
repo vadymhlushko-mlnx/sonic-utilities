@@ -47,7 +47,7 @@ def format_group_value(entry, attrs):
         if entry.get(attr["name"]):
             data.append((attr["name"] + ":", format_attr_value(entry, attr)))
 
-    return tabulate.tabulate(data, tablefmt="plain")
+    return tabulate.tabulate(data, tablefmt="plain", numalign="left")
 
 
 @click.group(name='pbh',
@@ -132,7 +132,7 @@ def PBH_HASH_FIELD(db):
 
     # sorted by 'sequence_id'
     body_sorted = sorted(body, key=lambda e: int(e[3]))
-    click.echo(tabulate.tabulate(body_sorted, header))
+    click.echo(tabulate.tabulate(body_sorted, header, numalign="left"))
 
 
 @PBH.group(name="hash",
@@ -170,7 +170,7 @@ def PBH_HASH(db):
 
         body.append(row)
 
-    click.echo(tabulate.tabulate(body, header))
+    click.echo(tabulate.tabulate(body, header, numalign="left"))
 
 
 @PBH.group(name="rule",
@@ -284,7 +284,7 @@ def PBH_RULE(db):
 
     # sorted by 'Priority'
     body_sorted = sorted(body, key=lambda e: int(e[2]), reverse=True)
-    click.echo(tabulate.tabulate(body_sorted, header))
+    click.echo(tabulate.tabulate(body_sorted, header, numalign="left"))
 
 
 @PBH.group(name="table",
@@ -333,7 +333,7 @@ def PBH_TABLE(db):
 
         body.append(row)
 
-    click.echo(tabulate.tabulate(body, header))
+    click.echo(tabulate.tabulate(body, header, numalign="left"))
 
 @PBH.group(name="statistics",
            cls=clicommon.AliasedGroup,
@@ -367,7 +367,7 @@ def PBH_STATISTICS(db):
             ]
             body.append(row)
 
-    click.echo(tabulate.tabulate(body, header))
+    click.echo(tabulate.tabulate(body, header, numalign="left"))
 
 
 def register(cli):
