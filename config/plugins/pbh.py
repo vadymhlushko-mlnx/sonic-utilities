@@ -10,7 +10,6 @@ import click
 import ipaddress
 import re
 import utilities_common.cli as clicommon
-import utilities_common.general as general
 
 hash_field_types = ['INNER_IP_PROTOCOL',
                     'INNER_L4_DST_PORT',
@@ -242,7 +241,7 @@ def update_ip_mask_hash_field(db, hash_field_name, ip_mask, hash_field):
         except Exception as e:
             hash_field = None
 
-        ip_mask_hash_field_correspondence(ip_mask, hash_field_obj['hash_field'])
+        ip_mask_hash_field_correspondence(ip_mask, hash_field)
 
 
 @click.group(name='pbh',

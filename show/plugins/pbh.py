@@ -10,8 +10,7 @@ import click
 import tabulate
 import natsort
 import utilities_common.cli as clicommon
-from operator import itemgetter
-from swsscommon.swsscommon import SonicV2Connector, ConfigDBConnector
+from swsscommon.swsscommon import SonicV2Connector
 
 
 def format_attr_value(entry, attr):
