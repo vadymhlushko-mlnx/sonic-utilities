@@ -6,11 +6,15 @@ PBH HLD - https://github.com/Azure/SONiC/pull/773
 CLI Auto-generation tool HLD - https://github.com/Azure/SONiC/pull/78
 """
 
+import os
 import click
 import tabulate
 import natsort
+import json
 import utilities_common.cli as clicommon
 from swsscommon.swsscommon import SonicV2Connector
+
+PBH_COUNTERS_LOCATION = '/tmp/.pbh_counters.txt'
 
 
 def format_attr_value(entry, attr):
@@ -350,23 +354,67 @@ def PBH_STATISTICS(db):
 
     body = []
 
-    db_connector = SonicV2Connector(use_unix_socket_path=False)
-    db_connector.connect(db_connector.COUNTERS_DB)
-    
     pbh_rules = db.cfgdb.get_table("PBH_RULE")
+    pbh_counters = read_pbh_counters(pbh_rules)
+    saved_pbh_counters = read_saved_pbh_counters()
 
-    for table, rule in natsort.natsorted(pbh_rules):
-        counter_props = lowercase_keys(db_connector.get_all(db_connector.COUNTERS_DB, "COUNTERS:%s:%s" % (table, rule)))
-        if counter_props is not None:
+    if pbh_counters is not None:
+        for table_rule in pbh_rules:
             row = [
-                table,
-                rule,
-                counter_props['packets'],
-                counter_props['bytes']
+                table_rule[0],
+                table_rule[1],
+                get_counter_value(pbh_counters, saved_pbh_counters, table_rule, 'packets'),
+                get_counter_value(pbh_counters, saved_pbh_counters, table_rule, 'bytes'),
             ]
             body.append(row)
 
     click.echo(tabulate.tabulate(body, header, numalign="left"))
+
+
+def get_counter_value(pbh_counters, saved_pbh_counters, key, type):
+    if not pbh_counters[key]:
+        return 'N/A'
+
+    if saved_pbh_counters is not None:
+        if key in saved_pbh_counters:
+            new_value = int(pbh_counters[key][type]) - int(saved_pbh_counters[key][type])
+            if new_value >= 0:
+                return str(new_value)
+
+    return str(pbh_counters[key][type])
+
+
+def remap_keys(_list):
+    res = {}
+    for e in _list:
+        res[e['key'][0], e['key'][1]] = e['value']
+    return res
+
+
+def read_saved_pbh_counters():
+    if os.path.isfile(PBH_COUNTERS_LOCATION):
+        # change approach maybe add if
+        try:
+            with open(PBH_COUNTERS_LOCATION) as fp:
+                saved_pbh_counters = remap_keys(json.load(fp))
+                return saved_pbh_counters
+        except Exception:
+            click.echo('DEBUG: previous counter DOES NOT exist')
+            return None
+
+
+def read_pbh_counters(pbh_rules) -> dict:
+    pbh_counters = {}
+
+    db_connector = SonicV2Connector(use_unix_socket_path=False)
+    db_connector.connect(db_connector.COUNTERS_DB)
+
+    # add some check
+    for table, rule in natsort.natsorted(pbh_rules):
+        counter_props = lowercase_keys(db_connector.get_all(db_connector.COUNTERS_DB, "COUNTERS:%s:%s" % (table, rule)))
+        pbh_counters[table, rule] = counter_props
+
+    return pbh_counters
 
 
 def register(cli):
