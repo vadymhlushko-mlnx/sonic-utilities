@@ -6,7 +6,6 @@ import click
 import utilities_common.cli as clicommon
 import json
 
-from swsscommon.swsscommon import SonicV2Connector
 from utilities_common import util_base
 from show.plugins.pbh import read_pbh_counters
 from . import plugins
