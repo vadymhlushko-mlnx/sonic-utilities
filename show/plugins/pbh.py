@@ -338,6 +338,7 @@ def PBH_TABLE(db):
 
     click.echo(tabulate.tabulate(body, header, numalign="left"))
 
+
 @PBH.group(name="statistics",
            cls=clicommon.AliasedGroup,
            invoke_without_command=True)
@@ -418,13 +419,6 @@ def read_pbh_counters(pbh_rules) -> dict:
     return pbh_counters
 
 
-def register(cli):
-    cli_node = PBH
-    if cli_node.name in cli.commands:
-        raise Exception(f"{cli_node.name} already exists in CLI")
-    cli.add_command(PBH)
-
-
 def is_pbh_hash_field_symmetric(table: dict, key_to_check: str):
     """ The 'Symmetric' parameter will have 'Yes' value
         if there are 2 'pbh hash fields' with identical 'sequence_id' value
@@ -450,4 +444,11 @@ def is_pbh_hash_field_symmetric(table: dict, key_to_check: str):
 
 def lowercase_keys(dictionary):
     return dict((k.lower(), v) for k, v in dictionary.items()) if dictionary else None
+
+
+def register(cli):
+    cli_node = PBH
+    if cli_node.name in cli.commands:
+        raise Exception(f"{cli_node.name} already exists in CLI")
+    cli.add_command(PBH)
 

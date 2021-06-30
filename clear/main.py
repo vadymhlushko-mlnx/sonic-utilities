@@ -451,12 +451,12 @@ def translations():
     cmd = "natclear -t"
     run_command(cmd)
 
-#
-# pbh
-#
 def remap_keys(dict):
     return [{'key': k, 'value': v} for k, v in dict.items()]
 
+#
+# 'pbh' subcommand
+#
 @cli.command()
 @clicommon.pass_db
 def pbh(db):
