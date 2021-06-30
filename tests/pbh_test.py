@@ -768,9 +768,14 @@ class TestPBH:
 
     ########## SHOW PBH STATISTICS ##########
 
-    def test_show_pbh_statistics(self):
-        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'full_pbh_config')
-        dbconnector.dedicated_dbs['COUNTERS_DB'] = os.path.join(mock_db_path, 'counters_db')
+    def test_show_pbh_statistics_on_empty_config(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = None
+        dbconnector.dedicated_dbs['COUNTERS_DB'] = None
+
+        SAVED_PBH_COUNTERS_FILE = '/tmp/.pbh_counters.txt'
+        if os.path.isfile(SAVED_PBH_COUNTERS_FILE):
+            os.remove(SAVED_PBH_COUNTERS_FILE)
+
         db = Db()
         runner = CliRunner()
 
@@ -780,40 +785,82 @@ class TestPBH:
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
-        assert result.output == assert_show_output.show_pbh_statistics
+        assert result.output == assert_show_output.show_pbh_statistics_empty
 
-    def test_clear_pbh_statistics(self):
-        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'full_pbh_config')
+
+    def test_show_pbh_statistics(self):
         dbconnector.dedicated_dbs['COUNTERS_DB'] = os.path.join(mock_db_path, 'counters_db')
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'full_pbh_config')
+
+        SAVED_PBH_COUNTERS_FILE = '/tmp/.pbh_counters.txt'
+        if os.path.isfile(SAVED_PBH_COUNTERS_FILE):
+            os.remove(SAVED_PBH_COUNTERS_FILE)
+
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(clear.cli.commands["pbh"], [], obj=db)
+        result = runner.invoke(show.cli.commands["pbh"].
+            commands["statistics"], [], obj=db)
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
 
+        assert result.exit_code == SUCCESS
+        assert result.output == assert_show_output.show_pbh_statistics
+
+    def test_show_pbh_statistics_after_clear(self):
+        dbconnector.dedicated_dbs['COUNTERS_DB'] = os.path.join(mock_db_path, 'counters_db')
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'full_pbh_config')
+
+        SAVED_PBH_COUNTERS_FILE = '/tmp/.pbh_counters.txt'
+        if os.path.isfile(SAVED_PBH_COUNTERS_FILE):
+            os.remove(SAVED_PBH_COUNTERS_FILE)
+
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(show.cli.commands["pbh"].
+            commands["statistics"], [], obj=db)
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+
+        result = runner.invoke(clear.cli.commands["pbh"], [], obj=db)
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
 
         result = runner.invoke(show.cli.commands["pbh"].
             commands["statistics"], [], obj=db)
-
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
 
-        #assert result.exit_code == SUCCESS
-        #assert result.output == assert_show_output.show_pbh_statistics
+        assert result.exit_code == SUCCESS
+        assert result.output == assert_show_output.show_pbh_statistics_empty
 
-    # add empty counter DB test
-    #def test_show_pbh_empty_statistics(self):
-    #    dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'full_pbh_config')
-    #    dbconnector.dedicated_dbs['COUNTERS_DB'] = os.path.join(mock_db_path, 'empty_counters_db')
-    #    db = Db()
-    #    runner = CliRunner()
+    def test_show_pbh_statistics_after_clear_and_counters_updated(self):
+        dbconnector.dedicated_dbs['COUNTERS_DB'] = os.path.join(mock_db_path, 'counters_db')
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'full_pbh_config')
 
-    #    result = runner.invoke(show.cli.commands["pbh"].
-    #        commands["statistics"], [], obj=db)
+        SAVED_PBH_COUNTERS_FILE = '/tmp/.pbh_counters.txt'
+        if os.path.isfile(SAVED_PBH_COUNTERS_FILE):
+            os.remove(SAVED_PBH_COUNTERS_FILE)
 
-    #    logger.debug("\n" + result.output)
-    #    logger.debug(result.exit_code)
-    #    #assert result.exit_code == SUCCESS
-    #    #assert result.output == assert_show_output.show_pbh_statistics
+        db = Db()
+        runner = CliRunner()
 
+        result = runner.invoke(show.cli.commands["pbh"].
+            commands["statistics"], [], obj=db)
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+
+        result = runner.invoke(clear.cli.commands["pbh"], [], obj=db)
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+
+        dbconnector.dedicated_dbs['COUNTERS_DB'] = os.path.join(mock_db_path, 'counters_db_updated')
+
+        result = runner.invoke(show.cli.commands["pbh"].
+            commands["statistics"], [], obj=db)
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+
+        assert result.exit_code == SUCCESS
+        assert result.output == assert_show_output.show_pbh_statistics_updated

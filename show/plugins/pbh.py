@@ -358,28 +358,29 @@ def PBH_STATISTICS(db):
     pbh_counters = read_pbh_counters(pbh_rules)
     saved_pbh_counters = read_saved_pbh_counters()
 
-    if pbh_counters is not None:
-        for table_rule in pbh_rules:
-            row = [
-                table_rule[0],
-                table_rule[1],
-                get_counter_value(pbh_counters, saved_pbh_counters, table_rule, 'packets'),
-                get_counter_value(pbh_counters, saved_pbh_counters, table_rule, 'bytes'),
-            ]
-            body.append(row)
+    for key in pbh_rules:
+        # if counters value 0 or not exists should we display it?
+        if get_counter_value(pbh_counters, saved_pbh_counters, key, 'packets') == '0':
+            continue
+        row = [
+            key[0],
+            key[1],
+            get_counter_value(pbh_counters, saved_pbh_counters, key, 'packets'),
+            get_counter_value(pbh_counters, saved_pbh_counters, key, 'bytes'),
+        ]
+        body.append(row)
 
     click.echo(tabulate.tabulate(body, header, numalign="left"))
 
 
 def get_counter_value(pbh_counters, saved_pbh_counters, key, type):
     if not pbh_counters[key]:
-        return 'N/A'
+        return '0'
 
-    if saved_pbh_counters is not None:
-        if key in saved_pbh_counters:
-            new_value = int(pbh_counters[key][type]) - int(saved_pbh_counters[key][type])
-            if new_value >= 0:
-                return str(new_value)
+    if key in saved_pbh_counters:
+        new_value = int(pbh_counters[key][type]) - int(saved_pbh_counters[key][type])
+        if new_value >= 0:
+            return str(new_value)
 
     return str(pbh_counters[key][type])
 
@@ -396,11 +397,11 @@ def read_saved_pbh_counters():
         # change approach maybe add if
         try:
             with open(PBH_COUNTERS_LOCATION) as fp:
-                saved_pbh_counters = remap_keys(json.load(fp))
-                return saved_pbh_counters
+                return remap_keys(json.load(fp))
         except Exception:
-            click.echo('DEBUG: previous counter DOES NOT exist')
-            return None
+            return {}
+
+    return {}
 
 
 def read_pbh_counters(pbh_rules) -> dict:
