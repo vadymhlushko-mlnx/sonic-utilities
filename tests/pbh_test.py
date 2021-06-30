@@ -4,6 +4,7 @@ import os
 import logging
 import show.main as show
 import config.main as config
+import clear.main as clear
 
 from .pbh_input import assert_show_output
 from utilities_common.db import Db
@@ -766,7 +767,6 @@ class TestPBH:
 
 
     ########## SHOW PBH STATISTICS ##########
-    # add empty counter DB test
 
     def test_show_pbh_statistics(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'full_pbh_config')
@@ -782,6 +782,27 @@ class TestPBH:
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_statistics
 
+    def test_clear_pbh_statistics(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'full_pbh_config')
+        dbconnector.dedicated_dbs['COUNTERS_DB'] = os.path.join(mock_db_path, 'counters_db')
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(clear.cli.commands["pbh"], [], obj=db)
+
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+
+        result = runner.invoke(show.cli.commands["pbh"].
+            commands["statistics"], [], obj=db)
+
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+
+        #assert result.exit_code == SUCCESS
+        #assert result.output == assert_show_output.show_pbh_statistics
+
+    # add empty counter DB test
     #def test_show_pbh_empty_statistics(self):
     #    dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'full_pbh_config')
     #    dbconnector.dedicated_dbs['COUNTERS_DB'] = os.path.join(mock_db_path, 'empty_counters_db')
