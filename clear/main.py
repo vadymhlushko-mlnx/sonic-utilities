@@ -2,11 +2,12 @@ import configparser
 import os
 import subprocess
 import sys
-
 import click
+import utilities_common.cli as clicommon
+import json
 
 from utilities_common import util_base
-
+from show.plugins.pbh import read_pbh_counters
 from . import plugins
 
 
@@ -448,6 +449,25 @@ def translations():
 
     cmd = "natclear -t"
     run_command(cmd)
+
+def remap_keys(dict):
+    return [{'key': k, 'value': v} for k, v in dict.items()]
+
+#
+# 'pbh' subcommand
+#
+@cli.command()
+@clicommon.pass_db
+def pbh(db):
+    """ Clear PBH counters
+        clear counters -- write current counters to file in /tmp
+    """
+
+    pbh_rules = db.cfgdb.get_table("PBH_RULE")
+    pbh_counters = read_pbh_counters(pbh_rules)
+
+    with open('/tmp/.pbh_counters.txt', 'w') as fp:
+        json.dump(remap_keys(pbh_counters), fp)
 
 
 # Load plugins and register them
