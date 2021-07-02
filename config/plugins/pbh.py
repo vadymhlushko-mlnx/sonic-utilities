@@ -41,7 +41,7 @@ def add_entry(db, table, key, data):
     cfg = db.get_config()
     cfg.setdefault(table, {})
     if key in cfg[table]:
-        raise Exception(f"{key} already exists")
+        raise Exception("{} already exists".format(key))
 
     cfg[table][key] = data
 
@@ -60,7 +60,7 @@ def update_entry(db, table, key, data, create_if_not_exists=False):
         cfg[table].setdefault(key, {})
 
     if key not in cfg[table]:
-        raise Exception(f"{key} does not exist")
+        raise Exception("{} does not exist".format(key))
 
     for attr, value in data.items():
         if value is None and attr in cfg[table][key]:
@@ -77,7 +77,7 @@ def del_entry(db, table, key):
     cfg = db.get_config()
     cfg.setdefault(table, {})
     if key not in cfg[table]:
-        raise Exception(f"{key} does not exist")
+        raise Exception("{} does not exist".format(key))
 
     cfg[table].pop(key)
 
@@ -303,7 +303,7 @@ def PBH_HASH_FIELD_add(db, hash_field_name, hash_field, ip_mask, sequence_id):
     try:
         add_entry(db.cfgdb, table, key, data)
     except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
+        exit_with_error("Error: {}".format(err), fg="red")
 
 
 @PBH_HASH_FIELD.command(name="update")
@@ -346,7 +346,7 @@ def PBH_HASH_FIELD_update(db, hash_field_name, hash_field, ip_mask, sequence_id)
     try:
         update_entry(db.cfgdb, table, key, data)
     except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
+        exit_with_error("Error: {}".format(err), fg="red")
 
 
 @PBH_HASH_FIELD.command(name="delete")
@@ -364,7 +364,7 @@ def PBH_HASH_FIELD_delete(db, hash_field_name):
     try:
         del_entry(db.cfgdb, table, key)
     except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
+        exit_with_error("Error: {}".format(err), fg="red")
 
 
 @PBH.group(name="hash",
@@ -401,7 +401,7 @@ def PBH_HASH_add(db, hash_name, hash_field_list):
     try:
         add_entry(db.cfgdb, table, key, data)
     except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
+        exit_with_error("Error: {}".format(err), fg="red")
 
 
 @PBH_HASH.command(name="update")
@@ -429,7 +429,7 @@ def PBH_HASH_update(db, hash_name, hash_field_list):
     try:
         update_entry(db.cfgdb, table, key, data)
     except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
+        exit_with_error("Error: {}".format(err), fg="red")
 
 
 @PBH_HASH.command(name="delete")
@@ -447,7 +447,7 @@ def PBH_HASH_delete(db, hash_name):
     try:
         del_entry(db.cfgdb, table, key)
     except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
+        exit_with_error("Error: {}".format(err), fg="red")
 
 
 @PBH.group(name="rule",
@@ -558,7 +558,7 @@ def PBH_RULE_add(db,
     try:
         add_entry(db.cfgdb, table, key, data)
     except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
+        exit_with_error("Error: {}".format(err), fg="red")
 
 
 @PBH_RULE.command(name="update")
@@ -659,7 +659,7 @@ def PBH_RULE_update(db,
     try:
         update_entry(db.cfgdb, table, key, data)
     except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
+        exit_with_error("Error: {}".format(err), fg="red")
 
 
 @PBH_RULE.command(name="delete")
@@ -682,7 +682,7 @@ def PBH_RULE_delete(db, table_name, rule_name):
     try:
         del_entry(db.cfgdb, table, key)
     except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
+        exit_with_error("Error: {}".format(err), fg="red")
 
 
 @PBH.group(name="table",
@@ -746,7 +746,7 @@ def PBH_TABLE_add(db, table_name, description, interface_list):
     try:
         add_entry(db.cfgdb, table, key, data)
     except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
+        exit_with_error("Error: {}".format(err), fg="red")
 
 
 @PBH_TABLE.command(name="update")
@@ -780,7 +780,7 @@ def PBH_TABLE_update(db, table_name, description, interface_list):
     try:
         update_entry(db.cfgdb, table, key, data)
     except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
+        exit_with_error("Error: {}".format(err), fg="red")
 
 
 @PBH_TABLE.command(name="delete")
@@ -798,12 +798,12 @@ def PBH_TABLE_delete(db, table_name):
     try:
         del_entry(db.cfgdb, table, key)
     except Exception as err:
-        exit_with_error(f"Error: {err}", fg="red")
+        exit_with_error("Error: {}".format(err), fg="red")
 
 
 def register(cli):
     cli_node = PBH
     if cli_node.name in cli.commands:
-        raise Exception(f"{cli_node.name} already exists in CLI")
+        raise Exception("{} already exists in CLI".format(cli_node.name))
     cli.add_command(PBH)
 
