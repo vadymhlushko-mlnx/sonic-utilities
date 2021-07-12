@@ -450,8 +450,10 @@ def translations():
     cmd = "natclear -t"
     run_command(cmd)
 
+
 def remap_keys(dict):
     return [{'key': k, 'value': v} for k, v in dict.items()]
+
 
 #
 # 'pbh' subcommand
@@ -466,8 +468,11 @@ def pbh(db):
     pbh_rules = db.cfgdb.get_table("PBH_RULE")
     pbh_counters = read_pbh_counters(pbh_rules)
 
-    with open('/tmp/.pbh_counters.txt', 'w') as fp:
-        json.dump(remap_keys(pbh_counters), fp)
+    try:
+        with open('/tmp/.pbh_counters.txt', 'w') as fp:
+            json.dump(remap_keys(pbh_counters), fp)
+    except IOError as err:
+        pass
 
 
 # Load plugins and register them
