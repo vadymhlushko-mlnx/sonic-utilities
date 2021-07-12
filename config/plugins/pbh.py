@@ -100,7 +100,7 @@ def ip_address_validator(ctx, param, value):
         try:
             ip = ipaddress.ip_address(value)
         except Exception as e:
-            exit_with_error("Error: invalid value for '{}' option\n{}".format(param.name, e), fg="red")
+            exit_with_error("Error: invalid value '{}' for '{}' option\n{}".format(value, param.name, e), fg="red")
 
         return str(ip)
 
@@ -118,7 +118,7 @@ def re_match(value, param_name, regexp):
     """
 
     if re.match(regexp, str(value)) is None:
-        exit_with_error("Error: invalid value for '{}' option".format(param_name), fg="red")
+        exit_with_error("Error: invalid value '{}' for '{}' option".format(str(value), param_name), fg="red")
 
     return value
 
@@ -148,7 +148,7 @@ def pbh_re_match(ctx, param, value):
             return re_match(value, param.name, inner_ether_type_re)
 
 
-def is_exist_in_db(db, _list, conf_db_key, option_name):
+def is_exist_in_db(db, obj_list, conf_db_key):
     """ Check if provided CLI option already exist in Config DB,
         i.g in case of --hash-field-list option it will check
         if 'hash-field' was previously added by
@@ -156,22 +156,23 @@ def is_exist_in_db(db, _list, conf_db_key, option_name):
 
         Args:
             db: reference to Config DB,
-            _list: value of 'click' option
+            obj_list: value of 'click' option
             conf_db_key: key to search in Config DB
-            option_name: name of 'click' option
     """
 
-    if _list is None:
-        return
+    if obj_list is None:
+        return True
 
     table = db.cfgdb.get_table(conf_db_key)
     correct_list = list(table.keys())
 
-    splited_list = _list.split(',')
+    splited_list = obj_list.split(',')
 
     for elem in splited_list:
         if elem not in correct_list:
-            exit_with_error("Error: invalid value '{}' for '{}' option, please use {}".format(elem, option_name, correct_list), fg="red")
+            return False
+
+    return True
 
 
 def ip_mask_hash_field_correspondence(ip_mask, hash_field):
@@ -205,7 +206,7 @@ def ip_mask_hash_field_correspondence(ip_mask, hash_field):
             is_error = True
 
     if is_error:
-        exit_with_error("Error: the value of --hash-field='{}' is NOT compatible with the value of --ip-mask='{}'".format(hash_field, ip_mask), fg='red')
+        exit_with_error("Error: the value of '--hash-field'='{}' is NOT compatible with the value of '--ip-mask'='{}'".format(hash_field, ip_mask), fg='red')
 
 
 def update_ip_mask_hash_field(db, hash_field_name, ip_mask, hash_field):
@@ -390,7 +391,8 @@ def PBH_HASH():
 def PBH_HASH_add(db, hash_name, hash_field_list):
     """ Add object to PBH_HASH table """
 
-    is_exist_in_db(db, hash_field_list, "PBH_HASH_FIELD", "--hash-field-list")
+    if not is_exist_in_db(db, hash_field_list, "PBH_HASH_FIELD"):
+        exit_with_error("Error: invalid value '{}' for '--hash-field-list' option".format(hash_field_list), fg="red")
 
     table = "PBH_HASH"
     key = hash_name
@@ -418,7 +420,8 @@ def PBH_HASH_add(db, hash_name, hash_field_list):
 def PBH_HASH_update(db, hash_name, hash_field_list):
     """ Update object in PBH_HASH table """
 
-    is_exist_in_db(db, hash_field_list, "PBH_HASH_FIELD", "--hash-field-list")
+    if not is_exist_in_db(db, hash_field_list, "PBH_HASH_FIELD"):
+        exit_with_error("Error: invalid value '{}' for '--hash-field-list' option".format(hash_field_list), fg="red")
 
     table = "PBH_HASH"
     key = hash_name
@@ -530,8 +533,10 @@ def PBH_RULE_add(db,
                  flow_counter):
     """ Add object to PBH_RULE table """
 
-    is_exist_in_db(db, table_name, "PBH_TABLE", "--table-name")
-    is_exist_in_db(db, hash, "PBH_HASH", "--hash")
+    if not is_exist_in_db(db, table_name, "PBH_TABLE"):
+        exit_with_error("Error: invalid value '{}' for 'table-name' argument".format(table_name), fg="red")
+    if not is_exist_in_db(db, hash, "PBH_HASH"):
+        exit_with_error("Error: invalid value '{}' for '--hash' option".format(hash), fg="red")
 
     table = "PBH_RULE"
     key = table_name, rule_name
@@ -631,8 +636,10 @@ def PBH_RULE_update(db,
                     flow_counter):
     """ Update object in PBH_RULE table """
 
-    is_exist_in_db(db, table_name, "PBH_TABLE", "--table-name")
-    is_exist_in_db(db, hash, "PBH_HASH", "--hash")
+    if not is_exist_in_db(db, table_name, "PBH_TABLE"):
+        exit_with_error("Error: invalid value '{}' for 'table-name' argument".format(table_name, table.name), fg="red")
+    if not is_exist_in_db(db, hash, "PBH_HASH"):
+        exit_with_error("Error: invalid value '{}' for '--hash' option".format(hash), fg="red")
 
     table = "PBH_RULE"
     key = table_name, rule_name
@@ -710,7 +717,7 @@ def interfaces_list_validator(db, interface_list, is_update: bool):
             error = True
 
     if error:
-        exit_with_error("Error: invaliad value {}, for --interface-list option".format(interface_list), fg="red")
+        exit_with_error("Error: invalid value '{}', for '--interface-list' option".format(interface_list), fg="red")
 
 
 @PBH_TABLE.command(name="add")
