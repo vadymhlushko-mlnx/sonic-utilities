@@ -5,11 +5,13 @@ import logging
 import show.main as show
 import config.main as config
 import clear.main as clear
+import importlib
 
 from .pbh_input import assert_show_output
 from utilities_common.db import Db
 from click.testing import CliRunner
 from .mock_tables import dbconnector
+from .mock_tables import mock_single_asic
 
 logger = logging.getLogger(__name__)
 test_path = os.path.dirname(os.path.abspath(__file__))
@@ -30,6 +32,9 @@ class TestPBH:
     def teardown_class(cls):
         logger.info("TEARDOWN")
         os.environ['UTILITIES_UNIT_TESTING'] = "0"
+        os.environ["UTILITIES_UNIT_TESTING_TOPOLOGY"] = ""
+        importlib.reload(mock_single_asic)
+        dbconnector.load_namespace_config()
 
 
     ########## CONFIG PBH HASH-FIELD ##########
