@@ -180,33 +180,29 @@ def ip_mask_hash_field_correspondence(ip_mask, hash_field):
         the --hash-field option
 
         Args:
-            ip_mask: ip address,
+            ip_mask: ip address or None,
             hash_field: hash field value, which was configured before
     """
 
-    is_error = False
-    hf_v4_and_v6 = ['INNER_DST_IPV4', 'INNER_SRC_IPV4', 'INNER_DST_IPV6', 'INNER_SRC_IPV6']
-    hf_no_ip = ['INNER_IP_PROTOCOL', 'INNER_L4_DST_PORT', 'INNER_L4_SRC_PORT']
     hf_v4 = ['INNER_DST_IPV4', 'INNER_SRC_IPV4']
     hf_v6 = ['INNER_DST_IPV6', 'INNER_SRC_IPV6']
+    hf_v4_and_v6 = hf_v4 + hf_v6
+    hf_no_ip = ['INNER_IP_PROTOCOL', 'INNER_L4_DST_PORT', 'INNER_L4_SRC_PORT']
 
-    if (ip_mask is None) and (hash_field in hf_v4_and_v6):
-        is_error = True
+    if (hash_field in hf_no_ip) and (ip_mask):
+        exit_with_error("Error: the value of '--hash-field'='{}' is NOT compatible with the value of '--ip-mask'='{}'".format(hash_field, ip_mask), fg='red')
 
-    if (ip_mask is not None) and (hash_field in hf_no_ip):
-        is_error = True
+    if (hash_field in hf_v4_and_v6) and (ip_mask is None):
+        exit_with_error("Error: the value of '--hash-field'='{}' is NOT compatible with the value of '--ip-mask'='{}'".format(hash_field, ip_mask), fg='red')
 
-    if ip_mask is not None:
+    if (ip_mask is not None):
         ip_addr_version = ipaddress.ip_address(ip_mask).version
 
         if (hash_field in hf_v4) and (ip_addr_version != 4):
-            is_error = True
+            exit_with_error("Error: the value of '--hash-field'='{}' is NOT compatible with the value of '--ip-mask'='{}'".format(hash_field, ip_mask), fg='red')
 
         if (hash_field in hf_v6) and (ip_addr_version != 6):
-            is_error = True
-
-    if is_error:
-        exit_with_error("Error: the value of '--hash-field'='{}' is NOT compatible with the value of '--ip-mask'='{}'".format(hash_field, ip_mask), fg='red')
+            exit_with_error("Error: the value of '--hash-field'='{}' is NOT compatible with the value of '--ip-mask'='{}'".format(hash_field, ip_mask), fg='red')
 
 
 def update_ip_mask_hash_field(db, hash_field_name, ip_mask, hash_field):
