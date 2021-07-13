@@ -36,6 +36,10 @@ class TestPBH:
         importlib.reload(mock_single_asic)
         dbconnector.load_namespace_config()
 
+    def clear_dedicated_mock_dbs(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = None
+        dbconnector.dedicated_dbs['COUNTERS_DB'] = None
+
 
     ########## CONFIG PBH HASH-FIELD ##########
 
@@ -367,6 +371,8 @@ class TestPBH:
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
+        self.clear_dedicated_mock_dbs()
+
 
     def test_config_pbh_hash_add_update_ipv6(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'hash_fields')
@@ -393,6 +399,8 @@ class TestPBH:
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
+        self.clear_dedicated_mock_dbs()
+
 
     def test_config_pbh_hash_add_invalid_hash_field_list(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'hash_fields')
@@ -408,6 +416,8 @@ class TestPBH:
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
+        self.clear_dedicated_mock_dbs()
+
 
     def test_config_pbh_hash_add_empty_hash_field_list(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'hash_fields')
@@ -422,6 +432,8 @@ class TestPBH:
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
+
+        self.clear_dedicated_mock_dbs()
 
 
     ########## CONFIG PBH TABLE ##########
@@ -447,6 +459,8 @@ class TestPBH:
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
+
+        self.clear_dedicated_mock_dbs()
 
 
     def test_config_pbh_table_add_update_portchannels(self):
@@ -488,6 +502,8 @@ class TestPBH:
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
+        self.clear_dedicated_mock_dbs()
+
 
     def test_config_pbh_table_add_port_and_portchannel(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'table')
@@ -503,6 +519,8 @@ class TestPBH:
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
+        self.clear_dedicated_mock_dbs()
+
 
     def test_config_pbh_table_add_invalid_port(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'table')
@@ -517,6 +535,8 @@ class TestPBH:
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
+
+        self.clear_dedicated_mock_dbs()
 
 
     def test_config_pbh_table_add_update_wrong_interface(self):
@@ -540,6 +560,8 @@ class TestPBH:
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
+
+        self.clear_dedicated_mock_dbs()
 
 
     ########## CONFIG PBH RULE ##########
@@ -568,6 +590,8 @@ class TestPBH:
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
+        self.clear_dedicated_mock_dbs()
+
 
     def test_config_pbh_rule_add_update_vxlan(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'rule')
@@ -594,6 +618,8 @@ class TestPBH:
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
+        self.clear_dedicated_mock_dbs()
+
 
     def test_config_pbh_rule_update_invalid(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'rule')
@@ -619,6 +645,8 @@ class TestPBH:
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR2
 
+        self.clear_dedicated_mock_dbs()
+
 
     def test_config_pbh_rule_add_invalid_ip_protocol(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'rule')
@@ -635,6 +663,8 @@ class TestPBH:
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR 
+
+        self.clear_dedicated_mock_dbs()
 
 
     def test_config_pbh_rule_add_invalid_inner_ether_type(self):
@@ -653,6 +683,8 @@ class TestPBH:
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
+        self.clear_dedicated_mock_dbs()
+
 
     def test_config_pbh_rule_add_invalid_hash(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'rule')
@@ -669,6 +701,8 @@ class TestPBH:
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
+
+        self.clear_dedicated_mock_dbs()
 
 
     def test_config_pbh_rule_add_invalid_packet_action(self):
@@ -687,6 +721,8 @@ class TestPBH:
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR2
 
+        self.clear_dedicated_mock_dbs()
+
 
     def test_config_pbh_rule_add_invalid_flow_counter(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'rule')
@@ -704,6 +740,8 @@ class TestPBH:
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR2
 
+        self.clear_dedicated_mock_dbs()
+
     ########## SHOW PBH HASH-FIELD ##########
 
     def test_show_pbh_hash_field(self):
@@ -718,6 +756,8 @@ class TestPBH:
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_hash_fields
+
+        self.clear_dedicated_mock_dbs()
 
 
     ########## SHOW PBH HASH ##########
@@ -736,6 +776,8 @@ class TestPBH:
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_hash
 
+        self.clear_dedicated_mock_dbs()
+
 
     ########## SHOW PBH TABLE ##########
 
@@ -753,6 +795,8 @@ class TestPBH:
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_table
 
+        self.clear_dedicated_mock_dbs()
+
 
     ########## SHOW PBH RULE ##########
 
@@ -769,6 +813,8 @@ class TestPBH:
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_rule
+
+        self.clear_dedicated_mock_dbs()
 
 
     ########## SHOW PBH STATISTICS ##########
@@ -792,6 +838,8 @@ class TestPBH:
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_statistics_empty
 
+        self.clear_dedicated_mock_dbs()
+
 
     def test_show_pbh_statistics(self):
         dbconnector.dedicated_dbs['COUNTERS_DB'] = os.path.join(mock_db_path, 'counters_db')
@@ -811,6 +859,9 @@ class TestPBH:
 
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_statistics
+
+        self.clear_dedicated_mock_dbs()
+
 
     def test_show_pbh_statistics_after_clear(self):
         dbconnector.dedicated_dbs['COUNTERS_DB'] = os.path.join(mock_db_path, 'counters_db')
@@ -839,6 +890,9 @@ class TestPBH:
 
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_statistics_empty
+
+        self.clear_dedicated_mock_dbs()
+
 
     def test_show_pbh_statistics_after_clear_and_counters_updated(self):
         dbconnector.dedicated_dbs['COUNTERS_DB'] = os.path.join(mock_db_path, 'counters_db')
@@ -869,3 +923,5 @@ class TestPBH:
 
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_statistics_updated
+
+        self.clear_dedicated_mock_dbs()
