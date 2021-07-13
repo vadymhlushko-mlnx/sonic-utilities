@@ -175,7 +175,7 @@ def is_exist_in_db(db, obj_list, conf_db_key):
     return True
 
 
-def ip_mask_hash_field_correspondence(ip_mask, hash_field):
+def ip_mask_hash_field_correspondence_validator(ip_mask, hash_field):
     """ Check if the --ip-mask option are correspond to
         the --hash-field option
 
@@ -205,7 +205,7 @@ def ip_mask_hash_field_correspondence(ip_mask, hash_field):
             exit_with_error("Error: the value of '--hash-field'='{}' is NOT compatible with the value of '--ip-mask'='{}'".format(hash_field, ip_mask), fg='red')
 
 
-def update_ip_mask_hash_field(db, hash_field_name, ip_mask, hash_field):
+def ip_mask_hash_field_update_validator(db, hash_field_name, ip_mask, hash_field):
     """ Function to validate --ip-mask and --hash-field
         correspondence, during update flow
 
@@ -229,7 +229,7 @@ def update_ip_mask_hash_field(db, hash_field_name, ip_mask, hash_field):
         except Exception as e:
             ip_mask = None
 
-        ip_mask_hash_field_correspondence(ip_mask, hash_field)
+        ip_mask_hash_field_correspondence_validator(ip_mask, hash_field)
 
     if (ip_mask is not None) and (hash_field is None):
 
@@ -238,7 +238,7 @@ def update_ip_mask_hash_field(db, hash_field_name, ip_mask, hash_field):
         except Exception as e:
             hash_field = None
 
-        ip_mask_hash_field_correspondence(ip_mask, hash_field)
+        ip_mask_hash_field_correspondence_validator(ip_mask, hash_field)
 
 
 @click.group(name='pbh',
@@ -285,7 +285,7 @@ def PBH_HASH_FIELD():
 def PBH_HASH_FIELD_add(db, hash_field_name, hash_field, ip_mask, sequence_id):
     """ Add object to PBH_HASH_FIELD table """
 
-    ip_mask_hash_field_correspondence(ip_mask, hash_field)
+    ip_mask_hash_field_correspondence_validator(ip_mask, hash_field)
 
     table = "PBH_HASH_FIELD"
     key = hash_field_name
@@ -328,7 +328,7 @@ def PBH_HASH_FIELD_add(db, hash_field_name, hash_field, ip_mask, sequence_id):
 def PBH_HASH_FIELD_update(db, hash_field_name, hash_field, ip_mask, sequence_id):
     """ Update object in PBH_HASH_FIELD table """
 
-    update_ip_mask_hash_field(db, hash_field_name, ip_mask, hash_field)
+    ip_mask_hash_field_update_validator(db, hash_field_name, ip_mask, hash_field)
 
     table = "PBH_HASH_FIELD"
     key = hash_field_name
