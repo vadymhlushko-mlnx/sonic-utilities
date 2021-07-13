@@ -11,13 +11,15 @@ import ipaddress
 import re
 import utilities_common.cli as clicommon
 
-hash_field_types = ['INNER_IP_PROTOCOL',
-                    'INNER_L4_DST_PORT',
-                    'INNER_L4_SRC_PORT',
-                    'INNER_DST_IPV4',
-                    'INNER_SRC_IPV4',
-                    'INNER_DST_IPV6',
-                    'INNER_SRC_IPV6']
+hash_field_types = [
+    'INNER_IP_PROTOCOL',
+    'INNER_L4_DST_PORT',
+    'INNER_L4_SRC_PORT',
+    'INNER_DST_IPV4',
+    'INNER_SRC_IPV4',
+    'INNER_DST_IPV6',
+    'INNER_SRC_IPV6'
+]
 packet_action_types = ['SET_ECMP_HASH', 'SET_LAG_HASH']
 flow_counter_state = ['DISABLED', 'ENABLED']
 
@@ -241,16 +243,20 @@ def ip_mask_hash_field_update_validator(db, hash_field_name, ip_mask, hash_field
         ip_mask_hash_field_correspondence_validator(ip_mask, hash_field)
 
 
-@click.group(name='pbh',
-             cls=clicommon.AliasedGroup)
+@click.group(
+    name='pbh',
+    cls=clicommon.AliasedGroup
+)
 def PBH():
     """ Configure PBH (Policy based hashing) feature """
 
     pass
 
 
-@PBH.group(name="hash-field",
-           cls=clicommon.AliasedGroup)
+@PBH.group(
+    name="hash-field",
+    cls=clicommon.AliasedGroup
+)
 def PBH_HASH_FIELD():
     """ Configure PBH hash field """
 
@@ -364,8 +370,10 @@ def PBH_HASH_FIELD_delete(db, hash_field_name):
         exit_with_error("Error: {}".format(err), fg="red")
 
 
-@PBH.group(name="hash",
-             cls=clicommon.AliasedGroup)
+@PBH.group(
+    name="hash",
+    cls=clicommon.AliasedGroup
+)
 def PBH_HASH():
     """ Configure PBH hash """
 
@@ -449,8 +457,10 @@ def PBH_HASH_delete(db, hash_name):
         exit_with_error("Error: {}".format(err), fg="red")
 
 
-@PBH.group(name="rule",
-             cls=clicommon.AliasedGroup)
+@PBH.group(
+    name="rule",
+    cls=clicommon.AliasedGroup
+)
 def PBH_RULE():
     """ Configure PBH rule """
 
@@ -515,18 +525,20 @@ def PBH_RULE():
     type=click.Choice(flow_counter_state)
 )
 @clicommon.pass_db
-def PBH_RULE_add(db,
-                 table_name,
-                 rule_name,
-                 priority,
-                 gre_key,
-                 ip_protocol,
-                 ipv6_next_header,
-                 l4_dst_port,
-                 inner_ether_type,
-                 hash,
-                 packet_action,
-                 flow_counter):
+def PBH_RULE_add(
+    db,
+    table_name,
+    rule_name,
+    priority,
+    gre_key,
+    ip_protocol,
+    ipv6_next_header,
+    l4_dst_port,
+    inner_ether_type,
+    hash,
+    packet_action,
+    flow_counter
+):
     """ Add object to PBH_RULE table """
 
     if not is_exist_in_db(db, table_name, "PBH_TABLE"):
@@ -618,18 +630,20 @@ def PBH_RULE_add(db,
     type=click.Choice(flow_counter_state)
 )
 @clicommon.pass_db
-def PBH_RULE_update(db,
-                    table_name,
-                    rule_name,
-                    priority,
-                    gre_key,
-                    ip_protocol,
-                    ipv6_next_header,
-                    l4_dst_port,
-                    inner_ether_type,
-                    hash,
-                    packet_action,
-                    flow_counter):
+def PBH_RULE_update(
+    db,
+    table_name,
+    rule_name,
+    priority,
+    gre_key,
+    ip_protocol,
+    ipv6_next_header,
+    l4_dst_port,
+    inner_ether_type,
+    hash,
+    packet_action,
+    flow_counter
+):
     """ Update object in PBH_RULE table """
 
     if not is_exist_in_db(db, table_name, "PBH_TABLE"):
@@ -688,8 +702,10 @@ def PBH_RULE_delete(db, table_name, rule_name):
         exit_with_error("Error: {}".format(err), fg="red")
 
 
-@PBH.group(name="table",
-             cls=clicommon.AliasedGroup)
+@PBH.group(
+    name="table",
+    cls=clicommon.AliasedGroup
+)
 def PBH_TABLE():
     """ Configure PBH table"""
 
