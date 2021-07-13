@@ -29,6 +29,10 @@ ipv6_next_header_re = ip_protocol_re
 l4_dst_port_re = r"(0x){1}[a-fA-F0-9]{1,4}"
 inner_ether_type_re = l4_dst_port_re
 
+pbh_hash_field_tbl_name = 'PBH_HASH_FIELD'
+pbh_hash_tbl_name = 'PBH_HASH'
+pbh_table_tbl_name = 'PBH_TABLE'
+
 
 def exit_with_error(*args, **kwargs):
     """ Print a message and abort CLI. """
@@ -221,7 +225,7 @@ def ip_mask_hash_field_update_validator(db, hash_field_name, ip_mask, hash_field
     if (ip_mask is None) and (hash_field is None):
         return
 
-    table = db.cfgdb.get_table('PBH_HASH_FIELD')
+    table = db.cfgdb.get_table(pbh_hash_field_tbl_name)
     hash_field_obj = table[hash_field_name]
 
     if (ip_mask is None) and (hash_field is not None):
@@ -293,7 +297,7 @@ def PBH_HASH_FIELD_add(db, hash_field_name, hash_field, ip_mask, sequence_id):
 
     ip_mask_hash_field_correspondence_validator(ip_mask, hash_field)
 
-    table = "PBH_HASH_FIELD"
+    table = pbh_hash_field_tbl_name
     key = hash_field_name
     data = {}
     if hash_field is not None:
@@ -336,7 +340,7 @@ def PBH_HASH_FIELD_update(db, hash_field_name, hash_field, ip_mask, sequence_id)
 
     ip_mask_hash_field_update_validator(db, hash_field_name, ip_mask, hash_field)
 
-    table = "PBH_HASH_FIELD"
+    table = pbh_hash_field_tbl_name
     key = hash_field_name
     data = {}
     if hash_field is not None:
@@ -362,7 +366,7 @@ def PBH_HASH_FIELD_update(db, hash_field_name, hash_field, ip_mask, sequence_id)
 def PBH_HASH_FIELD_delete(db, hash_field_name):
     """ Delete object from PBH_HASH_FIELD table """
 
-    table = "PBH_HASH_FIELD"
+    table = pbh_hash_field_tbl_name
     key = hash_field_name
     try:
         del_entry(db.cfgdb, table, key)
@@ -395,10 +399,10 @@ def PBH_HASH():
 def PBH_HASH_add(db, hash_name, hash_field_list):
     """ Add object to PBH_HASH table """
 
-    if not is_exist_in_db(db, hash_field_list, "PBH_HASH_FIELD"):
+    if not is_exist_in_db(db, hash_field_list, pbh_hash_field_tbl_name):
         exit_with_error("Error: invalid value '{}' for '--hash-field-list' option".format(hash_field_list), fg="red")
 
-    table = "PBH_HASH"
+    table = pbh_hash_tbl_name
     key = hash_name
     data = {}
     if hash_field_list is not None:
@@ -424,10 +428,10 @@ def PBH_HASH_add(db, hash_name, hash_field_list):
 def PBH_HASH_update(db, hash_name, hash_field_list):
     """ Update object in PBH_HASH table """
 
-    if not is_exist_in_db(db, hash_field_list, "PBH_HASH_FIELD"):
+    if not is_exist_in_db(db, hash_field_list, pbh_hash_field_tbl_name):
         exit_with_error("Error: invalid value '{}' for '--hash-field-list' option".format(hash_field_list), fg="red")
 
-    table = "PBH_HASH"
+    table = pbh_hash_tbl_name 
     key = hash_name
     data = {}
     if hash_field_list is not None:
@@ -449,7 +453,7 @@ def PBH_HASH_update(db, hash_name, hash_field_list):
 def PBH_HASH_delete(db, hash_name):
     """ Delete object from PBH_HASH table """
 
-    table = "PBH_HASH"
+    table = pbh_hash_tbl_name
     key = hash_name
     try:
         del_entry(db.cfgdb, table, key)
@@ -541,9 +545,9 @@ def PBH_RULE_add(
 ):
     """ Add object to PBH_RULE table """
 
-    if not is_exist_in_db(db, table_name, "PBH_TABLE"):
+    if not is_exist_in_db(db, table_name, pbh_table_tbl_name):
         exit_with_error("Error: invalid value '{}' for 'table-name' argument".format(table_name), fg="red")
-    if not is_exist_in_db(db, hash, "PBH_HASH"):
+    if not is_exist_in_db(db, hash, pbh_hash_tbl_name):
         exit_with_error("Error: invalid value '{}' for '--hash' option".format(hash), fg="red")
 
     table = "PBH_RULE"
@@ -646,9 +650,9 @@ def PBH_RULE_update(
 ):
     """ Update object in PBH_RULE table """
 
-    if not is_exist_in_db(db, table_name, "PBH_TABLE"):
+    if not is_exist_in_db(db, table_name, pbh_table_tbl_name):
         exit_with_error("Error: invalid value '{}' for 'table-name' argument".format(table_name), fg="red")
-    if not is_exist_in_db(db, hash, "PBH_HASH"):
+    if not is_exist_in_db(db, hash, pbh_hash_tbl_name):
         exit_with_error("Error: invalid value '{}' for '--hash' option".format(hash), fg="red")
 
     table = "PBH_RULE"
