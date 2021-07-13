@@ -637,7 +637,7 @@ def PBH_RULE_update(db,
     """ Update object in PBH_RULE table """
 
     if not is_exist_in_db(db, table_name, "PBH_TABLE"):
-        exit_with_error("Error: invalid value '{}' for 'table-name' argument".format(table_name, table.name), fg="red")
+        exit_with_error("Error: invalid value '{}' for 'table-name' argument".format(table_name), fg="red")
     if not is_exist_in_db(db, hash, "PBH_HASH"):
         exit_with_error("Error: invalid value '{}' for '--hash' option".format(hash), fg="red")
 
