@@ -90,8 +90,6 @@ def PBH_HASH_FIELD(db):
     table = db.cfgdb.get_table(pbh_hash_field_tbl_name)
     for key in natsort.natsorted(table):
 
-        is_pbh_hash_field_symmetric(table, key)
-
         entry = table[key]
 
         if not isinstance(key, tuple):
@@ -128,22 +126,13 @@ def PBH_HASH_FIELD(db):
                     'group': ''
                 }
             ),
-            format_attr_value(
-                entry,
-                {
-                    'name': 'symmetric',
-                    'description': 'symmetric',
-                    'is-leaf-list': False,
-                    'is-mandatory': False,
-                    'group': ''
-                }
-            ),
         ]
 
         body.append(row)
 
     # sorted by 'sequence_id'
     body_sorted = sorted(body, key=lambda e: int(e[3]))
+    inject_symmetric_field(body_sorted)
     click.echo(tabulate.tabulate(body_sorted, header, numalign="left"))
 
 
@@ -443,27 +432,32 @@ def read_pbh_counters(pbh_rules) -> dict:
     return pbh_counters
 
 
-def is_pbh_hash_field_symmetric(table: dict, key_to_check: str):
+def inject_symmetric_field(obj_list):
     """ The 'Symmetric' parameter will have 'Yes' value
         if there are 2 'pbh hash fields' with identical 'sequence_id' value
 
         Args:
-            table: 'PBH_HASH_FIELD' table from CONFIG DB.
-            key_to_check: key from the table above to check
+            obj_list: a row of pbh hash fields that will be
+                displayed to the user
     """
 
-    if table[key_to_check].get('symmetric') is None:
-        counter = 0
+    sequence_id = 3
+    counter = 0
 
-        for key in table:
-            if key_to_check != key:
-                if table[key_to_check].get('sequence_id') == table[key].get('sequence_id'):
-                    counter += 1
+    for i in range(0, len(obj_list)):
+        for j in range(0, len(obj_list)):
+            if i == j:
+                continue
+
+            if obj_list[i][sequence_id] == obj_list[j][sequence_id]:
+                counter += 1
 
         if counter >= 1:
-            table[key_to_check]['symmetric'] = 'Yes'
+            obj_list[i].append('Yes')
         else:
-            table[key_to_check]['symmetric'] = 'No'
+            obj_list[i].append('No')
+
+        counter = 0
 
 
 def lowercase_keys(dictionary):
