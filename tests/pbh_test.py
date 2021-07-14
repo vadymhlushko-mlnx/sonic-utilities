@@ -575,7 +575,7 @@ class TestPBH:
         result = runner.invoke(config.config.commands["pbh"].
             commands["rule"].commands["add"],
             ["pbh_table1", "nvgre", "--priority", "1", "--gre-key",
-            "0x2500/0xffffff00", "--inner-ether-type", "0x86dd/0xffff",
+            "0x2500/0xffffff00", "--inner-ether-type", "0x86dd",
             "--hash", "inner_v6_hash", "--packet-action", "SET_ECMP_HASH",
             "--flow-counter", "DISABLED"], obj=db)
 

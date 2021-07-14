@@ -236,6 +236,13 @@ def PBH_RULE(db):
                         'group': 'Match'
                     },
                     {
+                        'name': 'ether_type',
+                        'description': 'Configures packet match for this rule: EtherType (IANA Ethertypes)',
+                        'is-leaf-list': False,
+                        'is-mandatory': False,
+                        'group': 'Match'
+                    },
+                    {
                         'name': 'ip_protocol',
                         'description': 'Configures packet match for this rule: IP protocol (value/mask)',
                         'is-leaf-list': False,

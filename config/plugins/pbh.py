@@ -23,11 +23,12 @@ hash_field_types = [
 packet_action_types = ['SET_ECMP_HASH', 'SET_LAG_HASH']
 flow_counter_state = ['DISABLED', 'ENABLED']
 
-gre_key_re = r"(0x){1}[a-fA-F0-9]{1,8}/(0x){1}[a-fA-F0-9]{1,8}"
-ip_protocol_re = r"(0x){1}[a-fA-F0-9]{1,2}"
+gre_key_re = r"^(0x){1}[a-fA-F0-9]{1,8}/(0x){1}[a-fA-F0-9]{1,8}$"
+ip_protocol_re = r"^(0x){1}[a-fA-F0-9]{1,2}$"
 ipv6_next_header_re = ip_protocol_re
-l4_dst_port_re = r"(0x){1}[a-fA-F0-9]{1,4}"
+l4_dst_port_re = r"^(0x){1}[a-fA-F0-9]{1,4}$"
 inner_ether_type_re = l4_dst_port_re
+ether_type_re = l4_dst_port_re
 
 pbh_hash_field_tbl_name = 'PBH_HASH_FIELD'
 pbh_hash_tbl_name = 'PBH_HASH'
@@ -152,6 +153,8 @@ def pbh_re_match_validator(ctx, param, value):
             return re_match(value, param.name, l4_dst_port_re)
         elif param.name == 'inner_ether_type':
             return re_match(value, param.name, inner_ether_type_re)
+        elif param.name == 'ether_type':
+            return re_match(value, param.name, ether_type_re)
 
 
 def is_exist_in_db(db, obj_list, conf_db_key):
@@ -515,6 +518,11 @@ def PBH_RULE():
     callback=pbh_re_match_validator,
 )
 @click.option(
+    "--ether-type",
+    help="Configures packet match for this rule: EtherType (IANA Ethertypes)",
+    callback=pbh_re_match_validator,
+)
+@click.option(
     "--ip-protocol",
     help="Configures packet match: IP protocol (value/mask)",
     callback=pbh_re_match_validator,
@@ -556,6 +564,7 @@ def PBH_RULE_add(
     rule_name,
     priority,
     gre_key,
+    ether_type,
     ip_protocol,
     ipv6_next_header,
     l4_dst_port,
@@ -578,6 +587,8 @@ def PBH_RULE_add(
         data["priority"] = priority
     if gre_key is not None:
         data["gre_key"] = gre_key
+    if ether_type is not None:
+        data["ether_type"] = ether_type
     if ip_protocol is not None:
         data["ip_protocol"] = ip_protocol
     if ipv6_next_header is not None:
@@ -621,6 +632,11 @@ def PBH_RULE_add(
     callback=pbh_re_match_validator,
 )
 @click.option(
+    "--ether-type",
+    help="Configures packet match for this rule: EtherType (IANA Ethertypes)",
+    callback=pbh_re_match_validator,
+)
+@click.option(
     "--ip-protocol",
     help="Configures packet match: IP protocol (value/mask)",
     callback=pbh_re_match_validator,
@@ -661,6 +677,7 @@ def PBH_RULE_update(
     rule_name,
     priority,
     gre_key,
+    ether_type,
     ip_protocol,
     ipv6_next_header,
     l4_dst_port,
@@ -683,6 +700,8 @@ def PBH_RULE_update(
         data["priority"] = priority
     if gre_key is not None:
         data["gre_key"] = gre_key
+    if ether_type is not None:
+        data["ether_type"] = ether_type
     if ip_protocol is not None:
         data["ip_protocol"] = ip_protocol
     if ipv6_next_header is not None:
