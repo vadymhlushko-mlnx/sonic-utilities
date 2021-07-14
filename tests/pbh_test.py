@@ -601,8 +601,8 @@ class TestPBH:
         result = runner.invoke(config.config.commands["pbh"].
             commands["rule"].commands["add"],
             ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
-            "0x11/0xff", "--inner-ether-type", "0x0800/0xfff",
-            "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v4_hash",
+            "0x11", "--inner-ether-type", "0x0800",
+            "--l4-dst-port", "0x12b5", "--hash", "inner_v4_hash",
             "--packet-action", "SET_LAG_HASH", "--flow-counter", "ENABLED"], obj=db)
 
         logger.debug("\n" + result.output)
@@ -611,7 +611,7 @@ class TestPBH:
 
         result = runner.invoke(config.config.commands["pbh"].
             commands["rule"].commands["update"],
-            ["pbh_table1", "vxlan ", "--priority", "3", "--inner-ether-type", "0x086dd/0xfff",
+            ["pbh_table1", "vxlan ", "--priority", "3", "--inner-ether-type", "0x086d",
             "--packet-action", "SET_LAG_HASH", "--flow-counter", "DISABLED"], obj=db)
 
         logger.debug("\n" + result.output)
@@ -629,8 +629,8 @@ class TestPBH:
         result = runner.invoke(config.config.commands["pbh"].
             commands["rule"].commands["add"],
             ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
-            "0x11/0xff", "--inner-ether-type", "0x0800/0xfff",
-            "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v6_hash",
+            "0x11", "--inner-ether-type", "0x0800",
+            "--l4-dst-port", "0x12b5", "--hash", "inner_v6_hash",
             "--packet-action", "SET_ECMP_HASH", "--flow-counter", "ENABLED"], obj=db)
 
         logger.debug("\n" + result.output)
@@ -656,8 +656,8 @@ class TestPBH:
         result = runner.invoke(config.config.commands["pbh"].
             commands["rule"].commands["add"],
             ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
-            "INVALID", "--inner-ether-type", "0x0800/0xfff",
-            "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v6_hash",
+            "INVALID", "--inner-ether-type", "0x0800",
+            "--l4-dst-port", "0x12b5", "--hash", "inner_v6_hash",
             "--packet-action", "SET_ECMP_HASH", "--flow-counter", "ENABLED"], obj=db)
 
         logger.debug("\n" + result.output)
@@ -675,8 +675,8 @@ class TestPBH:
         result = runner.invoke(config.config.commands["pbh"].
             commands["rule"].commands["add"],
             ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
-            "0x11/0xff", "--inner-ether-type", "INVALID",
-            "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v6_hash",
+            "0x11", "--inner-ether-type", "INVALID",
+            "--l4-dst-port", "0x12b5", "--hash", "inner_v6_hash",
             "--packet-action", "SET_ECMP_HASH", "--flow-counter", "ENABLED"], obj=db)
 
         logger.debug("\n" + result.output)
@@ -694,8 +694,8 @@ class TestPBH:
         result = runner.invoke(config.config.commands["pbh"].
             commands["rule"].commands["add"],
             ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
-            "0x11/0xff", "--inner-ether-type", "0x0800/0xfff",
-            "--l4-dst-port", "0x12b5/0xffff", "--hash", "INVALID",
+            "0x11", "--inner-ether-type", "0x0800",
+            "--l4-dst-port", "0x12b5", "--hash", "INVALID",
             "--packet-action", "SET_ECMP_HASH", "--flow-counter", "ENABLED"], obj=db)
 
         logger.debug("\n" + result.output)
@@ -713,8 +713,8 @@ class TestPBH:
         result = runner.invoke(config.config.commands["pbh"].
             commands["rule"].commands["add"],
             ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
-            "0x11/0xff", "--inner-ether-type", "0x0800/0xfff",
-            "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v6_hash",
+            "0x11", "--inner-ether-type", "0x0800",
+            "--l4-dst-port", "0x12b5", "--hash", "inner_v6_hash",
             "--packet-action", "INVALID", "--flow-counter", "ENABLED"], obj=db)
 
         logger.debug("\n" + result.output)
@@ -732,8 +732,8 @@ class TestPBH:
         result = runner.invoke(config.config.commands["pbh"].
             commands["rule"].commands["add"],
             ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
-            "0x11/0xff", "--inner-ether-type", "0x0800/0xfff",
-            "--l4-dst-port", "0x12b5/0xffff", "--hash", "inner_v6_hash",
+            "0x11", "--inner-ether-type", "0x0800",
+            "--l4-dst-port", "0x12b5", "--hash", "inner_v6_hash",
             "--packet-action", "SET_ECMP_HASH", "--flow-counter", "INVALID"], obj=db)
 
         logger.debug("\n" + result.output)
