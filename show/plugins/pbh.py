@@ -16,6 +16,11 @@ from swsscommon.swsscommon import SonicV2Connector
 
 PBH_COUNTERS_LOCATION = '/tmp/.pbh_counters.txt'
 
+pbh_hash_field_tbl_name = 'PBH_HASH_FIELD'
+pbh_hash_tbl_name = 'PBH_HASH'
+pbh_table_tbl_name = 'PBH_TABLE'
+pbh_rule_tbl_name = 'PBH_RULE'
+
 
 def format_attr_value(entry, attr):
     """ Helper that formats attribute to be presented in the table output.
@@ -53,17 +58,21 @@ def format_group_value(entry, attrs):
     return tabulate.tabulate(data, tablefmt="plain", numalign="left")
 
 
-@click.group(name='pbh',
-             cls=clicommon.AliasedGroup)
+@click.group(
+    name='pbh',
+    cls=clicommon.AliasedGroup
+)
 def PBH():
     """ Show PBH (Policy based hashing) feature configuration """
 
     pass
 
 
-@PBH.group(name="hash-field",
-           cls=clicommon.AliasedGroup,
-           invoke_without_command=True)
+@PBH.group(
+    name="hash-field",
+    cls=clicommon.AliasedGroup,
+    invoke_without_command=True
+)
 @clicommon.pass_db
 def PBH_HASH_FIELD(db):
     """  Show the PBH hash field configuration """
@@ -78,7 +87,7 @@ def PBH_HASH_FIELD(db):
 
     body = []
 
-    table = db.cfgdb.get_table("PBH_HASH_FIELD")
+    table = db.cfgdb.get_table(pbh_hash_field_tbl_name)
     for key in natsort.natsorted(table):
 
         is_pbh_hash_field_symmetric(table, key)
@@ -138,9 +147,11 @@ def PBH_HASH_FIELD(db):
     click.echo(tabulate.tabulate(body_sorted, header, numalign="left"))
 
 
-@PBH.group(name="hash",
-           cls=clicommon.AliasedGroup,
-           invoke_without_command=True)
+@PBH.group(
+    name="hash",
+    cls=clicommon.AliasedGroup,
+    invoke_without_command=True
+)
 @clicommon.pass_db
 def PBH_HASH(db):
     """  Show the PBH hash configuration """
@@ -152,7 +163,7 @@ def PBH_HASH(db):
 
     body = []
 
-    table = db.cfgdb.get_table("PBH_HASH")
+    table = db.cfgdb.get_table(pbh_hash_tbl_name)
     for key in natsort.natsorted(table):
         entry = table[key]
         if not isinstance(key, tuple):
@@ -176,9 +187,11 @@ def PBH_HASH(db):
     click.echo(tabulate.tabulate(body, header, numalign="left"))
 
 
-@PBH.group(name="rule",
-           cls=clicommon.AliasedGroup,
-           invoke_without_command=True)
+@PBH.group(
+    name="rule",
+    cls=clicommon.AliasedGroup,
+    invoke_without_command=True
+)
 @clicommon.pass_db
 def PBH_RULE(db):
     """  Show the PBH rules configuration """
@@ -195,7 +208,7 @@ def PBH_RULE(db):
 
     body = []
 
-    table = db.cfgdb.get_table("PBH_RULE")
+    table = db.cfgdb.get_table(pbh_rule_tbl_name)
     for key in natsort.natsorted(table):
         entry = table[key]
         if not isinstance(key, tuple):
@@ -290,9 +303,11 @@ def PBH_RULE(db):
     click.echo(tabulate.tabulate(body_sorted, header, numalign="left"))
 
 
-@PBH.group(name="table",
-           cls=clicommon.AliasedGroup,
-           invoke_without_command=True)
+@PBH.group(
+    name="table",
+    cls=clicommon.AliasedGroup,
+    invoke_without_command=True
+)
 @clicommon.pass_db
 def PBH_TABLE(db):
     """  Show the PBH table configuration """
@@ -305,7 +320,7 @@ def PBH_TABLE(db):
 
     body = []
 
-    table = db.cfgdb.get_table("PBH_TABLE")
+    table = db.cfgdb.get_table(pbh_table_tbl_name)
     for key in natsort.natsorted(table):
         entry = table[key]
         if not isinstance(key, tuple):
@@ -339,9 +354,11 @@ def PBH_TABLE(db):
     click.echo(tabulate.tabulate(body, header, numalign="left"))
 
 
-@PBH.group(name="statistics",
-           cls=clicommon.AliasedGroup,
-           invoke_without_command=True)
+@PBH.group(
+    name="statistics",
+    cls=clicommon.AliasedGroup,
+    invoke_without_command=True
+)
 @clicommon.pass_db
 def PBH_STATISTICS(db):
     """  Show the PBH counters """
@@ -355,7 +372,7 @@ def PBH_STATISTICS(db):
 
     body = []
 
-    pbh_rules = db.cfgdb.get_table("PBH_RULE")
+    pbh_rules = db.cfgdb.get_table(pbh_rule_tbl_name)
     pbh_counters = read_pbh_counters(pbh_rules)
     saved_pbh_counters = read_saved_pbh_counters()
 
@@ -386,9 +403,9 @@ def get_counter_value(pbh_counters, saved_pbh_counters, key, type):
     return str(pbh_counters[key][type])
 
 
-def remap_keys(_list):
+def remap_keys(obj_list):
     res = {}
-    for e in _list:
+    for e in obj_list:
         res[e['key'][0], e['key'][1]] = e['value']
     return res
 
