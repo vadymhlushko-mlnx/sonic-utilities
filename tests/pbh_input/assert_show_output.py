@@ -48,11 +48,11 @@ pbh_table3  Ethernet0        NVGRE and VxLAN
 show_pbh_rule="""\
 TABLE       RULE    PRIORITY    MATCH                                 HASH           ACTION         COUNTER
 ----------  ------  ----------  ------------------------------------  -------------  -------------  ---------
-pbh_table2  vxlan   2           ip_protocol:       0x11/0xff          inner_v4_hash  SET_LAG_HASH   ENABLED
-                                l4_dst_port:       0x12b5/0xffff
-                                inner_ether_type:  0x0800/0xfff
+pbh_table2  vxlan   2           ip_protocol:       0x11               inner_v4_hash  SET_LAG_HASH   ENABLED
+                                l4_dst_port:       0x12b5
+                                inner_ether_type:  0x0800
 pbh_table1  nvgre   1           gre_key:           0x2500/0xffffff00  inner_v6_hash  SET_ECMP_HASH  DISABLED
-                                inner_ether_type:  0x86dd/0xffff
+                                inner_ether_type:  0x86dd
 """
 
 
