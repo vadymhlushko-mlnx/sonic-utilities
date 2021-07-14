@@ -129,7 +129,7 @@ def re_match(value, param_name, regexp):
     return value
 
 
-def pbh_re_match(ctx, param, value):
+def pbh_re_match_validator(ctx, param, value):
     """ Check if PBH rule options are valid
 
         Args:
@@ -239,12 +239,33 @@ def ip_mask_hash_field_update_validator(db, hash_field_name, ip_mask, hash_field
 
     if (ip_mask is not None) and (hash_field is None):
 
-        try:
-            hash_field = hash_field_obj['hash_field']
-        except Exception as e:
-            hash_field = None
+        hash_field = hash_field_obj['hash_field']
 
         ip_mask_hash_field_correspondence_validator(ip_mask, hash_field)
+
+
+def interfaces_list_validator(db, interface_list, is_update):
+    if is_update and (interface_list is None):
+        return
+
+    is_error = False
+    interfaces_splited = interface_list.split(',')
+
+    for intf in interfaces_splited:
+        if intf.startswith('Ethernet'):
+            if not clicommon.is_valid_port(db.cfgdb, intf):
+                is_error = True
+                break
+        elif intf.startswith('PortChannel'):
+            if not clicommon.is_valid_portchannel(db.cfgdb, intf):
+                is_error = True
+                break
+        else:
+            is_error = True
+            break
+
+    if is_error:
+        exit_with_error("Error: invalid value '{}', for '--interface-list' option".format(interface_list), fg="red")
 
 
 @click.group(
@@ -491,27 +512,27 @@ def PBH_RULE():
 @click.option(
     "--gre-key",
     help="Configures packet match: GRE key (value/mask)",
-    callback=pbh_re_match,
+    callback=pbh_re_match_validator,
 )
 @click.option(
     "--ip-protocol",
     help="Configures packet match: IP protocol (value/mask)",
-    callback=pbh_re_match,
+    callback=pbh_re_match_validator,
 )
 @click.option(
     "--ipv6-next-header",
     help="Configures packet match: IPv6 Next header (value/mask)",
-    callback=pbh_re_match,
+    callback=pbh_re_match_validator,
 )
 @click.option(
     "--l4-dst-port",
     help="Configures packet match: L4 destination port (value/mask)",
-    callback=pbh_re_match,
+    callback=pbh_re_match_validator,
 )
 @click.option(
     "--inner-ether-type",
     help="Configures packet match: inner EtherType (value/mask)",
-    callback=pbh_re_match,
+    callback=pbh_re_match_validator,
 )
 @click.option(
     "--hash",
@@ -597,27 +618,27 @@ def PBH_RULE_add(
 @click.option(
     "--gre-key",
     help="Configures packet match: GRE key (value/mask)",
-    callback=pbh_re_match,
+    callback=pbh_re_match_validator,
 )
 @click.option(
     "--ip-protocol",
     help="Configures packet match: IP protocol (value/mask)",
-    callback=pbh_re_match,
+    callback=pbh_re_match_validator,
 )
 @click.option(
     "--ipv6-next-header",
     help="Configures packet match: IPv6 Next header (value/mask)",
-    callback=pbh_re_match,
+    callback=pbh_re_match_validator,
 )
 @click.option(
     "--l4-dst-port",
     help="Configures packet match: L4 destination port (value/mask)",
-    callback=pbh_re_match,
+    callback=pbh_re_match_validator,
 )
 @click.option(
     "--inner-ether-type",
     help="Configures packet match: inner EtherType (value/mask)",
-    callback=pbh_re_match,
+    callback=pbh_re_match_validator,
 )
 @click.option(
     "--hash",
@@ -714,26 +735,6 @@ def PBH_TABLE():
     """ Configure PBH table"""
 
     pass
-
-def interfaces_list_validator(db, interface_list, is_update: bool):
-    if is_update and (interface_list is None):
-        return
-
-    error = False
-    interfaces = interface_list.split(',')
-
-    for intf in interfaces:
-        if intf.startswith('Ethernet'):
-            if not clicommon.is_valid_port(db.cfgdb, intf):
-                error = True
-        elif intf.startswith('PortChannel'):
-            if not clicommon.is_valid_portchannel(db.cfgdb, intf):
-                error = True
-        else:
-            error = True
-
-    if error:
-        exit_with_error("Error: invalid value '{}', for '--interface-list' option".format(interface_list), fg="red")
 
 
 @PBH_TABLE.command(name="add")
