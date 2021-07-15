@@ -406,7 +406,6 @@ def remap_keys(obj_list):
 
 def read_saved_pbh_counters():
     if os.path.isfile(PBH_COUNTERS_LOCATION):
-        # change approach maybe add if
         try:
             with open(PBH_COUNTERS_LOCATION) as fp:
                 return remap_keys(json.load(fp))

@@ -925,3 +925,39 @@ class TestPBH:
         assert result.output == assert_show_output.show_pbh_statistics_updated
 
         self.clear_dedicated_mock_dbs()
+
+
+    def test_show_pbh_statistics_after_disabling_rule(self):
+        dbconnector.dedicated_dbs['COUNTERS_DB'] = os.path.join(mock_db_path, 'counters_db')
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'full_pbh_config')
+
+        SAVED_PBH_COUNTERS_FILE = '/tmp/.pbh_counters.txt'
+        if os.path.isfile(SAVED_PBH_COUNTERS_FILE):
+            os.remove(SAVED_PBH_COUNTERS_FILE)
+
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(show.cli.commands["pbh"].
+            commands["statistics"], [], obj=db)
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+
+        result = runner.invoke(clear.cli.commands["pbh"], [], obj=db)
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+
+        result = runner.invoke(config.config.commands["pbh"].
+            commands["rule"].commands["update"], ["pbh_table2", "vxlan", "--flow-counter", "DISABLED"], obj=db)
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+
+        result = runner.invoke(show.cli.commands["pbh"].
+            commands["statistics"], [], obj=db)
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+
+        assert result.exit_code == SUCCESS
+        assert result.output == assert_show_output.show_pbh_statistics_after_disabling_rule
+
+        self.clear_dedicated_mock_dbs()

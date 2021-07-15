@@ -84,3 +84,9 @@ pbh_table1  nvgre   400                 400
 pbh_table2  vxlan   400                 400
 """
 
+show_pbh_statistics_after_disabling_rule="""\
+TABLE       RULE    RX PACKETS COUNT    RX BYTES COUNT
+----------  ------  ------------------  ----------------
+pbh_table1  nvgre   0                   0
+"""
+
