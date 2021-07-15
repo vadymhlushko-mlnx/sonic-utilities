@@ -305,7 +305,7 @@ def PBH_HASH_FIELD():
 )
 @click.option(
     "--ip-mask",
-    help="""Configures IPv4/IPv6 address mask for this hash field required when the value of --hash-field are - INNER_DST_IPV4 or
+    help="""Configures IPv4/IPv6 address mask for this hash field, required when the value of --hash-field are - INNER_DST_IPV4 or
     INNER_SRC_IPV4 or INNER_SRC_IPV4 or INNER_SRC_IPV4 """,
     callback=ip_address_validator,
 )
@@ -524,22 +524,22 @@ def PBH_RULE():
 )
 @click.option(
     "--ip-protocol",
-    help="Configures packet match: IP protocol (value/mask)",
+    help="Configures packet match for this rule: IP protocol (IANA Protocol Numbers)",
     callback=pbh_re_match_validator,
 )
 @click.option(
     "--ipv6-next-header",
-    help="Configures packet match: IPv6 Next header (value/mask)",
+    help="Configures packet match for this rule: IPv6 Next header (IANA Protocol Numbers)",
     callback=pbh_re_match_validator,
 )
 @click.option(
     "--l4-dst-port",
-    help="Configures packet match: L4 destination port (value/mask)",
+    help="Configures packet match for this rule: L4 destination port",
     callback=pbh_re_match_validator,
 )
 @click.option(
     "--inner-ether-type",
-    help="Configures packet match: inner EtherType (value/mask)",
+    help="Configures packet match for this rule: inner EtherType (IANA Ethertypes)",
     callback=pbh_re_match_validator,
 )
 @click.option(
@@ -638,22 +638,22 @@ def PBH_RULE_add(
 )
 @click.option(
     "--ip-protocol",
-    help="Configures packet match: IP protocol (value/mask)",
+    help="Configures packet match for this rule: IP protocol (IANA Protocol Numbers)",
     callback=pbh_re_match_validator,
 )
 @click.option(
     "--ipv6-next-header",
-    help="Configures packet match: IPv6 Next header (value/mask)",
+    help="Configures packet match for this rule: IPv6 Next header (IANA Protocol Numbers)",
     callback=pbh_re_match_validator,
 )
 @click.option(
     "--l4-dst-port",
-    help="Configures packet match: L4 destination port (value/mask)",
+    help="Configures packet match for this rule: L4 destination port",
     callback=pbh_re_match_validator,
 )
 @click.option(
     "--inner-ether-type",
-    help="Configures packet match: inner EtherType (value/mask)",
+    help="Configures packet match for this rule: inner EtherType (IANA Ethertypes)",
     callback=pbh_re_match_validator,
 )
 @click.option(
