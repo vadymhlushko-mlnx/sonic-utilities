@@ -421,10 +421,10 @@ def read_pbh_counters(pbh_rules) -> dict:
     db_connector = SonicV2Connector(use_unix_socket_path=False)
     db_connector.connect(db_connector.COUNTERS_DB)
 
-    # add some check
     for table, rule in natsort.natsorted(pbh_rules):
         counter_props = lowercase_keys(db_connector.get_all(db_connector.COUNTERS_DB, "COUNTERS:%s:%s" % (table, rule)))
-        pbh_counters[table, rule] = counter_props
+        if counter_props:
+            pbh_counters[table, rule] = counter_props
 
     return pbh_counters
 
