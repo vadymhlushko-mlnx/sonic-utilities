@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import pytest
 import os
 import logging
 import show.main as show
@@ -21,6 +22,8 @@ SUCCESS = 0
 ERROR = 1
 ERROR2 = 2
 
+INVALID_VALUE = 'INVALID'
+
 
 class TestPBH:
     @classmethod
@@ -33,10 +36,6 @@ class TestPBH:
         logger.info("TEARDOWN")
         os.environ['UTILITIES_UNIT_TESTING'] = "0"
         os.environ["UTILITIES_UNIT_TESTING_TOPOLOGY"] = ""
-        importlib.reload(mock_single_asic)
-        dbconnector.load_namespace_config()
-
-    def clear_dedicated_mock_dbs(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = None
         dbconnector.dedicated_dbs['COUNTERS_DB'] = None
 
@@ -48,33 +47,45 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["add"],
-            ["inner_ip_proto", "--hash-field", "INNER_IP_PROTOCOL",
-            "--sequence-id", "1"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash-field"].
+            commands["add"], ["inner_ip_proto", "--hash-field",
+            "INNER_IP_PROTOCOL", "--sequence-id", "1"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["delete"],
-            ["inner_ip_proto"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash-field"].
+            commands["delete"], ["inner_ip_proto"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
 
-    def test_config_pbh_hash_field_add_ip4_mask(self):
+    @pytest.mark.parametrize("hash_field_name,hash_field,ip_mask", [
+        ("inner_dst_ipv6", "INNER_DST_IPV6", "ffff::"),
+        ("inner_dst_ipv4", "INNER_DST_IPV4", "255.0.0.0")
+        ])
+    def test_config_pbh_hash_field_add_ip_mask(
+        self,
+        hash_field_name,
+        hash_field,
+        ip_mask,
+    ):
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["add"],
-            ["inner_dst_ipv4", "--hash-field", "INNER_DST_IPV4",
-            "--ip-mask", "255.0.0.0",
-            "--sequence-id", "3"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash-field"].
+            commands["add"], [hash_field_name, "--hash-field",
+            hash_field, "--ip-mask", ip_mask,
+            "--sequence-id", "3"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
@@ -82,263 +93,223 @@ class TestPBH:
         assert result.exit_code == SUCCESS
 
 
-    def test_config_pbh_hash_field_add_ip6_mask(self):
+    @pytest.mark.parametrize("hash_field_name,hash_field,ip_mask", [
+        ("inner_ip_protocol", "INNER_IP_PROTOCOL", "255.0.0.0"),
+        ("inner_src_ipv6", "INNER_SRC_IPV6", "255.0.0.0"),
+        ("inner_src_ipv4", "INNER_SRC_IPV4", "ffff::")
+        ])
+    def test_config_pbh_hash_field_add_mismatch_hash_field_ip_mask(
+        self,
+        hash_field_name,
+        hash_field,
+        ip_mask,
+    ):
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["add"],
-            ["inner_dst_ipv6", "--hash-field", "INNER_DST_IPV6",
-            "--ip-mask", "ffff::",
-            "--sequence-id", "4"], obj=db)
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == SUCCESS
-
-
-    # negative add: --hash-field & --ip-mask mismatch
-    def test_config_pbh_hash_field_add_hash_field_with_ip(self):
-        db = Db()
-        runner = CliRunner()
-
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["add"],
-            ["inner_ip_protocol", "--hash-field", "INNER_IP_PROTOCOL",
-            "--ip-mask", "255.0.0.0",
-            "--sequence-id", "1"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash-field"].
+            commands["add"], [hash_field_name, "--hash-field",
+            hash_field, "--ip-mask", ip_mask,
+            "--sequence-id", "1"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
 
-    # negative add: --hash-field v6 & --ip-mask v4 mismatch
-    def test_config_pbh_hash_field_add_ipv4_mismatch(self):
-        db = Db()
-        runner = CliRunner()
-
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["add"],
-            ["inner_src_ipv6", "--hash-field", "INNER_SRC_IPV6",
-            "--ip-mask", "255.0.0.0",
-            "--sequence-id", "4"], obj=db)
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == ERROR
-
-
-    # negative add: --hash-field v4 & --ip-mask v6 mismatch
-    def test_config_pbh_hash_field_add_ipv6_mismatch(self):
-        db = Db()
-        runner = CliRunner()
-
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["add"],
-            ["inner_src_ipv4", "--hash-field", "INNER_SRC_IPV4",
-            "--ip-mask", "ffff::",
-            "--sequence-id", "2"], obj=db)
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == ERROR
-
-    # negative add: invalid --ip-mask
     def test_config_pbh_hash_field_add_invalid_ip(self):
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["add"],
-            ["inner_src_ipv4", "--hash-field", "INNER_SRC_IPV4",
-            "--ip-mask", "WRONG",
-            "--sequence-id", "2"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash-field"].
+            commands["add"], ["inner_src_ipv4", "--hash-field",
+            "INNER_SRC_IPV4", "--ip-mask", INVALID_VALUE,
+            "--sequence-id", "2"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
 
-    # negative add: None --ip-mask
-    def test_config_pbh_hash_field_add_none_ipv4(self):
+    @pytest.mark.parametrize("hash_field_name,hash_field", [
+        ("inner_src_ipv6", "INNER_SRC_IPV6"),
+        ("inner_src_ipv4", "INNER_SRC_IPV4")
+        ])
+    def test_config_pbh_hash_field_add_none_ip_mask(
+        self,
+        hash_field_name,
+        hash_field,
+    ):
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["add"],
-            ["inner_src_ipv4", "--hash-field", "INNER_SRC_IPV4",
-            "--sequence-id", "2"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash-field"].
+            commands["add"], [hash_field_name, "--hash-field",
+            hash_field, "--sequence-id", "2"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
 
-    # negative add: None --ip-mask
-    def test_config_pbh_hash_field_add_none_ipv6(self):
+    @pytest.mark.parametrize("hash_field_name,hash_field,updated_hash_field,sequence_id", [
+        ("inner_ip_proto", "INNER_IP_PROTOCOL", "INNER_L4_DST_PORT", "1"),
+        ("inner_l4_src_port", "INNER_L4_SRC_PORT", "INNER_L4_DST_PORT", "2")
+        ])
+    def test_config_pbh_hash_field_update_hash_field_sequence_id_no_ip(
+        self,
+        hash_field_name,
+        hash_field,
+        updated_hash_field,
+        sequence_id
+    ):
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["add"],
-            ["inner_src_ipv6", "--hash-field", "INNER_SRC_IPV6",
-            "--sequence-id", "2"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash-field"].
+            commands["add"],[hash_field_name, "--hash-field",
+            hash_field, "--sequence-id", "1"], obj=db
+        )
+
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash-field"].
+            commands["update"],[hash_field_name, "--hash-field",
+            updated_hash_field, "--sequence-id", sequence_id], obj=db
+        )
+
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+
+
+    @pytest.mark.parametrize("hash_field_name,hash_field,updated_hash_field,ip_mask,updated_ip_mask", [
+        ("inner_dst_ipv4", "INNER_DST_IPV4", "INNER_SRC_IPV4", "255.0.0.0", "0.0.0.255"),
+        ("inner_dst_ipv6", "INNER_DST_IPV6", "INNER_SRC_IPV6", "ffff::", "::ffff"),
+        ])
+    def test_config_pbh_hash_field_update_hash_field_ip_mask(
+        self,
+        hash_field_name,
+        hash_field,
+        updated_hash_field,
+        ip_mask,
+        updated_ip_mask
+    ):
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash-field"].
+            commands["add"], [hash_field_name, "--hash-field",
+            hash_field, "--ip-mask", ip_mask,
+            "--sequence-id", "1"], obj=db
+        )
+
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash-field"].
+            commands["update"], [hash_field_name, "--hash-field",
+            updated_hash_field, "--ip-mask", updated_ip_mask], obj=db
+        )
+
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+
+
+    def test_config_pbh_hash_field_update_invalid_hash_field(self):
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash-field"].
+            commands["add"], ["inner_ip_proto", "--hash-field",
+            "INNER_IP_PROTOCOL", "--sequence-id", "1"], obj=db
+        )
+
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash-field"].
+            commands["update"], ["inner_ip_proto", "--hash-field",
+            "INNER_DST_IPV4", "--sequence-id", "2"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
 
-    def test_config_pbh_hash_field_update_sequence_id(self):
+    def test_config_pbh_hash_field_update_invalid_ipv4_mask(self):
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["add"],
-            ["inner_ip_proto", "--hash-field", "INNER_IP_PROTOCOL",
-            "--sequence-id", "1"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash-field"].
+            commands["add"],["inner_ip_proto", "--hash-field",
+            "INNER_IP_PROTOCOL", "--sequence-id", "1"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["update"],
-            ["inner_ip_proto", "--hash-field", "INNER_IP_PROTOCOL",
-            "--sequence-id", "2"], obj=db)
-        assert result.exit_code == SUCCESS
-
-
-    def test_config_pbh_hash_field_update_hash_field(self):
-        db = Db()
-        runner = CliRunner()
-
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["add"],
-            ["inner_ip_proto", "--hash-field", "INNER_IP_PROTOCOL",
-            "--sequence-id", "1"], obj=db)
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == SUCCESS
-
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["update"],
-            ["inner_ip_proto", "--hash-field", "INNER_L4_DST_PORT",
-            "--sequence-id", "2"], obj=db)
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == SUCCESS
-
-
-    def test_config_pbh_hash_field_update_hash_field_ip_mask(self):
-        db = Db()
-        runner = CliRunner()
-
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["add"],
-            ["inner_dst_ipv4", "--hash-field", "INNER_DST_IPV4",
-            "--ip-mask", "255.0.0.0", "--sequence-id", "1"], obj=db)
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == SUCCESS
-
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["update"],
-            ["inner_dst_ipv4", "--hash-field", "INNER_SRC_IPV4",
-            "--ip-mask", "0.0.0.255", "--sequence-id", "2"], obj=db)
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == SUCCESS
-
-
-    def test_config_pbh_hash_field_update_wrong_hash_field(self):
-        db = Db()
-        runner = CliRunner()
-
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["add"],
-            ["inner_ip_proto", "--hash-field", "INNER_IP_PROTOCOL",
-            "--sequence-id", "1"], obj=db)
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == SUCCESS
-
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["update"],
-            ["inner_ip_proto", "--hash-field", "INNER_DST_IPV4",
-            "--sequence-id", "2"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash-field"].
+            commands["update"], ["inner_ip_proto", "--ip-mask",
+            "0.0.0.255"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
 
-    def test_config_pbh_hash_field_update_wrong_ipv4_mask1(self):
+    @pytest.mark.parametrize("hash_field_name,hash_field,ip_mask,updated_ip_mask", [
+        ("inner_dst_ipv6", "INNER_DST_IPV6", "ffff::", "255.0.0.0"),
+        ("inner_dst_ipv4", "INNER_DST_IPV4", "255.0.0.0", "ffff::")
+        ])
+    def test_config_pbh_hash_field_update_invalid_ip_mask(
+        self,
+        hash_field_name,
+        hash_field,
+        ip_mask,
+        updated_ip_mask
+    ):
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["add"],
-            ["inner_ip_proto", "--hash-field", "INNER_IP_PROTOCOL",
-            "--sequence-id", "1"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash-field"].
+            commands["add"], [hash_field_name, "--hash-field",
+            hash_field, "--ip-mask", ip_mask, "--sequence-id",
+            "3"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["update"],
-            ["inner_ip_proto", "--ip-mask", "0.0.0.255"], obj=db)
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == ERROR
-
-
-    def test_config_pbh_hash_field_update_wrong_ipv6_mask(self):
-        db = Db()
-        runner = CliRunner()
-
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["add"],
-            ["inner_dst_ipv6", "--hash-field", "INNER_DST_IPV6",
-            "--ip-mask", "ffff::", "--sequence-id", "3"], obj=db)
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == SUCCESS
-
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["update"],
-            ["inner_dst_ipv6", "--ip-mask", "255.0.0.0", "--sequence-id", "2"], obj=db)
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == ERROR
-
-
-    def test_config_pbh_hash_field_update_wrong_ipv4_mask2(self):
-        db = Db()
-        runner = CliRunner()
-
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["add"],
-            ["inner_dst_ipv4", "--hash-field", "INNER_DST_IPV4",
-            "--ip-mask", "255.0.0.0", "--sequence-id", "3"], obj=db)
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == SUCCESS
-
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash-field"].commands["update"],
-            ["inner_dst_ipv4", "--ip-mask", "ffff::", "--sequence-id", "2"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash-field"].
+            commands["update"], [hash_field_name, "--ip-mask",
+            updated_ip_mask], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
@@ -353,25 +324,25 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash"].commands["add"],
-            ["inner_v4_hash", "--hash-field-list",
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash"].
+            commands["add"], ["inner_v4_hash", "--hash-field-list",
             "inner_ip_proto,inner_l4_dst_port,inner_l4_src_port,inner_dst_ipv4,inner_dst_ipv4"],
-            obj=db)
+            obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash"].commands["delete"],
-            ["inner_v4_hash"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash"].
+            commands["delete"],["inner_v4_hash"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
-
-        self.clear_dedicated_mock_dbs()
 
 
     def test_config_pbh_hash_add_update_ipv6(self):
@@ -379,61 +350,52 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash"].commands["add"],
-            ["inner_v6_hash", "--hash-field-list",
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash"].
+            commands["add"], ["inner_v6_hash", "--hash-field-list",
             "inner_ip_proto,inner_l4_dst_port,inner_l4_src_port,inner_dst_ipv6,inner_dst_ipv6"],
-            obj=db)
+            obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash"].commands["update"],
-            ["inner_v6_hash", "--hash-field-list",
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash"].
+            commands["update"], ["inner_v6_hash", "--hash-field-list",
             "inner_l4_dst_port,inner_l4_src_port,inner_dst_ipv6,inner_dst_ipv6"],
-            obj=db)
+            obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
-        self.clear_dedicated_mock_dbs()
-
-
-    def test_config_pbh_hash_add_invalid_hash_field_list(self):
+    @pytest.mark.parametrize("hash_name,hash_field_list,exit_code", [
+        ("inner_v6_hash", INVALID_VALUE, ERROR),
+        ("inner_v6_hash", "", ERROR),
+        ("inner_v6_hash", None, ERROR2)
+        ])
+    def test_config_pbh_hash_add_invalid_hash_field_list(
+        self,
+        hash_name,
+        hash_field_list,
+        exit_code
+    ):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'hash_fields')
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash"].commands["add"],
-            ["inner_v6_hash", "--hash-field-list",
-            "INVALID"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["hash"].
+            commands["add"], [hash_name, "--hash-field-list",
+            hash_field_list], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-        assert result.exit_code == ERROR
-
-        self.clear_dedicated_mock_dbs()
-
-
-    def test_config_pbh_hash_add_empty_hash_field_list(self):
-        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'hash_fields')
-        db = Db()
-        runner = CliRunner()
-
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["hash"].commands["add"],
-            ["inner_v6_hash", "--hash-field-list",
-            ""], obj=db)
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == ERROR
-
-        self.clear_dedicated_mock_dbs()
+        assert result.exit_code == exit_code
 
 
     ########## CONFIG PBH TABLE ##########
@@ -444,23 +406,24 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["table"].commands["add"],
-            ["pbh_table1", "--interface-list", "Ethernet0,Ethernet4",
-            "--description", "NVGRE"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["table"].
+            commands["add"],["pbh_table1", "--interface-list",
+            "Ethernet0,Ethernet4", "--description", "NVGRE"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["table"].commands["delete"], ["pbh_table1"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["table"].
+            commands["delete"], ["pbh_table1"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
-
-        self.clear_dedicated_mock_dbs()
 
 
     def test_config_pbh_table_add_update_portchannels(self):
@@ -468,41 +431,45 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["table"].commands["add"],
-            ["pbh_table2", "--interface-list", "PortChannel0001",
-            "--description", "VxLAN"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["table"].
+            commands["add"], ["pbh_table2", "--interface-list",
+            "PortChannel0001", "--description", "VxLAN"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["table"].commands["update"],
-            ["pbh_table2", "--interface-list", "PortChannel0002",
-            "--description", "VxLAN TEST"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["table"].
+            commands["update"],["pbh_table2", "--interface-list",
+            "PortChannel0002", "--description", "VxLAN TEST"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["table"].commands["update"],
-            ["pbh_table2", "--interface-list", "PortChannel0001"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["table"].
+            commands["update"],["pbh_table2", "--interface-list",
+            "PortChannel0001"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["table"].commands["update"],
-            ["pbh_table2", "--description", "TEST"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["table"].
+            commands["update"], ["pbh_table2", "--description",
+            "TEST"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
-
-        self.clear_dedicated_mock_dbs()
 
 
     def test_config_pbh_table_add_port_and_portchannel(self):
@@ -510,16 +477,16 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["table"].commands["add"],
-            ["pbh_table3", "--interface-list", "PortChannel0002,Ethernet8",
-            "--description", "VxLAN adn NVGRE"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["table"].
+            commands["add"], ["pbh_table3", "--interface-list",
+            "PortChannel0002,Ethernet8", "--description",
+            "VxLAN adn NVGRE"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
-
-        self.clear_dedicated_mock_dbs()
 
 
     def test_config_pbh_table_add_invalid_port(self):
@@ -527,41 +494,41 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["table"].commands["add"],
-            ["pbh_table3", "--interface-list", "INVALID",
-            "--description", "VxLAN adn NVGRE"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["table"].
+            commands["add"], ["pbh_table3", "--interface-list",
+            INVALID_VALUE, "--description", "VxLAN adn NVGRE"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
-        self.clear_dedicated_mock_dbs()
 
-
-    def test_config_pbh_table_add_update_wrong_interface(self):
+    def test_config_pbh_table_add_update_invalid_interface(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'table')
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["table"].commands["add"],
-            ["pbh_table2", "--interface-list", "PortChannel0001",
-            "--description", "VxLAN"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["table"].
+            commands["add"], ["pbh_table2", "--interface-list",
+            "PortChannel0001", "--description", "VxLAN"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["table"].commands["update"],
-            ["pbh_table2", "--interface-list", "INVALID"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["table"].
+            commands["update"], ["pbh_table2", "--interface-list",
+            INVALID_VALUE], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
-
-        self.clear_dedicated_mock_dbs()
 
 
     ########## CONFIG PBH RULE ##########
@@ -572,25 +539,26 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["rule"].commands["add"],
-            ["pbh_table1", "nvgre", "--priority", "1", "--gre-key",
-            "0x2500/0xffffff00", "--inner-ether-type", "0x86dd",
-            "--hash", "inner_v6_hash", "--packet-action", "SET_ECMP_HASH",
-            "--flow-counter", "DISABLED"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["rule"].
+            commands["add"],["pbh_table1", "nvgre", "--priority",
+            "1", "--gre-key", "0x2500/0xffffff00", "--inner-ether-type",
+            "0x86dd", "--hash", "inner_v6_hash", "--packet-action",
+            "SET_ECMP_HASH", "--flow-counter", "DISABLED"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["rule"].commands["delete"], ["pbh_table1", "nvgre"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["rule"].
+            commands["delete"], ["pbh_table1", "nvgre"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
-
-        self.clear_dedicated_mock_dbs()
 
 
     def test_config_pbh_rule_add_update_vxlan(self):
@@ -598,27 +566,30 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["rule"].commands["add"],
-            ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
-            "0x11", "--inner-ether-type", "0x0800",
-            "--l4-dst-port", "0x12b5", "--hash", "inner_v4_hash",
-            "--packet-action", "SET_LAG_HASH", "--flow-counter", "ENABLED"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["rule"].
+            commands["add"], ["pbh_table1", "vxlan ",
+            "--priority", "2", "--ip-protocol", "0x11",
+            "--inner-ether-type", "0x0800","--l4-dst-port",
+            "0x12b5", "--hash", "inner_v4_hash", "--packet-action",
+            "SET_LAG_HASH", "--flow-counter", "ENABLED"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["rule"].commands["update"],
-            ["pbh_table1", "vxlan ", "--priority", "3", "--inner-ether-type", "0x086d",
-            "--packet-action", "SET_LAG_HASH", "--flow-counter", "DISABLED"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["rule"].
+            commands["update"], ["pbh_table1", "vxlan ",
+            "--priority", "3", "--inner-ether-type", "0x086d",
+            "--packet-action", "SET_LAG_HASH", "--flow-counter",
+            "DISABLED"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
-
-        self.clear_dedicated_mock_dbs()
 
 
     def test_config_pbh_rule_update_invalid(self):
@@ -626,26 +597,28 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["rule"].commands["add"],
-            ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
-            "0x11", "--inner-ether-type", "0x0800",
-            "--l4-dst-port", "0x12b5", "--hash", "inner_v6_hash",
-            "--packet-action", "SET_ECMP_HASH", "--flow-counter", "ENABLED"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["rule"].
+            commands["add"], ["pbh_table1", "vxlan ", "--priority",
+            "2", "--ip-protocol", "0x11", "--inner-ether-type",
+            "0x0800", "--l4-dst-port", "0x12b5", "--hash",
+            "inner_v6_hash", "--packet-action", "SET_ECMP_HASH",
+            "--flow-counter", "ENABLED"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["rule"].commands["update"],
-            ["pbh_table1", "vxlan ", "--flow-counter", "INVALID"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["rule"].
+            commands["update"], ["pbh_table1", "vxlan ",
+            "--flow-counter", INVALID_VALUE], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR2
-
-        self.clear_dedicated_mock_dbs()
 
 
     def test_config_pbh_rule_add_invalid_ip_protocol(self):
@@ -653,18 +626,18 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["rule"].commands["add"],
-            ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
-            "INVALID", "--inner-ether-type", "0x0800",
-            "--l4-dst-port", "0x12b5", "--hash", "inner_v6_hash",
-            "--packet-action", "SET_ECMP_HASH", "--flow-counter", "ENABLED"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["rule"].
+            commands["add"], ["pbh_table1", "vxlan ", "--priority",
+            "2", "--ip-protocol", INVALID_VALUE, "--inner-ether-type",
+            "0x0800", "--l4-dst-port", "0x12b5", "--hash", "inner_v6_hash",
+            "--packet-action", "SET_ECMP_HASH", "--flow-counter",
+            "ENABLED"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR 
-
-        self.clear_dedicated_mock_dbs()
 
 
     def test_config_pbh_rule_add_invalid_inner_ether_type(self):
@@ -672,18 +645,18 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["rule"].commands["add"],
-            ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
-            "0x11", "--inner-ether-type", "INVALID",
-            "--l4-dst-port", "0x12b5", "--hash", "inner_v6_hash",
-            "--packet-action", "SET_ECMP_HASH", "--flow-counter", "ENABLED"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["rule"].
+            commands["add"], ["pbh_table1", "vxlan ", "--priority",
+            "2", "--ip-protocol", "0x11", "--inner-ether-type",
+            INVALID_VALUE, "--l4-dst-port", "0x12b5", "--hash",
+            "inner_v6_hash", "--packet-action", "SET_ECMP_HASH",
+            "--flow-counter", "ENABLED"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
-
-        self.clear_dedicated_mock_dbs()
 
 
     def test_config_pbh_rule_add_invalid_hash(self):
@@ -691,18 +664,18 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["rule"].commands["add"],
-            ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
-            "0x11", "--inner-ether-type", "0x0800",
-            "--l4-dst-port", "0x12b5", "--hash", "INVALID",
-            "--packet-action", "SET_ECMP_HASH", "--flow-counter", "ENABLED"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["rule"].
+            commands["add"], ["pbh_table1", "vxlan ", "--priority",
+            "2", "--ip-protocol", "0x11", "--inner-ether-type", "0x0800",
+            "--l4-dst-port", "0x12b5", "--hash", INVALID_VALUE,
+            "--packet-action", "SET_ECMP_HASH", "--flow-counter",
+            "ENABLED"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
-
-        self.clear_dedicated_mock_dbs()
 
 
     def test_config_pbh_rule_add_invalid_packet_action(self):
@@ -710,18 +683,18 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["rule"].commands["add"],
-            ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
-            "0x11", "--inner-ether-type", "0x0800",
-            "--l4-dst-port", "0x12b5", "--hash", "inner_v6_hash",
-            "--packet-action", "INVALID", "--flow-counter", "ENABLED"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["rule"].
+            commands["add"], ["pbh_table1", "vxlan ", "--priority",
+            "2", "--ip-protocol", "0x11", "--inner-ether-type",
+            "0x0800", "--l4-dst-port", "0x12b5", "--hash",
+            "inner_v6_hash", "--packet-action", INVALID_VALUE,
+            "--flow-counter", "ENABLED"], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR2
-
-        self.clear_dedicated_mock_dbs()
 
 
     def test_config_pbh_rule_add_invalid_flow_counter(self):
@@ -729,18 +702,18 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["rule"].commands["add"],
-            ["pbh_table1", "vxlan ", "--priority", "2", "--ip-protocol",
-            "0x11", "--inner-ether-type", "0x0800",
-            "--l4-dst-port", "0x12b5", "--hash", "inner_v6_hash",
-            "--packet-action", "SET_ECMP_HASH", "--flow-counter", "INVALID"], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].commands["rule"].
+            commands["add"], ["pbh_table1", "vxlan ", "--priority",
+            "2", "--ip-protocol", "0x11", "--inner-ether-type",
+            "0x0800", "--l4-dst-port", "0x12b5", "--hash",
+            "inner_v6_hash", "--packet-action", "SET_ECMP_HASH",
+            "--flow-counter", INVALID_VALUE], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR2
-
-        self.clear_dedicated_mock_dbs()
 
     ########## SHOW PBH HASH-FIELD ##########
 
@@ -749,15 +722,15 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(show.cli.commands["pbh"].
-            commands["hash-field"], [], obj=db)
+        result = runner.invoke(
+            show.cli.commands["pbh"].
+            commands["hash-field"], [], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_hash_fields
-
-        self.clear_dedicated_mock_dbs()
 
 
     ########## SHOW PBH HASH ##########
@@ -768,15 +741,15 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(show.cli.commands["pbh"].
-            commands["hash"], [], obj=db)
+        result = runner.invoke(
+            show.cli.commands["pbh"].
+            commands["hash"], [], obj=db
+        )
 
         logger.debug("\n" + result.stdout)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_hash
-
-        self.clear_dedicated_mock_dbs()
 
 
     ########## SHOW PBH TABLE ##########
@@ -787,15 +760,15 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(show.cli.commands["pbh"].
-            commands["table"], [], obj=db)
+        result = runner.invoke(
+            show.cli.commands["pbh"].
+            commands["table"], [], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_table
-
-        self.clear_dedicated_mock_dbs()
 
 
     ########## SHOW PBH RULE ##########
@@ -806,15 +779,15 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(show.cli.commands["pbh"].
-            commands["rule"], [], obj=db)
+        result = runner.invoke(
+            show.cli.commands["pbh"].
+            commands["rule"], [], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_rule
-
-        self.clear_dedicated_mock_dbs()
 
 
     ########## SHOW PBH STATISTICS ##########
@@ -830,15 +803,15 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(show.cli.commands["pbh"].
-            commands["statistics"], [], obj=db)
+        result = runner.invoke(
+            show.cli.commands["pbh"].
+            commands["statistics"], [], obj=db
+        )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_statistics_empty
-
-        self.clear_dedicated_mock_dbs()
 
 
     def test_show_pbh_statistics(self):
@@ -852,15 +825,15 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(show.cli.commands["pbh"].
-            commands["statistics"], [], obj=db)
+        result = runner.invoke(
+            show.cli.commands["pbh"].
+            commands["statistics"], [], obj=db
+        )
+        
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_statistics
-
-        self.clear_dedicated_mock_dbs()
 
 
     def test_show_pbh_statistics_after_clear(self):
@@ -874,24 +847,23 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(show.cli.commands["pbh"].
-            commands["statistics"], [], obj=db)
+        result = runner.invoke(
+            clear.cli.commands["pbh"].
+            commands["statistics"], [], obj=db
+        )
+
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
 
-        result = runner.invoke(clear.cli.commands["pbh"].commands["statistics"], [], obj=db)
+        result = runner.invoke(
+            show.cli.commands["pbh"].
+            commands["statistics"], [], obj=db
+        )
+
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
-        result = runner.invoke(show.cli.commands["pbh"].
-            commands["statistics"], [], obj=db)
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_statistics_zero
-
-        self.clear_dedicated_mock_dbs()
 
 
     def test_show_pbh_statistics_after_clear_and_counters_updated(self):
@@ -905,26 +877,25 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(show.cli.commands["pbh"].
-            commands["statistics"], [], obj=db)
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
+        result = runner.invoke(
+            clear.cli.commands["pbh"].
+            commands["statistics"], [], obj=db
+        )
 
-        result = runner.invoke(clear.cli.commands["pbh"].commands["statistics"], [], obj=db)
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
 
         dbconnector.dedicated_dbs['COUNTERS_DB'] = os.path.join(mock_db_path, 'counters_db_updated')
 
-        result = runner.invoke(show.cli.commands["pbh"].
-            commands["statistics"], [], obj=db)
+        result = runner.invoke(
+            show.cli.commands["pbh"].
+            commands["statistics"], [], obj=db
+        )
+
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_statistics_updated
-
-        self.clear_dedicated_mock_dbs()
 
 
     def test_show_pbh_statistics_after_disabling_rule(self):
@@ -938,26 +909,31 @@ class TestPBH:
         db = Db()
         runner = CliRunner()
 
-        result = runner.invoke(show.cli.commands["pbh"].
-            commands["statistics"], [], obj=db)
+        result = runner.invoke(
+            clear.cli.commands["pbh"].
+            commands["statistics"], [], obj=db
+        )
+
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
 
-        result = runner.invoke(clear.cli.commands["pbh"].commands["statistics"], [], obj=db)
+        result = runner.invoke(
+            config.config.commands["pbh"].
+            commands["rule"].commands["update"],
+            ["pbh_table2", "vxlan", "--flow-counter",
+             "DISABLED"], obj=db
+        )
+
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
 
-        result = runner.invoke(config.config.commands["pbh"].
-            commands["rule"].commands["update"], ["pbh_table2", "vxlan", "--flow-counter", "DISABLED"], obj=db)
+        result = runner.invoke(
+            show.cli.commands["pbh"].
+            commands["statistics"], [], obj=db
+        )
+
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
-
-        result = runner.invoke(show.cli.commands["pbh"].
-            commands["statistics"], [], obj=db)
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-
         assert result.exit_code == SUCCESS
         assert result.output == assert_show_output.show_pbh_statistics_after_disabling_rule
 
-        self.clear_dedicated_mock_dbs()
