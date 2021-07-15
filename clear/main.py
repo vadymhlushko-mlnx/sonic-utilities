@@ -450,17 +450,16 @@ def translations():
     cmd = "natclear -t"
     run_command(cmd)
 
+# 'pbh' group ("clear pbh ...")
+@cli.group(cls=AliasedGroup)
+def pbh():
+    """ Clear the PBH info """
+    pass
 
-def remap_keys(dict):
-    return [{'key': k, 'value': v} for k, v in dict.items()]
-
-
-#
-# 'pbh' subcommand
-#
-@cli.command()
+# 'statistics' subcommand ("clear pbh statistics")
+@pbh.command()
 @clicommon.pass_db
-def pbh(db):
+def statistics(db):
     """ Clear PBH counters
         clear counters -- write current counters to file in /tmp
     """
@@ -474,6 +473,8 @@ def pbh(db):
     except IOError as err:
         pass
 
+def remap_keys(dict):
+    return [{'key': k, 'value': v} for k, v in dict.items()]
 
 # Load plugins and register them
 helper = util_base.UtilHelper()

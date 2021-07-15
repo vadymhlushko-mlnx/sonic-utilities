@@ -879,7 +879,7 @@ class TestPBH:
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
 
-        result = runner.invoke(clear.cli.commands["pbh"], [], obj=db)
+        result = runner.invoke(clear.cli.commands["pbh"].commands["statistics"], [], obj=db)
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
 
@@ -910,7 +910,7 @@ class TestPBH:
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
 
-        result = runner.invoke(clear.cli.commands["pbh"], [], obj=db)
+        result = runner.invoke(clear.cli.commands["pbh"].commands["statistics"], [], obj=db)
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
 
@@ -943,7 +943,7 @@ class TestPBH:
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
 
-        result = runner.invoke(clear.cli.commands["pbh"], [], obj=db)
+        result = runner.invoke(clear.cli.commands["pbh"].commands["statistics"], [], obj=db)
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
 
