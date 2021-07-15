@@ -889,7 +889,7 @@ class TestPBH:
         logger.debug(result.exit_code)
 
         assert result.exit_code == SUCCESS
-        assert result.output == assert_show_output.show_pbh_statistics_empty
+        assert result.output == assert_show_output.show_pbh_statistics_zero
 
         self.clear_dedicated_mock_dbs()
 

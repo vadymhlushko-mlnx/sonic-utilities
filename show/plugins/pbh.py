@@ -373,16 +373,14 @@ def PBH_STATISTICS(db):
     saved_pbh_counters = read_saved_pbh_counters()
 
     for key in pbh_rules:
-        # if counters value 0 or not exists should we display it?
-        if get_counter_value(pbh_counters, saved_pbh_counters, key, 'packets') == '0':
-            continue
-        row = [
-            key[0],
-            key[1],
-            get_counter_value(pbh_counters, saved_pbh_counters, key, 'packets'),
-            get_counter_value(pbh_counters, saved_pbh_counters, key, 'bytes'),
-        ]
-        body.append(row)
+        if pbh_rules[key]['flow_counter'] == 'ENABLED':
+            row = [
+                key[0],
+                key[1],
+                get_counter_value(pbh_counters, saved_pbh_counters, key, 'packets'),
+                get_counter_value(pbh_counters, saved_pbh_counters, key, 'bytes'),
+            ]
+            body.append(row)
 
     click.echo(tabulate.tabulate(body, header, numalign="left"))
 

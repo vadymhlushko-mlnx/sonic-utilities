@@ -51,7 +51,7 @@ TABLE       RULE    PRIORITY    MATCH                                 HASH      
 pbh_table2  vxlan   2           ip_protocol:       0x11               inner_v4_hash  SET_LAG_HASH   ENABLED
                                 l4_dst_port:       0x12b5
                                 inner_ether_type:  0x0800
-pbh_table1  nvgre   1           gre_key:           0x2500/0xffffff00  inner_v6_hash  SET_ECMP_HASH  DISABLED
+pbh_table1  nvgre   1           gre_key:           0x2500/0xffffff00  inner_v6_hash  SET_ECMP_HASH  ENABLED
                                 inner_ether_type:  0x86dd
 """
 
@@ -59,6 +59,14 @@ pbh_table1  nvgre   1           gre_key:           0x2500/0xffffff00  inner_v6_h
 show_pbh_statistics_empty="""\
 TABLE    RULE    RX PACKETS COUNT    RX BYTES COUNT
 -------  ------  ------------------  ----------------
+"""
+
+
+show_pbh_statistics_zero="""\
+TABLE       RULE    RX PACKETS COUNT    RX BYTES COUNT
+----------  ------  ------------------  ----------------
+pbh_table1  nvgre   0                   0
+pbh_table2  vxlan   0                   0
 """
 
 

@@ -67,7 +67,7 @@
         "inner_ether_type": "0x86dd",
         "hash": "inner_v6_hash",
         "packet_action": "SET_ECMP_HASH",
-        "flow_counter": "DISABLED"
+        "flow_counter": "ENABLED"
     },
     "PBH_RULE|pbh_table2|vxlan": {
         "priority": "2",
