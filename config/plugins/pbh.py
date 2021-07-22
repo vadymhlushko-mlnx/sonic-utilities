@@ -299,14 +299,13 @@ def PBH_HASH_FIELD():
 )
 @click.option(
     "--hash-field",
-    help="Configure native hash field for this hash field",
+    help="Configures native hash field for this hash field",
     required=True,
     type=click.Choice(hash_field_types)
 )
 @click.option(
     "--ip-mask",
-    help="""Configures IPv4/IPv6 address mask for this hash field, required when the value of --hash-field are - INNER_DST_IPV4 or
-    INNER_SRC_IPV4 or INNER_SRC_IPV4 or INNER_SRC_IPV4 """,
+    help="""Configures IPv4/IPv6 address mask for this hash field, required when the value of --hash-field is - INNER_DST_IPV4 or INNER_SRC_IPV4 or INNER_SRC_IPV6 or INNER_SRC_IPV6""",
     callback=ip_address_validator,
 )
 @click.option(
@@ -350,7 +349,7 @@ def PBH_HASH_FIELD_add(db, hash_field_name, hash_field, ip_mask, sequence_id):
 )
 @click.option(
     "--ip-mask",
-    help="Configures IPv4/IPv6 address mask for this hash field",
+    help="""Configures IPv4/IPv6 address mask for this hash field, required when the value of --hash-field is - INNER_DST_IPV4 or INNER_SRC_IPV4 or INNER_SRC_IPV6 or INNER_SRC_IPV6 """,
     callback=ip_address_validator,
 )
 @click.option(
@@ -508,7 +507,7 @@ def PBH_RULE():
 )
 @click.option(
     "--priority",
-    help="Configures priority",
+    help="Configures priority for this rule",
     required=True,
     type=click.INT,
 )
@@ -545,11 +544,11 @@ def PBH_RULE():
 @click.option(
     "--hash",
     required=True,
-    help="Configures the hash to apply",
+    help="The hash to apply with this rule",
 )
 @click.option(
     "--packet-action",
-    help="Configures packet action",
+    help="Configures packet action for this rule",
     type=click.Choice(packet_action_types)
 )
 @click.option(
@@ -623,7 +622,7 @@ def PBH_RULE_add(
 )
 @click.option(
     "--priority",
-    help="Configures priority",
+    help="Configures priority for this rule",
     type=click.INT,
 )
 @click.option(
@@ -662,7 +661,7 @@ def PBH_RULE_add(
 )
 @click.option(
     "--packet-action",
-    help="Configures packet action",
+    help="Configures packet action for this rule",
     type=click.Choice(packet_action_types)
 )
 @click.option(
