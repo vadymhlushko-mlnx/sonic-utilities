@@ -38,7 +38,8 @@ from utilities_common import constants
 from utilities_common.intf_filter import parse_interface_in_filter
 import  utilities_common.multi_asic as multi_asic_util
 from utilities_common.netstat import (ns_diff, table_as_json, format_brate,
-                                      format_prate, format_util, rates_key_list, RateStats)
+                                      format_prate, format_util, rates_key_list,
+                                      RateStats, ratestat_fields)
 
 
 PORT_RATE = 40
@@ -134,11 +135,12 @@ class Portstat(object):
         self.db = None
         self.multi_asic = multi_asic_util.MultiAsic(display_option, namespace)
 
-    def get_cnstat_dict(self):
+    def get_cnstat_ratestat_dict(self):
         self.cnstat_dict = OrderedDict()
         self.cnstat_dict['time'] = datetime.datetime.now()
+        self.ratestat_dict = OrderedDict()
         self.collect_stat()
-        return self.cnstat_dict
+        return self.cnstat_dict, self.ratestat_dict
 
     @multi_asic_util.run_on_multi_asic
     def collect_stat(self):
@@ -146,9 +148,11 @@ class Portstat(object):
         Collect the statisitics from all the asics present on the 
         device and store in a dict
         """
-        self.cnstat_dict.update(self.get_cnstat())
+        cnstat_dict, ratestat_dict = self.get_cnstat_ratestat()
+        self.cnstat_dict.update(cnstat_dict)
+        self.ratestat_dict.update(ratestat_dict)
 
-    def get_cnstat(self):
+    def get_cnstat_ratestat(self):
         """
             Get the counters info from database.
         """
@@ -192,7 +196,7 @@ class Portstat(object):
         ratestat_dict = OrderedDict()
         cnstat_dict['time'] = datetime.datetime.now()
         if counter_port_name_map is None:
-            return cnstat_dict
+            return cnstat_dict, ratestat_dict
         for port in natsorted(counter_port_name_map):
             port_name = port.split(":")[0]
             if self.multi_asic.skip_display(constants.PORT_OBJ, port_name):
@@ -381,6 +385,7 @@ class Portstat(object):
                 continue
             port_speed = self.get_port_speed(key)
             if print_all:
+                header = header_all
                 table.append((key, self.get_port_state(key),
                             ns_diff(cntr.rx_ok, old_cntr.rx_ok),
                             format_brate(rates.rx_bps),
@@ -417,6 +422,7 @@ class Portstat(object):
                               format_prate(rates.tx_pps),
                               format_util(rates.tx_bps, port_speed)))
             else:
+                header = header_std
                 table.append((key, self.get_port_state(key),
                             ns_diff(cntr.rx_ok, old_cntr.rx_ok),
                             format_brate(rates.rx_bps),
@@ -528,7 +534,7 @@ Examples:
         display_option = constants.DISPLAY_ALL
 
     portstat = Portstat(namespace, display_option)
-    cnstat_dict, ratestat_dict = portstat.get_cnstat_dict()
+    cnstat_dict, ratestat_dict = portstat.get_cnstat_ratestat_dict()
 
     # Now decide what information to display
     if raw_stats:
@@ -572,8 +578,8 @@ Examples:
     else:
         #wait for the specified time and then gather the new stats and output the difference.
         time.sleep(wait_time_in_seconds)
-        print "The rates are calculated within %s seconds period" % wait_time_in_seconds
-        cnstat_new_dict, ratestat_dict = portstat.get_cnstat()
+        print("The rates are calculated within %s seconds period" % wait_time_in_seconds)
+        cnstat_new_dict, ratestat_dict = portstat.get_cnstat_ratestat()
         portstat.cnstat_diff_print(cnstat_new_dict, cnstat_dict, ratestat_dict, intf_list, use_json, print_all, errors_only, rates_only, detail)
 
 if __name__ == "__main__":
