@@ -14,7 +14,6 @@ import sys
 import time
 from collections import OrderedDict, namedtuple
 
-
 from natsort import natsorted
 from tabulate import tabulate
 from sonic_py_common import multi_asic
@@ -36,11 +35,8 @@ except KeyError:
 
 from utilities_common import constants
 from utilities_common.intf_filter import parse_interface_in_filter
-import  utilities_common.multi_asic as multi_asic_util
-from utilities_common.netstat import (ns_diff, table_as_json, format_brate,
-                                      format_prate, format_util, rates_key_list,
-                                      RateStats, ratestat_fields)
-
+import utilities_common.multi_asic as multi_asic_util
+from utilities_common.netstat import ns_diff, table_as_json, format_brate, format_prate, format_util
 
 PORT_RATE = 40
 
@@ -56,11 +52,15 @@ NStats = namedtuple("NStats", "rx_ok, rx_err, rx_drop, rx_ovr, tx_ok,\
                     tx_uca, tx_mca, tx_bca, tx_all,\
                     rx_jbr, rx_frag, rx_usize, rx_ovrrun")
 header_all = ['IFACE', 'STATE', 'RX_OK', 'RX_BPS', 'RX_PPS', 'RX_UTIL', 'RX_ERR', 'RX_DRP', 'RX_OVR',
-          'TX_OK', 'TX_BPS', 'Tx_PPS', 'TX_UTIL', 'TX_ERR', 'TX_DRP', 'TX_OVR']
+          'TX_OK', 'TX_BPS', 'TX_PPS', 'TX_UTIL', 'TX_ERR', 'TX_DRP', 'TX_OVR']
 header_std = ['IFACE', 'STATE', 'RX_OK', 'RX_BPS', 'RX_UTIL', 'RX_ERR', 'RX_DRP', 'RX_OVR',
           'TX_OK', 'TX_BPS', 'TX_UTIL', 'TX_ERR', 'TX_DRP', 'TX_OVR']
 header_errors_only = ['IFACE', 'STATE', 'RX_ERR', 'RX_DRP', 'RX_OVR', 'TX_ERR', 'TX_DRP', 'TX_OVR']
 header_rates_only = ['IFACE', 'STATE', 'RX_OK', 'RX_BPS', 'RX_PPS', 'RX_UTIL', 'TX_OK', 'TX_BPS', 'TX_PPS', 'TX_UTIL']
+
+rates_key_list = [ 'RX_BPS', 'RX_PPS', 'RX_UTIL', 'TX_BPS', 'TX_PPS', 'TX_UTIL' ]
+ratestat_fields = ("rx_bps",  "rx_pps", "rx_util", "tx_bps", "tx_pps", "tx_util")
+RateStats = namedtuple("RateStats", ratestat_fields)
 
 """
 The order and count of statistics mentioned below needs to be in sync with the values in portstat script
@@ -262,19 +262,36 @@ class Portstat(object):
             rates = ratestat_dict.get(key, RateStats._make([STATUS_NA] * len(rates_key_list)))
             if print_all:
                 header = header_all
-                table.append((key, self.get_port_state(key),
-                              data.rx_ok, STATUS_NA, STATUS_NA, STATUS_NA, data.rx_err,
-                              data.rx_drop, data.rx_ovr,
-                              data.tx_ok, STATUS_NA, STATUS_NA, STATUS_NA, data.tx_err,
-                              data.tx_drop, data.tx_ovr))
+                table.append((key,
+                              self.get_port_state(key),
+                              data.rx_ok,
+                              format_brate(rates.rx_bps),
+                              format_prate(rates.rx_pps),
+                              format_util(rates.rx_bps, port_speed),
+                              data.rx_err,
+                              data.rx_drop,
+                              data.rx_ovr,
+                              data.tx_ok,
+                              format_brate(rates.tx_bps),
+                              format_prate(rates.tx_pps),
+                              format_util(rates.tx_bps, port_speed),
+                              data.tx_err,
+                              data.tx_drop,
+                              data.tx_ovr))
             elif errors_only:
                 header = header_errors_only
-                table.append((key, self.get_port_state(key),
-                              data.rx_err, data.rx_drop, data.rx_ovr,
-                              data.tx_err, data.tx_drop, data.tx_ovr))
+                table.append((key,
+                              self.get_port_state(key),
+                              data.rx_err,
+                              data.rx_drop,
+                              data.rx_ovr,
+                              data.tx_err,
+                              data.tx_drop,
+                              data.tx_ovr))
             elif rates_only:
                 header = header_rates_only
-                table.append((key, self.get_port_state(key),
+                table.append((key,
+                              self.get_port_state(key),
                               data.rx_ok, 
                               format_brate(rates.rx_bps),
                               format_prate(rates.rx_pps),
@@ -285,11 +302,20 @@ class Portstat(object):
                               format_util(rates.tx_bps, port_speed)))
             else:
                 header = header_std
-                table.append((key, self.get_port_state(key),
-                              data.rx_ok, STATUS_NA, STATUS_NA, data.rx_err,
-                              data.rx_drop, data.rx_ovr,
-                              data.tx_ok, STATUS_NA, STATUS_NA, data.tx_err,
-                              data.tx_drop, data.tx_ovr))
+                table.append((key,
+                              self.get_port_state(key),
+                              data.rx_ok,
+                              format_brate(rates.rx_bps),
+                              format_util(rates.rx_bps, port_speed),
+                              data.rx_err,
+                              data.rx_drop,
+                              data.rx_ovr,
+                              data.tx_ok,
+                              format_brate(rates.tx_bps),
+                              format_util(rates.tx_bps, port_speed),
+                              data.tx_err,
+                              data.tx_drop,
+                              data.tx_ovr))
 
         if use_json:
             print(table_as_json(table, header))
@@ -386,24 +412,26 @@ class Portstat(object):
             port_speed = self.get_port_speed(key)
             if print_all:
                 header = header_all
-                table.append((key, self.get_port_state(key),
-                            ns_diff(cntr.rx_ok, old_cntr.rx_ok),
-                            format_brate(rates.rx_bps),
-                            format_prate(rates.rx_pps),
-                            format_util(rates.rx_bps, port_speed),
-                            ns_diff(cntr.rx_err, old_cntr.rx_err),
-                            ns_diff(cntr.rx_drop, old_cntr.rx_drop),
-                            ns_diff(cntr.rx_ovr, old_cntr.rx_ovr),
-                            ns_diff(cntr.tx_ok, old_cntr.tx_ok),
-                            format_brate(rates.tx_bps),
-                            format_prate(rates.tx_pps),
-                            format_util(rates.tx_bps, port_speed),
-                            ns_diff(cntr.tx_err, old_cntr.tx_err),
-                            ns_diff(cntr.tx_drop, old_cntr.tx_drop),
-                            ns_diff(cntr.tx_ovr, old_cntr.tx_ovr)))
+                table.append((key,
+                              self.get_port_state(key),
+                              ns_diff(cntr.rx_ok, old_cntr.rx_ok),
+                              format_brate(rates.rx_bps),
+                              format_prate(rates.rx_pps),
+                              format_util(rates.rx_bps, port_speed),
+                              ns_diff(cntr.rx_err, old_cntr.rx_err),
+                              ns_diff(cntr.rx_drop, old_cntr.rx_drop),
+                              ns_diff(cntr.rx_ovr, old_cntr.rx_ovr),
+                              ns_diff(cntr.tx_ok, old_cntr.tx_ok),
+                              format_brate(rates.tx_bps),
+                              format_prate(rates.tx_pps),
+                              format_util(rates.tx_bps, port_speed),
+                              ns_diff(cntr.tx_err, old_cntr.tx_err),
+                              ns_diff(cntr.tx_drop, old_cntr.tx_drop),
+                              ns_diff(cntr.tx_ovr, old_cntr.tx_ovr)))
             elif errors_only:
                 header = header_errors_only
-                table.append((key, self.get_port_state(key),
+                table.append((key,
+                              self.get_port_state(key),
                               ns_diff(cntr.rx_err, old_cntr.rx_err),
                               ns_diff(cntr.rx_drop, old_cntr.rx_drop),
                               ns_diff(cntr.rx_ovr, old_cntr.rx_ovr),
@@ -412,7 +440,8 @@ class Portstat(object):
                               ns_diff(cntr.tx_ovr, old_cntr.tx_ovr)))
             elif rates_only:
                 header = header_rates_only
-                table.append((key, self.get_port_state(key),
+                table.append((key,
+                              self.get_port_state(key),
                               ns_diff(cntr.rx_ok, old_cntr.rx_ok),
                               format_brate(rates.rx_bps),
                               format_prate(rates.rx_pps),
@@ -423,19 +452,20 @@ class Portstat(object):
                               format_util(rates.tx_bps, port_speed)))
             else:
                 header = header_std
-                table.append((key, self.get_port_state(key),
-                            ns_diff(cntr.rx_ok, old_cntr.rx_ok),
-                            format_brate(rates.rx_bps),
-                            format_util(rates.rx_bps, port_speed),
-                            ns_diff(cntr.rx_err, old_cntr.rx_err),
-                            ns_diff(cntr.rx_drop, old_cntr.rx_drop),
-                            ns_diff(cntr.rx_ovr, old_cntr.rx_ovr),
-                            ns_diff(cntr.tx_ok, old_cntr.tx_ok),
-                            format_brate(rates.tx_bps),
-                            format_util(rates.tx_bps, port_speed),
-                            ns_diff(cntr.tx_err, old_cntr.tx_err),
-                            ns_diff(cntr.tx_drop, old_cntr.tx_drop),
-                            ns_diff(cntr.tx_ovr, old_cntr.tx_ovr)))
+                table.append((key,
+                              self.get_port_state(key),
+                              ns_diff(cntr.rx_ok, old_cntr.rx_ok),
+                              format_brate(rates.rx_bps),
+                              format_util(rates.rx_bps, port_speed),
+                              ns_diff(cntr.rx_err, old_cntr.rx_err),
+                              ns_diff(cntr.rx_drop, old_cntr.rx_drop),
+                              ns_diff(cntr.rx_ovr, old_cntr.rx_ovr),
+                              ns_diff(cntr.tx_ok, old_cntr.tx_ok),
+                              format_brate(rates.tx_bps),
+                              format_util(rates.tx_bps, port_speed),
+                              ns_diff(cntr.tx_err, old_cntr.tx_err),
+                              ns_diff(cntr.tx_drop, old_cntr.tx_drop),
+                              ns_diff(cntr.tx_ovr, old_cntr.tx_ovr)))
 
         if use_json:
             print(table_as_json(table, header))

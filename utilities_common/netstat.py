@@ -1,18 +1,9 @@
 # network statistics utility functions #
 
 import json
-from collections import namedtuple
 
 STATUS_NA = 'N/A'
 PORT_RATE = 40
-
-rates_key_list = [ 'RX_BPS', 'RX_PPS', 'RX_UTIL', 'TX_BPS', 'TX_PPS', 'TX_UTIL' ]
-ratestat_fields = ("rx_bps",  "rx_pps", "rx_util", "tx_bps", "tx_pps", "tx_util")
-RateStats = namedtuple("RateStats", ratestat_fields)
-
-COUNTERS_PORT_NAME_MAP = "COUNTERS_PORT_NAME_MAP"
-COUNTERS_RIF_NAME_MAP = "COUNTERS_RIF_NAME_MAP"
-RATES_TABLE_PREFIX = "RATES:"
 
 def ns_diff(newstr, oldstr):
     """
@@ -88,6 +79,7 @@ def format_prate(rate):
     if rate == STATUS_NA:
         return STATUS_NA
     else:
+        #TODO what does it mean /s maybe p/s packets per seconds
         return "{:.2f}".format(float(rate))+'/s'
 
 def format_util(brate, port_rate=PORT_RATE):
