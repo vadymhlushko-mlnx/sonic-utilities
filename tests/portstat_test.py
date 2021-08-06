@@ -35,19 +35,19 @@ Ethernet8      N/A        6       N/A       N/A        N/A       100        10  
 
 intf_counters_period = """\
 The rates are calculated within 3 seconds period
-    IFACE    STATE    RX_OK    RX_BPS    RX_UTIL    RX_ERR    RX_DRP    RX_OVR    TX_OK    TX_BPS    TX_UTIL    TX_ERR    TX_DRP    TX_OVR
----------  -------  -------  --------  ---------  --------  --------  --------  -------  --------  ---------  --------  --------  --------
-Ethernet0        D        0  0.00 B/s      0.00%         0         0       N/A        0  0.00 B/s      0.00%       N/A       N/A       N/A
-Ethernet4      N/A        0  0.00 B/s      0.00%         0         0       N/A        0  0.00 B/s      0.00%       N/A       N/A       N/A
-Ethernet8      N/A        0  0.00 B/s      0.00%         0         0       N/A        0  0.00 B/s      0.00%       N/A       N/A       N/A
+    IFACE    STATE    RX_OK        RX_BPS    RX_UTIL    RX_ERR    RX_DRP    RX_OVR    TX_OK       TX_BPS    TX_UTIL    TX_ERR    TX_DRP    TX_OVR
+---------  -------  -------  ------------  ---------  --------  --------  --------  -------  -----------  ---------  --------  --------  --------
+Ethernet0        D        0      0.00 B/s      0.00%         0         0       N/A        0     0.00 B/s      0.00%       N/A       N/A       N/A
+Ethernet4      N/A        0   200.00 KB/s      0.00%         0         0       N/A        0  200.05 KB/s      0.00%       N/A       N/A       N/A
+Ethernet8      N/A        0  1318.36 KB/s      0.03%         0         0       N/A        0   12.75 MB/s      0.25%       N/A       N/A       N/A
 """
 
 intf_counter_after_clear = """\
-    IFACE    STATE    RX_OK    RX_BPS    RX_UTIL    RX_ERR    RX_DRP    RX_OVR    TX_OK    TX_BPS    TX_UTIL    TX_ERR    TX_DRP    TX_OVR
----------  -------  -------  --------  ---------  --------  --------  --------  -------  --------  ---------  --------  --------  --------
-Ethernet0        D        0  0.00 B/s      0.00%         0         0       N/A        0  0.00 B/s      0.00%       N/A       N/A       N/A
-Ethernet4      N/A        0  0.00 B/s      0.00%         0         0       N/A        0  0.00 B/s      0.00%       N/A       N/A       N/A
-Ethernet8      N/A        0  0.00 B/s      0.00%         0         0       N/A        0  0.00 B/s      0.00%       N/A       N/A       N/A"""
+    IFACE    STATE    RX_OK        RX_BPS    RX_UTIL    RX_ERR    RX_DRP    RX_OVR    TX_OK       TX_BPS    TX_UTIL    TX_ERR    TX_DRP    TX_OVR
+---------  -------  -------  ------------  ---------  --------  --------  --------  -------  -----------  ---------  --------  --------  --------
+Ethernet0        D        0      0.00 B/s      0.00%         0         0       N/A        0     0.00 B/s      0.00%       N/A       N/A       N/A
+Ethernet4      N/A        0   200.00 KB/s      0.00%         0         0       N/A        0  200.05 KB/s      0.00%       N/A       N/A       N/A
+Ethernet8      N/A        0  1318.36 KB/s      0.03%         0         0       N/A        0   12.75 MB/s      0.25%       N/A       N/A       N/A"""
 
 clear_counter = """\
 Cleared counters"""
@@ -116,10 +116,6 @@ multi_asic_intf_counters_period_all = """\
 The rates are calculated within 3 seconds period
          IFACE    STATE    RX_OK    RX_BPS    RX_UTIL    RX_ERR    RX_DRP    RX_OVR    TX_OK    TX_BPS    TX_UTIL    TX_ERR    TX_DRP    TX_OVR
 --------------  -------  -------  --------  ---------  --------  --------  --------  -------  --------  ---------  --------  --------  --------
-     Ethernet0        U        0  0.00 B/s      0.00%         0         0       N/A        0  0.00 B/s      0.00%       N/A       N/A       N/A
-     Ethernet4        U        0  0.00 B/s      0.00%         0         0       N/A        0  0.00 B/s      0.00%       N/A       N/A       N/A
-  Ethernet-BP0        U        0  0.00 B/s      0.00%         0         0       N/A        0  0.00 B/s      0.00%       N/A       N/A       N/A
-  Ethernet-BP4        U        0  0.00 B/s      0.00%         0         0       N/A        0  0.00 B/s      0.00%       N/A       N/A       N/A
 Ethernet-BP256        U        0  0.00 B/s      0.00%         0         0       N/A        0  0.00 B/s      0.00%       N/A       N/A       N/A
 Ethernet-BP260        U        0  0.00 B/s      0.00%         0         0       N/A        0  0.00 B/s      0.00%       N/A       N/A       N/A
 """

@@ -182,6 +182,18 @@
         "Ethernet-BP256": "oid:0x1000000000b06",
         "Ethernet-BP260": "oid:0x1000000000b08"
     },
+    "RATES:oid:0x1000000000b06": {
+            "RX_BPS": "0",
+            "RX_PPS": "0",
+            "TX_BPS": "0",
+            "TX_PPS": "0"
+    },
+    "RATES:oid:0x1000000000b08": {
+            "RX_BPS": "0",
+            "RX_PPS": "0",
+            "TX_BPS": "0",
+            "TX_PPS": "0"
+    },
     "COUNTERS_LAG_NAME_MAP": {
         "PortChannel0001": "oid:0x60000000005a1",
         "PortChannel0002": "oid:0x60000000005a2",
