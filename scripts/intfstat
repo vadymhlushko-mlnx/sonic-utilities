@@ -175,8 +175,6 @@ class Intfstat(object):
 
         for key, cntr in cnstat_new_dict.items():
             if key == 'time':
-                time_gap = cnstat_new_dict.get('time') - cnstat_old_dict.get('time')
-                time_gap = time_gap.total_seconds()
                 continue
             old_cntr = None
             if key in cnstat_old_dict:
