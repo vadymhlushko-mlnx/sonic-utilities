@@ -82,14 +82,14 @@ def format_prate(rate):
         #TODO what does it mean /s maybe p/s packets per seconds
         return "{:.2f}".format(float(rate))+'/s'
 
-def format_util(brate, port_rate=PORT_RATE):
+def format_util(brate, port_rate):
     """
     Calculate the util.
     """
-    if brate == STATUS_NA:
+    if brate == STATUS_NA or port_rate == STATUS_NA:
         return STATUS_NA
     else:
-        util = brate/(float(port_rate)*1024*1024*1024/8.0)*100
+        util = brate/(float(port_rate)*1024*1024/8.0)*100
         return "{:.2f}%".format(util)
 
 def table_as_json(table, header):

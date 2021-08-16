@@ -38,8 +38,6 @@ from utilities_common.intf_filter import parse_interface_in_filter
 import utilities_common.multi_asic as multi_asic_util
 from utilities_common.netstat import ns_diff, table_as_json, format_brate, format_prate, format_util
 
-PORT_RATE = 40
-
 """
 The order and count of statistics mentioned below needs to be in sync with the values in portstat script
 So, any fields added/deleted in here should be reflected in portstat script also
@@ -215,8 +213,8 @@ class Portstat(object):
             self.db = multi_asic.connect_to_all_dbs_for_ns(ns)
             speed = self.db.get(self.db.APPL_DB, full_table_id, PORT_SPEED_FIELD)
             if speed is not None:
-                return int(speed)//1000
-        return PORT_RATE
+                return int(speed)
+        return STATUS_NA
 
     def get_port_state(self, port_name):
         """
