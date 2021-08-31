@@ -153,7 +153,7 @@ def base_test(yang_model_name, correct_dict):
     """ General logic for each test case """
 
     config_db_path = os.path.join(test_path,
-                                  'cli_autogen_input/config_db.json')
+                                  'mock_tables/config_db.json')
     parser = YangParser(yang_model_name=yang_model_name,
                         config_db_path=config_db_path,
                         allow_tbl_without_yang=True,
