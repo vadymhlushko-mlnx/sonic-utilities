@@ -18,10 +18,10 @@ show_interfaces_counters_rif_output="""\
           IFACE    RX_OK       RX_BPS    RX_PPS    RX_ERR    TX_OK      TX_BPS    TX_PPS    TX_ERR
 ---------------  -------  -----------  --------  --------  -------  ----------  --------  --------
      Ethernet20        4     3.00 B/s    4.00/s         2        8  754.00 B/s    8.00/s         6
-PortChannel0001      883  594.71 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
-PortChannel0002      883  594.71 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
+PortChannel0001      883  608.99 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
+PortChannel0002      883  608.99 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
 PortChannel0003        0     0.00 B/s    0.00/s         0        0    0.00 B/s    0.00/s         0
-PortChannel0004      883  594.71 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
+PortChannel0004      883  608.99 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
        Vlan1000        0     0.00 B/s    0.00/s         0        0    0.00 B/s    0.00/s         0
 """
 
@@ -30,10 +30,10 @@ Running command: intfstat
           IFACE    RX_OK       RX_BPS    RX_PPS    RX_ERR    TX_OK      TX_BPS    TX_PPS    TX_ERR
 ---------------  -------  -----------  --------  --------  -------  ----------  --------  --------
      Ethernet20        4     3.00 B/s    4.00/s         2        8  754.00 B/s    8.00/s         6
-PortChannel0001      883  594.71 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
-PortChannel0002      883  594.71 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
+PortChannel0001      883  608.99 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
+PortChannel0002      883  608.99 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
 PortChannel0003        0     0.00 B/s    0.00/s         0        0    0.00 B/s    0.00/s         0
-PortChannel0004      883  594.71 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
+PortChannel0004      883  608.99 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
        Vlan1000        0     0.00 B/s    0.00/s         0        0    0.00 B/s    0.00/s         0
 """
 
@@ -42,10 +42,10 @@ The rates are calculated within 3 seconds period
           IFACE    RX_OK       RX_BPS    RX_PPS    RX_ERR    TX_OK      TX_BPS    TX_PPS    TX_ERR
 ---------------  -------  -----------  --------  --------  -------  ----------  --------  --------
      Ethernet20        0     3.00 B/s    4.00/s         0        0  754.00 B/s    8.00/s         0
-PortChannel0001        0  594.71 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
-PortChannel0002        0  594.71 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
+PortChannel0001        0  608.99 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
+PortChannel0002        0  608.99 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
 PortChannel0003        0     0.00 B/s    0.00/s         0        0    0.00 B/s    0.00/s         0
-PortChannel0004        0  594.71 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
+PortChannel0004        0  608.99 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
        Vlan1000        0     0.00 B/s    0.00/s         0        0    0.00 B/s    0.00/s         0
 """
 
@@ -102,10 +102,10 @@ show_interfaces_counters_rif_clear="""\
           IFACE    RX_OK       RX_BPS    RX_PPS    RX_ERR    TX_OK      TX_BPS    TX_PPS    TX_ERR
 ---------------  -------  -----------  --------  --------  -------  ----------  --------  --------
      Ethernet20        0     3.00 B/s    4.00/s         0        0  754.00 B/s    8.00/s         0
-PortChannel0001        0  594.71 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
-PortChannel0002        0  594.71 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
+PortChannel0001        0  608.99 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
+PortChannel0002        0  608.99 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
 PortChannel0003        0     0.00 B/s    0.00/s         0        0    0.00 B/s    0.00/s         0
-PortChannel0004        0  594.71 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
+PortChannel0004        0  608.99 KB/s    0.00/s         0        0  883.00 B/s    0.00/s         0
        Vlan1000        0     0.00 B/s    0.00/s         0        0    0.00 B/s    0.00/s         0
 """
 
