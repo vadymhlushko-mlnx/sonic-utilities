@@ -4,8 +4,8 @@ import pprint
 
 import show.plugins as show_plugins
 
-import show.main as show
-import config.main as config
+import show.main as show_main
+import config.main as config_main
 
 from utilities_common import util_base
 
@@ -34,7 +34,7 @@ class TestCliAutogen:
         gen.generate_cli_plugin('show', 'sonic-device_metadata')
         helper = util_base.UtilHelper()
         for plugin in helper.load_plugins(show_plugins):
-            helper.register_plugin(plugin, show.cli)
+            helper.register_plugin(plugin, show_main.cli)
 
     @classmethod
     def teardown_class(cls):
@@ -45,7 +45,7 @@ class TestCliAutogen:
     def test_one(self):
         runner = CliRunner()
 
-        result = runner.invoke(show.cli.commands['device-metadata'].commands['localhost'], [])
+        result = runner.invoke(show_main.cli.commands['device-metadata'].commands['localhost'], [])
         logger.debug(result.output)
         assert result.output == show_device_metadata_localhost
 
