@@ -31,7 +31,7 @@ class TestYangParser:
     @classmethod
     def setup_class(cls):
         logger.info("SETUP")
-        os.environ['UTILITIES_UNIT_TESTING'] = "1"
+        os.environ['UTILITIES_UNIT_TESTING'] = "2"
         move_yang_models()
 
     @classmethod
