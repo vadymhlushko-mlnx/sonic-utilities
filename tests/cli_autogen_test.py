@@ -7,6 +7,7 @@ import show.main as show_main
 import config.plugins as config_plugins
 import config.main as config_main
 from .cli_autogen_input.autogen_test import show_cmd_output
+from .cli_autogen_input.cli_autogen_common import backup_yang_models, restore_backup_yang_models
 
 from utilities_common import util_base
 from sonic_cli_gen.generator import CliGenerator
@@ -108,3 +109,6 @@ class TestCliAutogen:
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
+    def test_one(self):
+        backup_yang_models()
+        restore_backup_yang_models()
