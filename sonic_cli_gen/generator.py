@@ -8,8 +8,7 @@ from sonic_cli_gen.yang_parser import YangParser
 
 templates_path_switch = '/usr/share/sonic/templates/sonic-cli-gen/'
 
-config_db_path_ut = '/sonic/src/sonic-utilities/tests/cli_autogen_input/config_db.json'
-templates_path_ut = '/sonic/src/sonic-utilities/sonic-utilities-data/templates/sonic-cli-gen/'
+
 
 
 class CliGenerator:
@@ -27,28 +26,28 @@ class CliGenerator:
         self.logger = logger
 
 
-    def generate_cli_plugin(self, cli_group, plugin_name):
+    def generate_cli_plugin(
+        self,
+        cli_group,
+        plugin_name,
+        config_db_path='configDB',
+        templates_path='/usr/share/sonic/templates/sonic-cli-gen/'
+    ):
         """ Generate click CLI plugin and put it to:
             /usr/local/lib/<python>/dist-packages/<CLI group>/plugins/auto/
         """
-
-        if os.environ["UTILITIES_UNIT_TESTING"] == "2":
-            config_db_path = config_db_path_ut
-            loader = jinja2.FileSystemLoader(templates_path_ut)
-        else:
-            config_db_path = 'configDB'
-            loader = jinja2.FileSystemLoader(templates_path_switch)
 
         parser = YangParser(
             yang_model_name=plugin_name,
             config_db_path=config_db_path,
             allow_tbl_without_yang=True,
             debug=False
-            )
+        )
         # yang_dict will be used as an input for templates located in
         # /usr/share/sonic/templates/sonic-cli-gen/
         yang_dict = parser.parse_yang_model()
 
+        loader = jinja2.FileSystemLoader(templates_path)
         j2_env = jinja2.Environment(loader=loader)
         template = j2_env.get_template(cli_group + '.py.j2')
 

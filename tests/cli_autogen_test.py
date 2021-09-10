@@ -25,6 +25,9 @@ SUCCESS = 0
 ERROR = 1
 INVALID_VALUE = 'INVALID'
 
+config_db_path = '/sonic/src/sonic-utilities/tests/cli_autogen_input/config_db.json'
+templates_path = '/sonic/src/sonic-utilities/sonic-utilities-data/templates/sonic-cli-gen/'
+
 
 class TestCliAutogen:
     @classmethod
@@ -32,8 +35,20 @@ class TestCliAutogen:
         logger.info('SETUP')
         os.environ['UTILITIES_UNIT_TESTING'] = "2"
 
-        gen.generate_cli_plugin('show', 'sonic-device_metadata')
-        gen.generate_cli_plugin('config', 'sonic-device_metadata')
+        backup_yang_models()
+
+        gen.generate_cli_plugin(
+            cli_group='show',
+            plugin_name='sonic-device_metadata',
+            config_db_path=config_db_path,
+            templates_path=templates_path
+        )
+        gen.generate_cli_plugin(
+            cli_group='config',
+            plugin_name='sonic-device_metadata',
+            config_db_path=config_db_path,
+            templates_path=templates_path
+        )
 
         helper = util_base.UtilHelper()
         helper.load_and_register_plugins(show_plugins, show_main.cli)
@@ -46,6 +61,8 @@ class TestCliAutogen:
 
         gen.remove_cli_plugin('show', 'sonic-device_metadata')
         gen.remove_cli_plugin('config', 'sonic-device_metadata')
+
+        restore_backup_yang_models()
 
         dbconnector.dedicated_dbs['CONFIG_DB'] = None
 
@@ -109,6 +126,3 @@ class TestCliAutogen:
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
-    def test_one(self):
-        backup_yang_models()
-        restore_backup_yang_models()
