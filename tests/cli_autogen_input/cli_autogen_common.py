@@ -34,6 +34,7 @@ def backup_yang_models():
 def restore_backup_yang_models():
     """ Restore existing YANG models from backup """
 
-    cmd = 'sudo mv {} {}'.format(yang_models_path + '_backup/', '/usr/local/yang-models')
+    cmd = 'sudo cp {} {}'.format(yang_models_path + '_backup/*', yang_models_path)
     os.system(cmd)
+    os.system('sudo rm -rf {}'.format(yang_models_path + '_backup'))
     

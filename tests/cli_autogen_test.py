@@ -7,7 +7,7 @@ import show.main as show_main
 import config.plugins as config_plugins
 import config.main as config_main
 from .cli_autogen_input.autogen_test import show_cmd_output
-from .cli_autogen_input.cli_autogen_common import backup_yang_models, restore_backup_yang_models
+from .cli_autogen_input.cli_autogen_common import backup_yang_models, restore_backup_yang_models, move_yang_models, remove_yang_models
 
 from utilities_common import util_base
 from sonic_cli_gen.generator import CliGenerator
@@ -28,27 +28,34 @@ INVALID_VALUE = 'INVALID'
 config_db_path = '/sonic/src/sonic-utilities/tests/cli_autogen_input/config_db.json'
 templates_path = '/sonic/src/sonic-utilities/sonic-utilities-data/templates/sonic-cli-gen/'
 
+test_yang_models = [
+    'sonic-device_metadata.yang',
+    'sonic-device_neighbor.yang',
+]
+
 
 class TestCliAutogen:
     @classmethod
     def setup_class(cls):
         logger.info('SETUP')
-        os.environ['UTILITIES_UNIT_TESTING'] = "2"
+        os.environ['UTILITIES_UNIT_TESTING'] = '2'
 
         backup_yang_models()
+        move_yang_models(test_path, 'autogen_test', test_yang_models)
 
-        gen.generate_cli_plugin(
-            cli_group='show',
-            plugin_name='sonic-device_metadata',
-            config_db_path=config_db_path,
-            templates_path=templates_path
-        )
-        gen.generate_cli_plugin(
-            cli_group='config',
-            plugin_name='sonic-device_metadata',
-            config_db_path=config_db_path,
-            templates_path=templates_path
-        )
+        for yang_model in test_yang_models:
+            gen.generate_cli_plugin(
+                cli_group='show',
+                plugin_name=yang_model.split('.')[0],
+                config_db_path=config_db_path,
+                templates_path=templates_path
+            )
+            gen.generate_cli_plugin(
+                cli_group='config',
+                plugin_name=yang_model.split('.')[0],
+                config_db_path=config_db_path,
+                templates_path=templates_path
+            )
 
         helper = util_base.UtilHelper()
         helper.load_and_register_plugins(show_plugins, show_main.cli)
@@ -59,14 +66,15 @@ class TestCliAutogen:
     def teardown_class(cls):
         logger.info('TEARDOWN')
 
-        gen.remove_cli_plugin('show', 'sonic-device_metadata')
-        gen.remove_cli_plugin('config', 'sonic-device_metadata')
+        for yang_model in test_yang_models:
+            gen.remove_cli_plugin('show', yang_model.split('.')[0])
+            gen.remove_cli_plugin('config', yang_model.split('.')[0])
 
         restore_backup_yang_models()
 
         dbconnector.dedicated_dbs['CONFIG_DB'] = None
 
-        os.environ['UTILITIES_UNIT_TESTING'] = "0"
+        os.environ['UTILITIES_UNIT_TESTING'] = '0'
 
 
     def test_show_device_metadata(self):
@@ -125,4 +133,65 @@ class TestCliAutogen:
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
+
+
+    def test_show_device_neighbor(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'config_db')
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(
+            show_main.cli.commands['device-neighbor'], [], obj=db
+        )
+
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+        assert show_cmd_output.show_device_neighbor
+        assert result.exit_code == SUCCESS
+
+
+    def test_config_device_neighbor_add(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'config_db')
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(
+            config_main.config.commands['device-neighbor'].commands['add'],
+                ['Ethernet8', '--name', 'Servers1', '--mgmt-addr', '10.217.0.3',
+                 '--local-port', 'Ethernet8', '--port', 'eth2', '--type', 'type'],
+                obj=db
+        )
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+
+        result = runner.invoke(
+            show_main.cli.commands['device-neighbor'], [], obj=db
+        )
+
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+        assert result.output == show_cmd_output.show_device_neighbor_added
+
+
+    def test_config_device_neighbor_delete(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'config_db')
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(
+            config_main.config.commands['device-neighbor'].commands['delete'],
+                ['Ethernet0'], obj=db
+        )
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+
+        result = runner.invoke(
+            show_main.cli.commands['device-neighbor'], [], obj=db
+        )
+
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+        assert result.output == show_cmd_output.show_device_neighbor_deleted
 
