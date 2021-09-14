@@ -195,3 +195,50 @@ class TestCliAutogen:
         assert result.exit_code == SUCCESS
         assert result.output == show_cmd_output.show_device_neighbor_deleted
 
+
+    @pytest.mark.parametrize("parameter,value,output", [
+        ('--mgmt-addr', '10.217.0.5', show_cmd_output.show_device_neighbor_updated_mgmt_addr),
+        ('--name', 'Servers1', show_cmd_output.show_device_neighbor_updated_name),
+        ('--local-port', 'Ethernet12', show_cmd_output.show_device_neighbor_updated_local_port),
+        ('--port', 'eth2', show_cmd_output.show_device_neighbor_updated_port),
+        ('--type', 'type2', show_cmd_output.show_device_neighbor_updated_type),
+    ])
+    def test_config_device_neighbor_update(self, parameter, value, output):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'config_db')
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(
+            config_main.config.commands['device-neighbor'].commands['update'],
+                ['Ethernet0', parameter, value], obj=db
+        )
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+
+        result = runner.invoke(
+            show_main.cli.commands['device-neighbor'], [], obj=db
+        )
+
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+        assert result.output == output
+
+
+    @pytest.mark.parametrize("parameter,value", [
+        ('--mgmt-addr', INVALID_VALUE),
+        ('--local-port', INVALID_VALUE)
+    ])
+    def test_config_device_neighbor_update_invalid(self, parameter, value):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'config_db')
+        db = Db()
+        runner = CliRunner()
+
+        result = runner.invoke(
+            config_main.config.commands['device-neighbor'].commands['update'],
+                ['Ethernet0', parameter, value], obj=db
+        )
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == ERROR
+
