@@ -19,14 +19,13 @@ logger = logging.getLogger(__name__)
 gen = CliGenerator(logger)
 
 test_path = os.path.dirname(os.path.abspath(__file__))
-mock_db_path = os.path.join(test_path, 'cli_autogen_input')
+mock_db_path = os.path.join(test_path, 'cli_autogen_input', 'config_db')
+config_db_path = os.path.join(test_path, 'cli_autogen_input', 'config_db.json')
+templates_path = os.path.join(test_path, '../', 'sonic-utilities-data', 'templates', 'sonic-cli-gen')
 
 SUCCESS = 0
 ERROR = 1
 INVALID_VALUE = 'INVALID'
-
-config_db_path = '/sonic/src/sonic-utilities/tests/cli_autogen_input/config_db.json'
-templates_path = '/sonic/src/sonic-utilities/sonic-utilities-data/templates/sonic-cli-gen/'
 
 test_yang_models = [
     'sonic-device_metadata.yang',
@@ -78,7 +77,7 @@ class TestCliAutogen:
 
 
     def test_show_device_metadata(self):
-        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'config_db')
+        dbconnector.dedicated_dbs['CONFIG_DB'] = mock_db_path
         db = Db()
         runner = CliRunner()
 
@@ -93,7 +92,7 @@ class TestCliAutogen:
 
 
     def test_config_device_metadata(self):
-        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'config_db')
+        dbconnector.dedicated_dbs['CONFIG_DB'] = mock_db_path
         db = Db()
         runner = CliRunner()
 
@@ -122,7 +121,7 @@ class TestCliAutogen:
         ('frr-mgmt-framework-config', INVALID_VALUE)
     ])
     def test_config_device_metadata_invalid(self, parameter, value):
-        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'config_db')
+        dbconnector.dedicated_dbs['CONFIG_DB'] = mock_db_path
         db = Db()
         runner = CliRunner()
 
@@ -136,7 +135,7 @@ class TestCliAutogen:
 
 
     def test_show_device_neighbor(self):
-        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'config_db')
+        dbconnector.dedicated_dbs['CONFIG_DB'] = mock_db_path
         db = Db()
         runner = CliRunner()
 
@@ -151,7 +150,7 @@ class TestCliAutogen:
 
 
     def test_config_device_neighbor_add(self):
-        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'config_db')
+        dbconnector.dedicated_dbs['CONFIG_DB'] = mock_db_path
         db = Db()
         runner = CliRunner()
 
@@ -175,7 +174,7 @@ class TestCliAutogen:
 
 
     def test_config_device_neighbor_delete(self):
-        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'config_db')
+        dbconnector.dedicated_dbs['CONFIG_DB'] = mock_db_path
         db = Db()
         runner = CliRunner()
 
@@ -204,7 +203,7 @@ class TestCliAutogen:
         ('--type', 'type2', show_cmd_output.show_device_neighbor_updated_type),
     ])
     def test_config_device_neighbor_update(self, parameter, value, output):
-        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'config_db')
+        dbconnector.dedicated_dbs['CONFIG_DB'] = mock_db_path
         db = Db()
         runner = CliRunner()
 
@@ -230,7 +229,7 @@ class TestCliAutogen:
         ('--local-port', INVALID_VALUE)
     ])
     def test_config_device_neighbor_update_invalid(self, parameter, value):
-        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'config_db')
+        dbconnector.dedicated_dbs['CONFIG_DB'] = mock_db_path
         db = Db()
         runner = CliRunner()
 
