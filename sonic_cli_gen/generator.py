@@ -9,8 +9,6 @@ from sonic_cli_gen.yang_parser import YangParser
 templates_path_switch = '/usr/share/sonic/templates/sonic-cli-gen/'
 
 
-
-
 class CliGenerator:
     """ SONiC CLI generator. This class provides public API
     for sonic-cli-gen python library. It can generate config,
