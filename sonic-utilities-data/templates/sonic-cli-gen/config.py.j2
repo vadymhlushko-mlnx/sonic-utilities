@@ -90,6 +90,9 @@ def update_entry_validated(db, table, key, data, create_if_not_exists=False):
     cfg = db.get_config()
     cfg.setdefault(table, {})
 
+    if not data:
+        raise Exception(f"No field/values to update {key}")
+
     if create_if_not_exists:
         cfg[table].setdefault(key, {})
 
