@@ -97,8 +97,8 @@ def update_entry_validated(db, table, key, data, create_if_not_exists=False):
         raise Exception(f"{key} does not exist")
 
     for attr, value in data.items():
-        if value is None and attr in cfg[table][key]:
-            cfg[table][key].pop(attr)
+        if value is None:
+            cfg[table][key].pop(attr, None)
         else:
             cfg[table][key][attr] = value
 
