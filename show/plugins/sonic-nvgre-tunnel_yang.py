@@ -1,16 +1,11 @@
 """
 Auto-generated show CLI plugin.
-
-
 """
 
 import click
 import tabulate
 import natsort
 import utilities_common.cli as clicommon
-
-
-
 
 
 def format_attr_value(entry, attr):
@@ -44,40 +39,19 @@ def format_group_value(entry, attrs):
     for attr in attrs:
         if entry.get(attr["name"]):
             data.append((attr["name"] + ":", format_attr_value(entry, attr)))
+
     return tabulate.tabulate(data, tablefmt="plain")
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@click.group(name="nvgre-tunnel",
-             cls=clicommon.AliasedGroup,
-             invoke_without_command=True)
+@click.group(
+    name="nvgre-tunnel",
+    cls=clicommon.AliasedGroup,
+    invoke_without_command=True)
 @clicommon.pass_db
 def NVGRE_TUNNEL(db):
     """  [Callable command group] """
 
-    header = [
-"TUNNEL NAME",
-
-"SRC IP",
-
-]
+    header = [ "TUNNEL NAME", "SRC IP" ]
 
     body = []
 
@@ -88,43 +62,32 @@ def NVGRE_TUNNEL(db):
             key = (key,)
 
         row = [*key] + [
-    format_attr_value(
-        entry,
-        {'name': 'src_ip', 'description': '', 'is-leaf-list': False, 'is-mandatory': True, 'group': ''}
-    ),
-]
+            format_attr_value(
+                entry,
+                {
+                    'name': 'src_ip',
+                    'description': '',
+                    'is-leaf-list': False,
+                    'is-mandatory': True,
+                    'group': ''
+                }
+            )
+        ]
 
         body.append(row)
 
     click.echo(tabulate.tabulate(body, header))
 
 
-
-
-
-
-
-
-
-
-
-
-
-@click.group(name="nvgre-tunnel-map",
-             cls=clicommon.AliasedGroup,
-             invoke_without_command=True)
+@click.group(
+    name="nvgre-tunnel-map",
+    cls=clicommon.AliasedGroup,
+    invoke_without_command=True)
 @clicommon.pass_db
 def NVGRE_TUNNEL_MAP(db):
     """  [Callable command group] """
 
-    header = [
-"TUNNEL NAME",
-"VLAN NAME",
-
-"VLAN ID",
-"VSID",
-
-]
+    header = [ "TUNNEL NAME", "VLAN NAME", "VLAN ID", "VSID" ]
 
     body = []
 
@@ -135,21 +98,31 @@ def NVGRE_TUNNEL_MAP(db):
             key = (key,)
 
         row = [*key] + [
-    format_attr_value(
-        entry,
-        {'name': 'vlan_id', 'description': '', 'is-leaf-list': False, 'is-mandatory': False, 'group': ''}
-    ),
-    format_attr_value(
-        entry,
-        {'name': 'vsid', 'description': '', 'is-leaf-list': False, 'is-mandatory': False, 'group': ''}
-    ),
-]
+            format_attr_value(
+                entry,
+                {
+                    'name': 'vlan_id',
+                    'description': '',
+                    'is-leaf-list': False,
+                    'is-mandatory': False,
+                    'group': ''
+                }
+            ),
+            format_attr_value(
+                entry,
+                {
+                    'name': 'vsid',
+                    'description': '',
+                    'is-leaf-list': False,
+                    'is-mandatory': False,
+                    'group': ''
+                }
+            )
+        ]
 
         body.append(row)
 
     click.echo(tabulate.tabulate(body, header))
-
-
 
 
 def register(cli):
@@ -169,3 +142,4 @@ def register(cli):
     if cli_node.name in cli.commands:
         raise Exception(f"{cli_node.name} already exists in CLI")
     cli.add_command(NVGRE_TUNNEL_MAP)
+
