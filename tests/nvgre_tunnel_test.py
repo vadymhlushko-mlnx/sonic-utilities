@@ -249,7 +249,6 @@ class TestNvgreTunnel:
         assert result.exit_code == ERROR
 
 
-    # bug
     def test_nvgre_tunnel_map_update(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'nvgre_tunnel_map')
         db = Db()
