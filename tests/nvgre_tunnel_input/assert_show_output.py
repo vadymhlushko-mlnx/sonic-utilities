@@ -31,3 +31,10 @@ TUNNEL NAME    SRC IP
 -------------  --------
 tunnel_1       10.0.0.2
 """
+
+
+show_nvgre_tunnel_map_updated="""\
+TUNNEL NAME    VLAN NAME      VLAN ID    VSID
+-------------  -----------  ---------  ------
+tunnel_1       Vlan1000          1000    6000
+"""
