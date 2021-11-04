@@ -250,26 +250,26 @@ class TestNvgreTunnel:
 
 
     # bug
-    #def test_nvgre_tunnel_map_update(self):
-    #    dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'nvgre_tunnel_map')
-    #    db = Db()
-    #    runner = CliRunner()
+    def test_nvgre_tunnel_map_update(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'nvgre_tunnel_map')
+        db = Db()
+        runner = CliRunner()
 
-    #    # add
-    #    result = runner.invoke(
-    #        config.config.commands["nvgre-tunnel-map"].commands["update"],
-    #        ["tunnel_1", "Vlan1000", "--vsid", "6000"], obj=db
-    #    )
+        # add
+        result = runner.invoke(
+            config.config.commands["nvgre-tunnel-map"].commands["update"],
+            ["tunnel_1", "Vlan1000", "--vsid", "6000"], obj=db
+        )
 
-    #    logger.debug("\n" + result.output)
-    #    logger.debug(result.exit_code)
-    #    assert result.exit_code == SUCCESS
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
 
-    #    # verify
-    #    result = runner.invoke(show.cli.commands["nvgre-tunnel-map"], [], obj=db)
+        # verify
+        result = runner.invoke(show.cli.commands["nvgre-tunnel-map"], [], obj=db)
 
-    #    logger.debug("\n" + result.output)
-    #    logger.debug(result.exit_code)
-    #    assert result.exit_code == SUCCESS
-    #    #assert result.output == assert_show_output.show_nvgre_tunnel_maps
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+        assert result.output == assert_show_output.show_nvgre_tunnel_map_updated
         
