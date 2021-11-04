@@ -9,6 +9,7 @@ Source YANG module: {{ source_yang_module }}
 {% endif %}
 """
 
+import copy
 import click
 import utilities_common.cli as clicommon
 import utilities_common.general as general
@@ -41,7 +42,7 @@ def validate_config_or_raise(cfg):
     """
 
     try:
-        cfg = sonic_cfggen.FormatConverter.to_serialized(cfg)
+        cfg = sonic_cfggen.FormatConverter.to_serialized(copy.deepcopy(cfg))
         config_mgmt.ConfigMgmt().loadData(cfg)
     except Exception as err:
         raise Exception('Failed to validate configuration: {}'.format(err))
