@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import pytest
 import os
 import logging
 import show.main as show
@@ -10,7 +9,6 @@ from .nvgre_tunnel_input import assert_show_output
 from utilities_common.db import Db
 from click.testing import CliRunner
 from .mock_tables import dbconnector
-from .mock_tables import mock_single_asic
 
 logger = logging.getLogger(__name__)
 test_path = os.path.dirname(os.path.abspath(__file__))
@@ -18,16 +16,15 @@ mock_db_path = os.path.join(test_path, "nvgre_tunnel_input")
 
 SUCCESS = 0
 ERROR = 1
-ERROR2 = 2
 
 INVALID_VALUE = 'INVALID'
 
 
-class TestPBH:
+class TestNvgreTunnel:
     @classmethod
     def setup_class(cls):
         logger.info("SETUP")
-        os.environ['UTILITIES_UNIT_TESTING'] = "1"
+        os.environ['UTILITIES_UNIT_TESTING'] = "2"
 
 
     @classmethod
@@ -166,7 +163,7 @@ class TestPBH:
 
     ######### NVGRE-TUNNEL-MAP #########
         
-    
+
     def test_nvgre_tunnel_maps_add_del(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'nvgre_tunnel')
         db = Db()
@@ -217,4 +214,60 @@ class TestPBH:
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
+
+
+    def test_nvgre_tunnel_map_add_invalid_vlan(self):
+        db = Db()
+        runner = CliRunner()
+
+        # add
+        result = runner.invoke(
+            config.config.commands["nvgre-tunnel-map"].commands["add"],
+            ["tunnel_1", "Vlan1500", "--vlan-id", "1500", "--vsid", "5000"], obj=db
+        )
+
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == ERROR
+
+
+    def test_nvgre_tunnel_map_add_invalid_vsid(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'nvgre_tunnel')
+        db = Db()
+        runner = CliRunner()
+
+        # add
+        result = runner.invoke(
+            config.config.commands["nvgre-tunnel-map"].commands["add"],
+            ["tunnel_1", "Vlan1000", "--vlan-id", "1000", "--vsid", "1"], obj=db
+        )
+
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == ERROR
+
+
+    # bug
+    #def test_nvgre_tunnel_map_update(self):
+    #    dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'nvgre_tunnel_map')
+    #    db = Db()
+    #    runner = CliRunner()
+
+    #    # add
+    #    result = runner.invoke(
+    #        config.config.commands["nvgre-tunnel-map"].commands["update"],
+    #        ["tunnel_1", "Vlan1000", "--vsid", "6000"], obj=db
+    #    )
+
+    #    logger.debug("\n" + result.output)
+    #    logger.debug(result.exit_code)
+    #    assert result.exit_code == SUCCESS
+
+    #    # verify
+    #    result = runner.invoke(show.cli.commands["nvgre-tunnel-map"], [], obj=db)
+
+    #    logger.debug("\n" + result.output)
+    #    logger.debug(result.exit_code)
+    #    assert result.exit_code == SUCCESS
+    #    #assert result.output == assert_show_output.show_nvgre_tunnel_maps
         
