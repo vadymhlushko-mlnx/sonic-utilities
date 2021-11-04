@@ -39,6 +39,7 @@ class TestNvgreTunnel:
 
 
     def test_nvgre_tunnel_add_del(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'empty_config_db')
         db = Db()
         runner = CliRunner()
 
@@ -72,6 +73,7 @@ class TestNvgreTunnel:
 
     
     def test_nvgre_tunnels_add_del(self):
+        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'empty_config_db')
         db = Db()
         runner = CliRunner()
 
