@@ -35,6 +35,15 @@ class TestNvgreTunnel:
         dbconnector.dedicated_dbs['CONFIG_DB'] = None
 
 
+    def verify_output(self, db, runner, cmd, output):
+        result = runner.invoke(show.cli.commands[cmd], [], obj=db)
+
+        logger.debug("\n" + result.output)
+        logger.debug(result.exit_code)
+        assert result.exit_code == SUCCESS
+        assert result.output == output
+
+
     ######### NVGRE-TUNNEL #########
 
 
@@ -54,12 +63,7 @@ class TestNvgreTunnel:
         assert result.exit_code == SUCCESS
 
         # verify
-        result = runner.invoke(show.cli.commands["nvgre-tunnel"], [], obj=db)
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == SUCCESS
-        assert result.output == assert_show_output.show_nvgre_tunnel
+        self.verify_output(db, runner, "nvgre-tunnel", assert_show_output.show_nvgre_tunnel)
         
         # delete
         result = runner.invoke(
@@ -70,6 +74,9 @@ class TestNvgreTunnel:
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
+
+        # verify
+        self.verify_output(db, runner, "nvgre-tunnel", assert_show_output.show_nvgre_tunnel_empty)
 
     
     def test_nvgre_tunnels_add_del(self):
@@ -97,12 +104,7 @@ class TestNvgreTunnel:
         assert result.exit_code == SUCCESS
 
         # verify
-        result = runner.invoke(show.cli.commands["nvgre-tunnel"], [], obj=db)
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == SUCCESS
-        assert result.output == assert_show_output.show_nvgre_tunnels
+        self.verify_output(db, runner, "nvgre-tunnel", assert_show_output.show_nvgre_tunnels)
         
         # delete
         result = runner.invoke(
@@ -123,31 +125,10 @@ class TestNvgreTunnel:
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
-
-    def test_nvgre_tunnel_update(self):
-        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'nvgre_tunnel')
-        db = Db()
-        runner = CliRunner()
-
-        # update
-        result = runner.invoke(
-            config.config.commands["nvgre-tunnel"].commands["update"],
-            ["tunnel_1", "--src-ip", "10.0.0.2"], obj=db
-        )
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == SUCCESS
-
         # verify
-        result = runner.invoke(show.cli.commands["nvgre-tunnel"], [], obj=db)
+        self.verify_output(db, runner, "nvgre-tunnel", assert_show_output.show_nvgre_tunnel_empty)
 
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == SUCCESS
-        assert result.output == assert_show_output.show_nvgre_tunnel_updated
 
-        
     def test_nvgre_tunnel_add_invalid(self):
         db = Db()
         runner = CliRunner()
@@ -161,6 +142,9 @@ class TestNvgreTunnel:
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
+
+        # verify
+        self.verify_output(db, runner, "nvgre-tunnel", assert_show_output.show_nvgre_tunnel_empty)
 
 
     ######### NVGRE-TUNNEL-MAP #########
@@ -191,12 +175,7 @@ class TestNvgreTunnel:
         assert result.exit_code == SUCCESS
 
         # verify
-        result = runner.invoke(show.cli.commands["nvgre-tunnel-map"], [], obj=db)
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == SUCCESS
-        assert result.output == assert_show_output.show_nvgre_tunnel_maps
+        self.verify_output(db, runner, "nvgre-tunnel-map", assert_show_output.show_nvgre_tunnel_maps)
 
         # delete
         result = runner.invoke(
@@ -217,6 +196,9 @@ class TestNvgreTunnel:
         logger.debug(result.exit_code)
         assert result.exit_code == SUCCESS
 
+        # verify
+        self.verify_output(db, runner, "nvgre-tunnel-map", assert_show_output.show_nvgre_tunnel_map_empty)
+
 
     def test_nvgre_tunnel_map_add_invalid_vlan(self):
         db = Db()
@@ -232,6 +214,9 @@ class TestNvgreTunnel:
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
+        # verify
+        self.verify_output(db, runner, "nvgre-tunnel-map", assert_show_output.show_nvgre_tunnel_map_empty)
+
 
     def test_nvgre_tunnel_map_add_invalid_vsid(self):
         dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'nvgre_tunnel')
@@ -241,34 +226,13 @@ class TestNvgreTunnel:
         # add
         result = runner.invoke(
             config.config.commands["nvgre-tunnel-map"].commands["add"],
-            ["tunnel_1", "Vlan1000", "--vlan-id", "1000", "--vsid", "1"], obj=db
+            ["tunnel_1", "Vlan1000", "--vlan-id", "1000", "--vsid", "999999999"], obj=db
         )
 
         logger.debug("\n" + result.output)
         logger.debug(result.exit_code)
         assert result.exit_code == ERROR
 
-
-    def test_nvgre_tunnel_map_update(self):
-        dbconnector.dedicated_dbs['CONFIG_DB'] = os.path.join(mock_db_path, 'nvgre_tunnel_map')
-        db = Db()
-        runner = CliRunner()
-
-        # add
-        result = runner.invoke(
-            config.config.commands["nvgre-tunnel-map"].commands["update"],
-            ["tunnel_1", "Vlan1000", "--vsid", "6000"], obj=db
-        )
-
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == SUCCESS
-
         # verify
-        result = runner.invoke(show.cli.commands["nvgre-tunnel-map"], [], obj=db)
+        self.verify_output(db, runner, "nvgre-tunnel-map", assert_show_output.show_nvgre_tunnel_map_empty)
 
-        logger.debug("\n" + result.output)
-        logger.debug(result.exit_code)
-        assert result.exit_code == SUCCESS
-        assert result.output == assert_show_output.show_nvgre_tunnel_map_updated
-        
