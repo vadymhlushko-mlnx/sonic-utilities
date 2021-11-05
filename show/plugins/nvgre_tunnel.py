@@ -1,5 +1,5 @@
 """
-Auto-generated show CLI plugin.
+Auto-generated show CLI plugin for NVGRE Tunnel feature.
 """
 
 import click
@@ -39,8 +39,7 @@ def format_group_value(entry, attrs):
     for attr in attrs:
         if entry.get(attr["name"]):
             data.append((attr["name"] + ":", format_attr_value(entry, attr)))
-
-    return tabulate.tabulate(data, tablefmt="plain")
+    return tabulate.tabulate(data, tablefmt="plain", numalign="left")
 
 
 @click.group(
@@ -61,22 +60,22 @@ def NVGRE_TUNNEL(db):
         if not isinstance(key, tuple):
             key = (key,)
 
-        row = [*key] + [
-            format_attr_value(
-                entry,
-                {
-                    'name': 'src_ip',
-                    'description': '',
-                    'is-leaf-list': False,
-                    'is-mandatory': True,
-                    'group': ''
-                }
-            )
-        ]
+            row = [*key] + [
+                format_attr_value(
+                    entry,
+                    {
+                        'name': 'src_ip',
+                        'description': 'Source IP address',
+                        'is-leaf-list': False,
+                        'is-mandatory': True,
+                        'group': ''
+                    }
+                )
+            ]
 
         body.append(row)
 
-    click.echo(tabulate.tabulate(body, header))
+    click.echo(tabulate.tabulate(body, header, numalign="left"))
 
 
 @click.group(
@@ -87,7 +86,12 @@ def NVGRE_TUNNEL(db):
 def NVGRE_TUNNEL_MAP(db):
     """  [Callable command group] """
 
-    header = [ "TUNNEL NAME", "VLAN NAME", "VLAN ID", "VSID" ]
+    header = [
+        "TUNNEL NAME",
+        "VLAN NAME",
+        "VLAN ID",
+        "VSID"
+    ]
 
     body = []
 
@@ -102,9 +106,9 @@ def NVGRE_TUNNEL_MAP(db):
                 entry,
                 {
                     'name': 'vlan_id',
-                    'description': '',
+                    'description': 'VLAN identifier',
                     'is-leaf-list': False,
-                    'is-mandatory': False,
+                    'is-mandatory': True,
                     'group': ''
                 }
             ),
@@ -112,9 +116,9 @@ def NVGRE_TUNNEL_MAP(db):
                 entry,
                 {
                     'name': 'vsid',
-                    'description': '',
+                    'description': 'Virtual Subnet Identifier',
                     'is-leaf-list': False,
-                    'is-mandatory': False,
+                    'is-mandatory': True,
                     'group': ''
                 }
             )
@@ -122,7 +126,7 @@ def NVGRE_TUNNEL_MAP(db):
 
         body.append(row)
 
-    click.echo(tabulate.tabulate(body, header))
+    click.echo(tabulate.tabulate(body, header, numalign="left"))
 
 
 def register(cli):
