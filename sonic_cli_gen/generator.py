@@ -47,7 +47,10 @@ class CliGenerator:
 
         loader = jinja2.FileSystemLoader(templates_path)
         j2_env = jinja2.Environment(loader=loader)
-        template = j2_env.get_template(cli_group + '.py.j2')
+        try:
+            template = j2_env.get_template(cli_group + '.py.j2')
+        except jinja2.exceptions.TemplateNotFound:
+            self.logger.error(' Templates for auto-generation does NOT exist in folder {}'.format(templates_path))
 
         plugin_path = get_cli_plugin_path(cli_group, plugin_name + '_yang.py')
 
@@ -67,7 +70,7 @@ class CliGenerator:
             os.remove(plugin_path)
             self.logger.info(' {} was removed.'.format(plugin_path))
         else:
-            self.logger.info(' Path {} doest NOT exist!'.format(plugin_path))
+            self.logger.warning(' Path {} doest NOT exist!'.format(plugin_path))
 
 
 def get_cli_plugin_path(command, plugin_name):
