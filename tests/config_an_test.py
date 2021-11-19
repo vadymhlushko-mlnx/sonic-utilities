@@ -42,6 +42,26 @@ class TestConfigInterface(object):
         assert 'Invalid speed' in result.output
         assert 'Valid speeds:' in result.output
         self.basic_check("speed", ["Ethernet0", "invalid"], ctx, operator.ne)
+        # 499 is not a supported speed
+        result = self.basic_check("speed", ["Ethernet0", "499"], ctx, operator.ne)
+        assert 'Invalid speed' in result.output
+        assert 'Valid speeds:' in result.output
+        self.basic_check("speed", ["Ethernet0", "invalid"], ctx, operator.ne)
+        # 10 is not a supported speed
+        result = self.basic_check("speed", ["Ethernet0", "10"], ctx, operator.ne)
+        assert 'Invalid speed' in result.output
+        assert 'Valid speeds:' in result.output
+        self.basic_check("speed", ["Ethernet0", "invalid"], ctx, operator.ne)
+        # 250 is not a supported speed
+        result = self.basic_check("speed", ["Ethernet0", "250"], ctx, operator.ne)
+        assert 'Invalid speed' in result.output
+        assert 'Valid speeds:' in result.output
+        self.basic_check("speed", ["Ethernet0", "invalid"], ctx, operator.ne)
+        # 400 is not a supported speed
+        result = self.basic_check("speed", ["Ethernet0", "400"], ctx, operator.ne)
+        assert 'Invalid speed' in result.output
+        assert 'Valid speeds:' in result.output
+        self.basic_check("speed", ["Ethernet0", "invalid"], ctx, operator.ne)
 
     def test_config_adv_speeds(self, ctx):
         self.basic_check("advertised-speeds", ["Ethernet0", "40000,100000"], ctx)
