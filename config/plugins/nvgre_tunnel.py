@@ -273,7 +273,7 @@ def NVGRE_TUNNEL_MAP():
     required=True,
 )
 @click.argument(
-    "vlan-name",
+    "tunnel-map-name",
     nargs=1,
     required=True,
 )
@@ -289,11 +289,11 @@ def NVGRE_TUNNEL_MAP():
     help="Virtual Subnet Identifier[mandatory]",
 )
 @clicommon.pass_db
-def NVGRE_TUNNEL_MAP_add(db, tunnel_name, vlan_name, vlan_id, vsid):
+def NVGRE_TUNNEL_MAP_add(db, tunnel_name, tunnel_map_name, vlan_id, vsid):
     """ Add object in NVGRE_TUNNEL_MAP. """
 
     table = "NVGRE_TUNNEL_MAP"
-    key = tunnel_name, vlan_name
+    key = tunnel_name, tunnel_map_name
     data = {}
     if vlan_id is not None:
         data["vlan_id"] = vlan_id
@@ -313,16 +313,16 @@ def NVGRE_TUNNEL_MAP_add(db, tunnel_name, vlan_name, vlan_id, vsid):
     required=True,
 )
 @click.argument(
-    "vlan-name",
+    "tunnel-map-name",
     nargs=1,
     required=True,
 )
 @clicommon.pass_db
-def NVGRE_TUNNEL_MAP_delete(db, tunnel_name, vlan_name):
+def NVGRE_TUNNEL_MAP_delete(db, tunnel_name, tunnel_map_name):
     """ Delete object in NVGRE_TUNNEL_MAP. """
 
     table = "NVGRE_TUNNEL_MAP"
-    key = tunnel_name, vlan_name
+    key = tunnel_name, tunnel_map_name
     try:
         del_entry_validated(db.cfgdb, table, key)
     except Exception as err:

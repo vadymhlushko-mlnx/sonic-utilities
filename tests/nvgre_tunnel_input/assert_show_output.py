@@ -25,15 +25,15 @@ tunnel_2       10.0.0.2
 
 
 show_nvgre_tunnel_maps="""\
-TUNNEL NAME    VLAN NAME    VLAN ID    VSID
--------------  -----------  ---------  ------
-tunnel_1       Vlan1000     1000       5000
-tunnel_1       Vlan2000     2000       6000
+TUNNEL NAME    TUNNEL MAP NAME    VLAN ID    VSID
+-------------  -----------------  ---------  ------
+tunnel_1       Vlan1000           1000       5000
+tunnel_1       Vlan2000           2000       6000
 """
 
 
 show_nvgre_tunnel_map_empty="""\
-TUNNEL NAME    VLAN NAME    VLAN ID    VSID
--------------  -----------  ---------  ------
+TUNNEL NAME    TUNNEL MAP NAME    VLAN ID    VSID
+-------------  -----------------  ---------  ------
 """
 

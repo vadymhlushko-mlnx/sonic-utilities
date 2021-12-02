@@ -88,7 +88,7 @@ def NVGRE_TUNNEL_MAP(db):
 
     header = [
         "TUNNEL NAME",
-        "VLAN NAME",
+        "TUNNEL MAP NAME",
         "VLAN ID",
         "VSID"
     ]
