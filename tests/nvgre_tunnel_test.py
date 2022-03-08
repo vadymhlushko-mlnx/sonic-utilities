@@ -207,7 +207,7 @@ class TestNvgreTunnel:
         # add
         result = runner.invoke(
             config.config.commands["nvgre-tunnel-map"].commands["add"],
-            ["tunnel_1", "Vlan1500", "--vlan-id", "1500", "--vsid", "5000"], obj=db
+            ["tunnel_1", "Vlan5000", "--vlan-id", "5000", "--vsid", "5000"], obj=db
         )
 
         logger.debug("\n" + result.output)
