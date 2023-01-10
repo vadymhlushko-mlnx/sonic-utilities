@@ -276,8 +276,7 @@ save_to_tar() {
     local start_t=$(date +%s%3N)
     local end_t=0
 
-    cd $DUMPDIR
-    $TAR $V -rhf $TARFILE "$BASE"
+    $TAR $V -rhf $TARFILE -C $DUMPDIR "$BASE"
 
     end_t=$(date +%s%3N)
     echo "[ save_to_tar ] : $(($end_t-$start_t)) msec" >> $TECHSUPPORT_TIME_INFO
@@ -972,7 +971,6 @@ save_symlink() {
     local filename=$1
     local dest_dir=$2
     local src_dir=$3
-    local do_tar_append=${4:-true}
     local file_basename=$(basename $filename)
     local tar_path="$BASE/$dest_dir/$file_basename"
 
@@ -982,11 +980,6 @@ save_symlink() {
     ${CMD_PREFIX}ln -s ../$src_dir/$file_basename $file_basename
     ${CMD_PREFIX}popd
 
-    if $do_tar_append; then
-        ($TAR $V -rf $TARFILE -C $DUMPDIR "$tar_path" \
-            || abort "${EXT_PROCFS_SAVE_FAILED}" "tar append operation failed. Aborting to prevent data loss.") \
-            && $RM $V -f "$DUMPDIR/$tar_path"
-    fi
     end_t=$(date +%s%3N)
     echo "[ save_symlink:$filename] : $(($end_t-$start_t)) msec"  >> $TECHSUPPORT_TIME_INFO
 }
@@ -1588,10 +1581,6 @@ main() {
 
     # 2nd counter snapshot late. Need 2 snapshots to make sense of counters trend.
     save_counter_snapshot $asic 2
-
-    $RM $V -rf $TARDIR
-    $MKDIR $V -p $TARDIR
-    $MKDIR $V -p $LOGDIR
 
     # Copying the /etc files to a directory and then tar it
     $CP -r /etc $TARDIR/etc
