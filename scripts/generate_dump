@@ -920,6 +920,7 @@ save_platform_info() {
 #  filename: the full path of the file to save
 #  base_dir: the directory in $TARDIR/ to stage the file
 #  do_gzip: (OPTIONAL) true or false. Should the output be gzipped
+#  do_tar_append: (OPTIONAL) true or false. Should the output be added to final tar archive
 # Returns:
 #  None
 ###############################################################################
@@ -930,13 +931,16 @@ save_file() {
     local orig_path=$1
     local supp_dir=$2
     local gz_path="$TARDIR/$supp_dir/$(basename $orig_path)"
+    local tar_path="${BASE}/$supp_dir/$(basename $orig_path)"
     local do_gzip=${3:-true}
+    local do_tar_append=${4:-false}
     if [ ! -d "$TARDIR/$supp_dir" ]; then
         $MKDIR $V -p "$TARDIR/$supp_dir"
     fi
 
     if $do_gzip; then
         gz_path="${gz_path}.gz"
+        tar_path="${tar_path}.gz"
         if $NOOP; then
             echo "gzip -c $orig_path > $gz_path"
         else
@@ -948,6 +952,12 @@ save_file() {
         else
             cp $orig_path $gz_path
         fi
+    fi
+
+    if $do_tar_append; then
+        ($TAR $V -rhf $TARFILE -C $DUMPDIR "$tar_path" \
+            || abort "${EXT_PROCFS_SAVE_FAILED}" "tar append operation failed. Aborting to prevent data loss.") \
+            && $RM $V -f "$gz_path"
     fi
 
     end_t=$(date +%s%3N)
@@ -1139,9 +1149,9 @@ collect_mellanox_dfw_dumps() {
             ${CMD_PREFIX}save_symlink ${file} sai_sdk_dump log
         else
             if [ ! -z "${file##*.gz}" ]; then
-                ${CMD_PREFIX}save_file ${file} sai_sdk_dump true
+                ${CMD_PREFIX}save_file ${file} sai_sdk_dump true true
             else
-                ${CMD_PREFIX}save_file ${file} sai_sdk_dump false
+                ${CMD_PREFIX}save_file ${file} sai_sdk_dump false true
             fi
         fi
     done
@@ -1734,7 +1744,7 @@ main() {
     $RM $V -rf $TARDIR/etc/alternatives $TARDIR/etc/passwd* \
     $TARDIR/etc/shadow* $TARDIR/etc/group* $TARDIR/etc/gshadow* \
     $TARDIR/etc/ssh* $TARDIR/etc/mlnx $TARDIR/etc/mft \
-    $TARDIR/etc/ssl/certs/ $TARDIR/etc/ssl/private/*
+    $TARDIR/etc/ssl/certs/* $TARDIR/etc/ssl/private/*
     rm_list=$(find -L $TARDIR -type f \( -iname \*.cer -o -iname \*.crt -o \
         -iname \*.pem -o -iname \*.key -o -iname \*snmpd.conf\* -o -iname \*get_creds\* \))
     if [ ! -z "$rm_list" ]
@@ -1746,6 +1756,8 @@ main() {
     save_crash_files &
     save_warmboot_files &
     wait
+
+    save_to_tar
 
     save_sai_failure_dump 
 
@@ -1761,9 +1773,7 @@ main() {
 ###############################################################################
 finalize() {
     # Save techsupport timing profile info
-    save_file $TECHSUPPORT_TIME_INFO log false
-
-    save_to_tar
+    save_file $TECHSUPPORT_TIME_INFO log false true
 
     if $DO_COMPRESS; then
         RC=0
