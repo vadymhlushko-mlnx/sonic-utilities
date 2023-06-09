@@ -447,6 +447,20 @@ class DBMigrator():
         self.migrate_qos_db_fieldval_reference_remove(qos_table_list, self.configDB, self.configDB.CONFIG_DB, '|')
         return True
 
+    def migrate_config_db_flex_counter_delay_status(self):
+        """
+        Migrate "FLEX_COUNTER_TABLE|*": { "value": { "FLEX_COUNTER_DELAY_STATUS": "false" } }
+        Set FLEX_COUNTER_DELAY_STATUS true in case of fast-reboot
+        """
+
+        flex_counter_objects = self.configDB.get_keys('FLEX_COUNTER_TABLE')
+        for obj in flex_counter_objects:
+            flex_counter = self.configDB.get_entry('FLEX_COUNTER_TABLE', obj)
+            delay_status = flex_counter.get('FLEX_COUNTER_DELAY_STATUS')
+            if delay_status is None or delay_status == 'false':
+                flex_counter['FLEX_COUNTER_DELAY_STATUS'] = 'true'
+                self.configDB.mod_entry('FLEX_COUNTER_TABLE', obj, flex_counter)
+
     def version_unknown(self):
         """
         version_unknown tracks all SONiC versions that doesn't have a version
@@ -627,9 +641,21 @@ class DBMigrator():
 
     def version_2_0_4(self):
         """
-        Current latest version. Nothing to do here.
+        Version 2_0_4
         """
         log.log_info('Handling version_2_0_4')
+
+        if self.stateDB.keys(self.stateDB.STATE_DB, "FAST_REBOOT|system"):
+            self.migrate_config_db_flex_counter_delay_status()
+
+        self.set_version('version_2_0_5')
+        return 'version_2_0_5'
+
+    def version_2_0_5(self):
+        """
+        Current latest version. Nothing to do here.
+        """
+        log.log_info('Handling version_2_0_5')
         return None
 
     def get_version(self):
