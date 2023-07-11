@@ -590,7 +590,7 @@ class TestWarmUpgrade_T0_EdgeZoneAggregator(object):
         assert not diff
 
 
-class TestFastUpgrade_to_3_0_6(object):
+class TestFastUpgrade_to_4_0_2(object):
     @classmethod
     def setup_class(cls):
         os.environ['UTILITIES_UNIT_TESTING'] = "2"
@@ -613,9 +613,9 @@ class TestFastUpgrade_to_3_0_6(object):
         for table in self.config_db_tables_to_verify:
             assert result.get_table(table) == expected.get_table(table)
 
-    def test_fast_reboot_upgrade_to_3_0_6(self):
-        db_before_migrate = 'cross_branch_upgrade_to_3_0_6_input'
-        db_after_migrate = 'cross_branch_upgrade_to_3_0_6_expected'
+    def test_fast_reboot_upgrade_to_4_0_2(self):
+        db_before_migrate = 'cross_branch_upgrade_to_4_0_2_input'
+        db_after_migrate = 'cross_branch_upgrade_to_4_0_2_expected'
         device_info.get_sonic_version_info = get_sonic_version_info_mlnx
         db = self.mock_dedicated_config_db(db_before_migrate)
         import db_migrator
@@ -623,4 +623,4 @@ class TestFastUpgrade_to_3_0_6(object):
         dbmgtr.migrate()
         expected_db = self.mock_dedicated_config_db(db_after_migrate)
         assert not self.check_config_db(dbmgtr.configDB, expected_db.cfgdb)
-
+        assert dbmgtr.CURRENT_VERSION == expected_db.cfgdb.get_entry('VERSIONS', 'DATABASE')['VERSION']
