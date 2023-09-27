@@ -278,14 +278,14 @@ def config_logging(args):
 
 def run_command(cmd):
     """Runs a command and returns its output."""
-    WRITE_LOG_DEBUG("Running command: %s", cmd)
+    WRITE_LOG_WARN("Running command: %s", cmd)
     try:
         p = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         (output, _) = p.communicate()
     except Exception as details:
         raise RuntimeError("Failed to run command: %s", details)
-    WRITE_LOG_DEBUG("Command output: %s", output)
-    WRITE_LOG_DEBUG("Command return code: %s", p.returncode)
+    WRITE_LOG_WARN("Command output: %s", output)
+    WRITE_LOG_WARN("Command return code: %s", p.returncode)
     if p.returncode != 0:
         raise RuntimeError("Command failed with return code %s: %s" % (p.returncode, output))
     return output.decode()
@@ -321,12 +321,12 @@ def read_tables_from_db(appl_db):
     asic_fdb = {k: v.lstrip("oid:0x") for k, v in tables["asic_fdb"].items()}
     asic_route_table = tables["asic_route_table"]
     asic_neigh_table = tables["asic_neigh_table"]
-    WRITE_LOG_DEBUG("neighbors: %s", json.dumps(neighbors, indent=4))
-    WRITE_LOG_DEBUG("mux states: %s", json.dumps(mux_states, indent=4))
-    WRITE_LOG_DEBUG("hw mux states: %s", json.dumps(hw_mux_states, indent=4))
-    WRITE_LOG_DEBUG("ASIC FDB: %s", json.dumps(asic_fdb, indent=4))
-    WRITE_LOG_DEBUG("ASIC route table: %s", json.dumps(asic_route_table, indent=4))
-    WRITE_LOG_DEBUG("ASIC neigh table: %s", json.dumps(asic_neigh_table, indent=4))
+    WRITE_LOG_WARN("neighbors: %s", json.dumps(neighbors, indent=4))
+    WRITE_LOG_WARN("mux states: %s", json.dumps(mux_states, indent=4))
+    WRITE_LOG_WARN("hw mux states: %s", json.dumps(hw_mux_states, indent=4))
+    WRITE_LOG_WARN("ASIC FDB: %s", json.dumps(asic_fdb, indent=4))
+    WRITE_LOG_WARN("ASIC route table: %s", json.dumps(asic_route_table, indent=4))
+    WRITE_LOG_WARN("ASIC neigh table: %s", json.dumps(asic_neigh_table, indent=4))
     return neighbors, mux_states, hw_mux_states, asic_fdb, asic_route_table, asic_neigh_table
 
 
@@ -482,7 +482,7 @@ if __name__ == "__main__":
     mux_cables = get_mux_cable_config(config_db)
 
     if not is_dualtor(config_db) or not mux_cables:
-        WRITE_LOG_DEBUG("Not a valid dualtor setup, skip the check.")
+        WRITE_LOG_WARN("Not a valid dualtor setup, skip the check.")
         sys.exit(0)
 
     mux_server_to_port_map = get_mux_server_to_port_map(mux_cables)
